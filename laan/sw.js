@@ -3,7 +3,7 @@ const VERSION = "laan-v1";
 const SHELL = "shell-" + VERSION;
 const EXTERNAL = "ext-" + VERSION;
 const EXTERNAL_MAX = 150;
-const SHELL_FILES = ["/", "/index.html", "/manifest.json", "/icon.svg"];
+const SHELL_FILES = ["./", "./index.html", "./manifest.json", "./icon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -40,7 +40,7 @@ async function networkFirst(request) {
     const hit = await cache.match(request, { ignoreSearch: true });
     if (hit) return hit;
     if (request.mode === "navigate") {
-      const page = (await cache.match("/index.html")) || (await cache.match("/"));
+      const page = (await cache.match("./index.html")) || (await cache.match("./"));
       if (page) return page;
     }
     throw err;
@@ -73,7 +73,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
 
   if (url.origin === self.location.origin) {
-    if (url.pathname.startsWith("/api/")) return; // always network, never cached
+    if (url.pathname.includes("/api/")) return; // always network, never cached
     event.respondWith(networkFirst(request));
     return;
   }
