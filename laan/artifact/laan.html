@@ -1,0 +1,2709 @@
+<title>לאן?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&family=Secular+One&display=swap">
+<style>
+/* לאן? as a Claude Artifact.
+   Layout: on a phone (≤ 600px) the app is the whole page. Wider, the app sits in an Android phone
+   (412×915 logical, scaled to the height) with a small presenter panel beside or under it. */
+:root{
+  --ground:#F7F3EC; --surface:#FFFFFF; --surface2:#EFE7D8; --ink:#1A1814; --ink2:#4A443B;
+  --act:#0B3D91; --act-edge:#072A66; --act-ink:#FFFFFF; --ring:#C3D2EC; --focus:#0B3D91;
+  --yes:#12602F; --yes-edge:#0A4320; --no:#B00020; --no-edge:#74000F; --yes-ink:#FFFFFF; --no-ink:#FFFFFF;
+  --amber:#FFE7A3; --amber-edge:#A86F00; --press:#E3D8C3; --placeholder:#5A534A;
+  --band:#FFD400; --band-ink:#1A1814; --plate:#FFFFFF; --plate-ink:#1A1814;
+  --lift:0 1px 2px rgba(26,24,20,.08), 0 8px 24px rgba(26,24,20,.06);
+  --map-bg:#E9E1D2; --map-street:#FFFFFF; --map-bus:#8C8272; --map-stop:#FFFFFF; --map-me:#0B3D91; --map-pin:#B00020;
+  /* presenter page (not the app): never touched by the in-app שחור־צהוב setting */
+  --pg-bg:#E6DECF; --pg-surface:#FFFFFF; --pg-ink:#1A1814; --pg-ink2:#463F35; --pg-line:#D5CBB9;
+  --pg-act:#0B3D91; --pg-act-ink:#FFFFFF; --pg-chip:#F3EDE2; --pg-chip-on:#0B3D91; --pg-chip-on-ink:#FFFFFF;
+  --bezel:#141414; --bezel-edge:#2A2A2A;
+  --s:1;                                   /* reading-text scale: ענק = 1.2 (buttons stay) */
+  --ui:"Rubik", Arial, sans-serif;
+  --sign:"Secular One", "Rubik", Arial, sans-serif;
+  --pad:20px; --gap:24px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#16130F; --surface:#221E19; --surface2:#2E2922; --ink:#F4EFE6; --ink2:#D3CABC;
+    --act:#8AB4FF; --act-edge:#4F7FD6; --act-ink:#0B1430; --ring:#2C4A80; --focus:#BFD4FF;
+    --yes:#74D39A; --yes-edge:#3E9A63; --no:#FF9A8F; --no-edge:#C85A50; --yes-ink:#062313; --no-ink:#3D0008;
+    --amber:#FFE7A3; --amber-edge:#E0A93A; --press:#3A342B; --placeholder:#CFC5B6;
+    --band:#FFD400; --band-ink:#1A1814; --plate:#FFFFFF; --plate-ink:#1A1814;
+    --lift:0 1px 2px rgba(0,0,0,.5);
+    --map-bg:#25211B; --map-street:#3B352C; --map-bus:#9A9080; --map-stop:#221E19; --map-me:#8AB4FF; --map-pin:#FF9A8F;
+    --pg-bg:#0F0D0A; --pg-surface:#1C1915; --pg-ink:#F4EFE6; --pg-ink2:#C9BFAF; --pg-line:#3A342B;
+    --pg-act:#8AB4FF; --pg-act-ink:#0B1430; --pg-chip:#2A251F; --pg-chip-on:#8AB4FF; --pg-chip-on-ink:#0B1430;
+    --bezel:#050505; --bezel-edge:#3A3A3A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#16130F; --surface:#221E19; --surface2:#2E2922; --ink:#F4EFE6; --ink2:#D3CABC;
+  --act:#8AB4FF; --act-edge:#4F7FD6; --act-ink:#0B1430; --ring:#2C4A80; --focus:#BFD4FF;
+  --yes:#74D39A; --yes-edge:#3E9A63; --no:#FF9A8F; --no-edge:#C85A50; --yes-ink:#062313; --no-ink:#3D0008;
+  --amber:#FFE7A3; --amber-edge:#E0A93A; --press:#3A342B; --placeholder:#CFC5B6;
+  --band:#FFD400; --band-ink:#1A1814; --plate:#FFFFFF; --plate-ink:#1A1814;
+  --lift:0 1px 2px rgba(0,0,0,.5);
+  --map-bg:#25211B; --map-street:#3B352C; --map-bus:#9A9080; --map-stop:#221E19; --map-me:#8AB4FF; --map-pin:#FF9A8F;
+  --pg-bg:#0F0D0A; --pg-surface:#1C1915; --pg-ink:#F4EFE6; --pg-ink2:#C9BFAF; --pg-line:#3A342B;
+  --pg-act:#8AB4FF; --pg-act-ink:#0B1430; --pg-chip:#2A251F; --pg-chip-on:#8AB4FF; --pg-chip-on-ink:#0B1430;
+  --bezel:#050505; --bezel-edge:#3A3A3A;
+  color-scheme:dark;
+}
+html[data-size="xl"]{ --s:1.2; }
+/* the in-app שחור־צהוב setting wins over light and dark (html:root outranks :root:not(...)) */
+html:root[data-contrast="hc"]{
+  --ground:#000000; --surface:#000000; --surface2:#000000; --ink:#FFE14D; --ink2:#FFE14D;
+  --act:#FFE14D; --act-edge:#A88E00; --act-ink:#000000; --ring:#6B5C00; --focus:#FFFFFF;
+  --yes:#FFE14D; --yes-edge:#A88E00; --no:#FFE14D; --no-edge:#A88E00; --yes-ink:#000000; --no-ink:#000000;
+  --amber:#FFE14D; --amber-edge:#FFE14D; --press:#3A3000; --placeholder:#FFE14D;
+  --band:#FFE14D; --band-ink:#000000; --plate:#000000; --plate-ink:#FFE14D; --lift:none;
+  --map-bg:#000000; --map-street:#3A3A3A; --map-bus:#FFE14D; --map-stop:#000000; --map-me:#FFE14D; --map-pin:#FFE14D;
+}
+*{ box-sizing:border-box; }
+[hidden]{ display:none !important; }
+html,body{ margin:0; width:100%; height:100%; }
+body{ background:var(--pg-bg); color:var(--pg-ink); font-family:var(--ui); overflow:hidden; overscroll-behavior:none; -webkit-text-size-adjust:100%; }
+#laan{ height:100%; width:100%;
+  --sa-t:env(safe-area-inset-top, 0px); --sa-b:env(safe-area-inset-bottom, 0px);
+  --sa-l:env(safe-area-inset-left, 0px); --sa-r:env(safe-area-inset-right, 0px); }
+bdi{ unicode-bidi:isolate; }
+.screen bdi{ white-space:nowrap; }   /* a number (a phone number too) never breaks across lines */
+
+/* ---- the stage: phone screen + presenter panel ---- */
+.stage{ height:100%; width:100%; }
+.pwrap{ position:relative; width:100%; height:100%; }
+.phone{ position:relative; width:100%; height:100%; }
+.cam{ display:none; }
+.screen{
+  position:relative; width:100%; height:100%; overflow:hidden; container:screen / size;
+  background:var(--ground); color:var(--ink);
+  font-family:var(--ui); font-weight:500; font-size:32px; line-height:1.3;
+  overflow-wrap:break-word; font-variant-numeric:tabular-nums;
+}
+.pp{ display:none; }
+@media (min-width: 601px){
+  #laan{ --sa-t:0px; --sa-b:0px; --sa-l:0px; --sa-r:0px; }
+  .stage{ display:flex; align-items:center; justify-content:center; gap:40px; padding:24px; }
+  .pwrap{ flex:0 0 auto; width:calc(436px * var(--k, 1)); height:calc(939px * var(--k, 1)); }
+  .phone{ position:absolute; top:0; left:0; width:436px; height:939px; padding:12px; border-radius:44px;
+    background:var(--bezel); box-shadow:0 0 0 2px var(--bezel-edge), 0 24px 60px rgba(40,30,10,.28);
+    transform:scale(var(--k, 1)); transform-origin:0 0; }
+  /* the punch hole sits on the top edge of the glass, above the app's top row, so it never covers text */
+  .cam{ display:block; position:absolute; top:5px; left:50%; width:12px; height:12px; margin-left:-6px; border-radius:50%;
+    background:#000; box-shadow:0 0 0 2px #262626; z-index:2000; pointer-events:none; }
+  .screen{ width:412px; height:915px; border-radius:32px; }
+  .pp{ display:flex; }
+}
+@media (min-width: 601px) and (max-width: 1099px){
+  body{ overflow-y:auto; }
+  .stage{ height:auto; min-height:100%; flex-direction:column; justify-content:flex-start; padding:24px 16px 48px; }
+}
+
+/* ---- presenter panel: for the person showing the app, small type ---- */
+.pp{ flex-direction:column; gap:16px; width:340px; max-height:100%; overflow-y:auto; padding:20px; border-radius:20px;
+  background:var(--pg-surface); color:var(--pg-ink); font-size:16px; line-height:1.45; font-weight:400;
+  box-shadow:0 1px 2px rgba(26,24,20,.08), 0 8px 24px rgba(26,24,20,.08); }
+@media (min-width: 601px) and (max-width: 1099px){ .pp{ width:min(100%, 720px); max-height:none; overflow:visible; } }
+.pp-head{ display:flex; align-items:center; gap:12px; }
+.pp-mark{ font-family:var(--sign); font-size:22px; line-height:1.2; background:#FFD400; color:#1A1814; border-radius:8px; padding:2px 10px; }
+.pp-title{ font-weight:700; font-size:18px; margin:0; }
+.pp-note{ margin:0; color:var(--pg-ink2); font-size:16px; }
+.pp button{ font-family:var(--ui); cursor:pointer; border:0; margin:0; }
+.pp button:focus-visible, .pp a:focus-visible{ outline:3px solid var(--pg-act); outline-offset:2px; }
+.pp-run{ min-height:48px; border-radius:12px; padding:8px 16px; background:var(--pg-act); color:var(--pg-act-ink); font-weight:700; font-size:18px; width:100%; }
+.pp-status{ margin:0; font-size:16px; color:var(--pg-ink2); min-height:1.45em; font-variant-numeric:tabular-nums; }
+.pp-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.pp-row > span{ font-weight:700; font-size:16px; min-width:3.5em; }
+.seg{ display:inline-flex; border-radius:10px; overflow:hidden; box-shadow:inset 0 0 0 2px var(--pg-line); }
+.seg button{ min-height:40px; min-width:64px; padding:4px 14px; background:transparent; color:var(--pg-ink); font-size:16px; font-weight:500; }
+.seg button[aria-pressed="true"]{ background:var(--pg-chip-on); color:var(--pg-chip-on-ink); font-weight:700; }
+.pp-group{ display:flex; flex-direction:column; gap:8px; border-top:1px solid var(--pg-line); padding-top:12px; }
+.pp-group h3{ margin:0; font-size:16px; font-weight:700; }
+.pp-group h4{ margin:4px 0 0; font-size:16px; font-weight:500; color:var(--pg-ink2); }
+.chips{ display:flex; flex-wrap:wrap; gap:6px; }
+.chips a{ display:inline-flex; align-items:center; min-height:36px; padding:4px 12px; border-radius:999px; background:var(--pg-chip); color:var(--pg-ink);
+  text-decoration:none; font-size:16px; font-weight:500; line-height:1.2; }
+.chips a[aria-current="true"]{ background:var(--pg-chip-on); color:var(--pg-chip-on-ink); font-weight:700; }
+.chips a .no{ font-variant-numeric:tabular-nums; margin-inline-end:6px; opacity:.85; }
+@media (min-width: 601px) and (max-width: 1099px){ #ppNav{ display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px; } }
+
+/* ============ the app (everything inside .screen) ============ */
+.nb{ white-space:nowrap; }
+.card .nm, .lbl, .band .dir, .alert .where, .list li{ overflow-wrap:normal; }
+.i{ width:36px; height:36px; flex:0 0 auto; fill:none; stroke:currentColor; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+
+#app{
+  position:relative; height:100%; width:100%; max-width:640px; margin-inline:auto;
+  display:flex; flex-direction:column; gap:var(--gap);
+  padding-block-start:calc(8px + var(--sa-t));
+  padding-inline:calc(var(--pad) + var(--sa-l)) calc(var(--pad) + var(--sa-r));
+}
+
+/* ---- top row (56px): journey strip / onboarding dots / wordmark ---- */
+/* header.top only: a bare .top would also hit the content area's "mid top" state */
+header.top{ flex:0 0 auto; height:56px; display:flex; align-items:center; gap:12px; }
+#lead{ display:flex; align-items:center; }
+#lead:empty{ display:none; }
+.mark{ font-family:var(--sign); font-size:32px; line-height:1.25; background:var(--band); color:var(--band-ink); border-radius:10px; padding:0 14px; }
+.strip{ display:flex; align-items:center; }
+.strip .n{ width:36px; height:36px; border-radius:50%; display:grid; place-items:center; flex:0 0 auto; background:var(--surface2); color:var(--ink2); }
+.strip .n .i{ width:22px; height:22px; }
+.strip .n.done{ background:var(--press); color:var(--ink); }
+.strip .n.cur{ background:var(--act); color:var(--act-ink); box-shadow:0 0 0 4px var(--ring); }
+.strip .ln{ width:24px; height:3px; margin-inline:4px; border-radius:2px; background:var(--surface2); }
+.strip .ln.done{ background:var(--ink2); }
+html[data-contrast="hc"] .strip .n.done{ background:#000; color:var(--ink); }
+html[data-contrast="hc"] .strip .n:not(.cur){ outline:3px solid var(--ink); outline-offset:-3px; }
+.dots{ display:flex; align-items:center; gap:8px; }
+.dots i{ width:16px; height:16px; border-radius:50%; background:var(--surface2); }
+.dots i.on{ background:var(--ink); }
+.dots i.cur{ width:24px; height:24px; background:var(--act); box-shadow:0 0 0 4px var(--ring); }
+html[data-contrast="hc"] .dots i:not(.on):not(.cur){ outline:3px solid var(--ink); outline-offset:-3px; }
+#topstep{ flex:0 1 auto; min-width:0; }
+#topstep:empty{ display:none; }
+.badge{ position:absolute; top:-26px; z-index:3; inset-inline-end:20px; height:26px; padding:0 8px; font-family:var(--ui); font-weight:500; font-size:24px; line-height:26px;
+  color:var(--ink2); background:var(--surface2); border-radius:8px 8px 0 0; pointer-events:none; }
+
+/* ---- main: the sentence block at a fixed y, then one hero block ---- */
+.main{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:var(--gap); overflow-x:hidden; overflow-y:auto; }
+.block{ display:flex; flex-direction:column; gap:8px; flex:0 0 auto; }
+.block.row{ flex-direction:row; align-items:center; gap:16px; }
+.block .txt{ display:flex; flex-direction:column; gap:8px; min-width:0; }
+.step{ margin:0; font-weight:500; font-size:28px; line-height:1.25; color:var(--ink2); }
+.say{ font-family:var(--ui); font-weight:700; font-size:calc(40px * var(--s)); line-height:1.3; margin:0; color:var(--ink); }
+.say.big{ font-size:calc(48px * var(--s)); }
+.say:focus{ outline:none; }
+.sub{ margin:0; font-weight:500; font-size:calc(32px * var(--s)); line-height:1.3; color:var(--ink2); }
+.say, .sub{ text-wrap:balance; }
+.notice{ margin:0; font-weight:500; font-size:32px; background:var(--surface); box-shadow:var(--lift); border-radius:20px; padding:16px; color:var(--ink); }
+.mid{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; justify-content:center; gap:16px; }
+.mid.top{ justify-content:flex-start; }
+.mid:empty{ display:none; }
+
+/* cards: one soft elevation, never an outline */
+.card{ display:flex; align-items:center; gap:16px; background:var(--surface); border-radius:20px; padding:16px 20px; box-shadow:var(--lift); }
+.card > .i{ width:44px; height:44px; color:var(--act); }
+html[data-contrast="hc"] .card > .i{ color:var(--ink); }
+.card .txt{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+.card .ini{ width:56px; height:56px; border-radius:50%; display:grid; place-items:center; flex:0 0 auto; background:var(--surface2); font-weight:700; font-size:32px; color:var(--ink); }
+.card .lt{ width:56px; height:56px; border-radius:12px; display:grid; place-items:center; flex:0 0 auto; background:var(--surface2); color:var(--act); }
+.card .lt .i{ width:36px; height:36px; }
+html[data-contrast="hc"] .card .lt{ color:var(--ink); }
+.sample{ background:var(--surface); border-radius:20px; padding:16px 20px; box-shadow:var(--lift); font-weight:700; font-size:calc(40px * var(--s)); line-height:1.3; color:var(--ink); }
+.card .nm{ font-weight:700; font-size:calc(32px * var(--s)); line-height:1.25; color:var(--ink); }
+.card .ds{ font-weight:500; font-size:calc(32px * var(--s)); line-height:1.3; color:var(--ink2); }
+.card.hero .nm{ font-size:calc(40px * var(--s)); }
+/* a phone number to read out or copy: big, left-to-right, selectable */
+.tel{ font-family:var(--ui); font-weight:800; font-size:44px;   /* already large: not scaled by ענק, so it never leaves the card */
+  line-height:1.15; color:var(--ink); direction:ltr; unicode-bidi:isolate;
+  user-select:text; -webkit-user-select:text; white-space:nowrap; letter-spacing:.01em; }
+.card .tel{ align-self:flex-start; }
+.card.telc{ flex-direction:column; align-items:stretch; gap:12px; }
+.telc .telw{ display:flex; align-items:center; gap:16px; }
+.telc .tel{ align-self:flex-start; padding-inline-start:4px; }
+/* the prepared message: the exact text that is copied */
+.msg{ flex:1 1 auto; min-height:140px; overflow-y:auto; background:var(--surface); box-shadow:var(--lift); border-radius:20px; padding:16px 20px;
+  font-weight:500; font-size:calc(32px * var(--s)); line-height:1.3; color:var(--ink); user-select:text; -webkit-user-select:text; white-space:pre-line; }
+.msg:focus-visible{ outline:4px solid var(--focus); outline-offset:2px; }
+html[data-contrast="hc"] .msg{ outline:3px solid var(--ink); outline-offset:-3px; }
+.list{ list-style:none; margin:0; padding:8px 16px; display:flex; flex-direction:column; background:var(--surface); border-radius:20px; box-shadow:var(--lift); }
+.list li{ display:flex; align-items:center; gap:12px; padding-block:12px; min-height:64px; font-weight:500; font-size:calc(32px * var(--s)); line-height:1.3; color:var(--ink); position:relative; }
+.list li + li::before{ content:''; position:absolute; top:0; inset-inline:48px 0; height:2px; background:var(--surface2); }
+.list .i{ width:36px; height:36px; margin-block-start:2px; color:var(--act); }
+html[data-contrast="hc"] .card, html[data-contrast="hc"] .list, html[data-contrast="hc"] .notice{ outline:3px solid var(--ink); outline-offset:-3px; }
+html[data-contrast="hc"] .list .i{ color:var(--ink); }
+.okdisc{ width:72px; height:72px; border-radius:50%; display:grid; place-items:center; background:var(--yes); color:var(--yes-ink); flex:0 0 auto; }
+.okdisc .i{ width:44px; height:44px; stroke-width:3; }
+
+/* the one signature element: a white plate on a yellow band */
+.band{ background:var(--band); color:var(--band-ink); border-radius:20px; padding:16px 20px; display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center; }
+.band.row{ flex-direction:row; text-align:start; gap:20px; }
+.plate{ font-family:var(--sign); font-weight:400; font-synthesis:none; font-size:120px; line-height:1; letter-spacing:-0.02em; background:var(--plate); color:var(--plate-ink); border:4px solid var(--plate-ink); border-radius:12px; padding:16px 32px 8px; min-width:1.4em; text-align:center; flex:0 0 auto; }
+.plate.sm{ font-size:96px; padding:10px 22px 4px; }
+html[data-contrast="hc"] .plate{ border-color:#000000; }
+.band .dir{ font-weight:700; font-size:32px; line-height:1.25; white-space:nowrap; }
+.band .dir .k, .band .dir .v{ display:none; }
+.band.row .dir{ display:flex; flex-direction:column; }
+.band.row .dir .full{ display:none; }
+.band.row .dir .k{ display:block; font-weight:500; font-size:28px; }
+.band.row .dir .v{ display:block; }
+.band .cap{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+.band .k{ font-weight:500; font-size:28px; line-height:1.2; }
+.band .tag{ font-weight:700; font-size:32px; line-height:1.25; }
+/* a big figure: the one hero fact */
+.fig{ display:flex; align-items:baseline; justify-content:center; flex-wrap:wrap; column-gap:12px; row-gap:0; color:var(--ink); }
+.fig .num{ font-family:var(--sign); font-size:96px; line-height:1; letter-spacing:-0.02em; }
+.fig.sec .num{ font-size:72px; }
+.fig .unit{ font-weight:700; font-size:calc(32px * var(--s)); line-height:1.2; }
+.fig.md .num{ font-family:var(--ui); font-weight:800; font-size:48px; line-height:1.1; }
+.fig.md{ justify-content:flex-start; }
+.fig.md .soft{ margin-inline-start:12px; }
+.short .b-sec span{ text-align:start; }
+.fig .sep{ font-weight:700; font-size:32px; color:var(--ink2); }
+.fig .soft{ font-weight:500; font-size:calc(32px * var(--s)); color:var(--ink2); }
+.figcap{ margin:0; text-align:center; font-weight:500; font-size:28px; line-height:1.25; color:var(--ink2); }
+
+/* ---- buttons: primary / yes-no / secondary surface / quiet ---- */
+:where(.screen) button{
+  font-family:var(--ui); font-weight:700; font-size:32px; line-height:1.2;
+  width:100%; margin:0; border:0; border-radius:16px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:12px; padding:8px 20px;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none;
+  text-wrap:balance; color:var(--ink); background:transparent;
+}
+:where(.screen) button:focus-visible{ outline:4px solid var(--focus); outline-offset:2px; }
+.b-pri, .b-yes, .b-no{ min-height:92px; font-size:32px; padding:8px 20px 12px; white-space:nowrap; box-shadow:inset 0 -4px 0 var(--edge); }
+.b-pri{ background:var(--act); color:var(--act-ink); --edge:var(--act-edge); }
+.b-yes{ background:var(--yes); color:var(--yes-ink); --edge:var(--yes-edge); }
+.b-no{ background:var(--no); color:var(--no-ink); --edge:var(--no-edge); }
+.b-pri:active, .b-yes:active, .b-no:active, .mic:active{ box-shadow:inset 0 -1px 0 var(--edge); padding-block:11px 9px; }
+.b-sec{ min-height:76px; background:var(--surface2); color:var(--ink); white-space:nowrap; }
+.b-sec:active, .tile:active, .opt:active, .who button:active{ background:var(--press); }
+.b-quiet:active{ background:var(--surface2); }
+.b-quiet{ min-height:72px; font-weight:500; font-size:32px; color:var(--ink); text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:7px; padding-block:4px; }
+.b-quiet .i{ width:32px; height:32px; }
+html[data-contrast="hc"] .b-sec, html[data-contrast="hc"] .opt, html[data-contrast="hc"] .who button{ outline:3px solid var(--ink); outline-offset:-3px; }
+.actions{ flex:0 0 auto; display:flex; flex-direction:column; gap:16px; }
+.actions:empty{ display:none; }
+.opts{ display:flex; gap:16px; }
+.opts button{ flex:1 1 0; min-height:92px; font-size:32px; }
+.opt{ background:var(--surface2); color:var(--ink); }
+.opt .slot{ width:36px; height:36px; flex:0 0 auto; }
+.opt[aria-pressed="true"]{ background:var(--act); color:var(--act-ink); box-shadow:inset 0 -4px 0 var(--act-edge); }
+.who{ display:flex; gap:16px; }
+.who button{ flex:1 1 0; min-height:min(160px, 19cqh); font-size:48px; background:var(--surface); box-shadow:var(--lift); border-radius:20px; }
+
+/* ---- footer: one calm bar, two equal tiles ---- */
+.foot{
+  position:relative; flex:0 0 auto; display:flex; flex-direction:column; gap:0;
+  margin-inline:calc(-1 * (var(--pad) + var(--sa-l))) calc(-1 * (var(--pad) + var(--sa-r)));
+  padding:12px calc(var(--pad) + var(--sa-r)) calc(12px + var(--sa-b)) calc(var(--pad) + var(--sa-l));
+  background:var(--surface2);
+}
+html[data-contrast="hc"] .foot{ border-top:3px solid var(--ink); }
+.tiles{ display:flex; gap:16px; }
+.tiles #again:only-child, .tiles:has(#lost[hidden]) #again{ flex:0 0 calc(50% - 8px); }
+.tile{ flex:1 1 0; min-width:0; min-height:88px; flex-direction:column; gap:4px; padding:8px 6px; border-radius:16px; background:var(--surface); color:var(--ink); font-weight:500; font-size:32px; line-height:1.1; white-space:nowrap; }
+:where(.screen) button.tile{ font-weight:500; font-size:32px; line-height:1.1; padding:8px 4px; }
+.tile .i{ width:32px; height:32px; }
+.tile.amber{ box-shadow:inset 0 4px 0 var(--amber-edge); }
+.tile .disc{ width:40px; height:40px; margin-block:-4px; border-radius:50%; display:grid; place-items:center; background:var(--amber); color:#1A1814; }
+.tile .disc .i{ width:28px; height:28px; }
+html[data-contrast="hc"] .tile{ outline:3px solid var(--ink); outline-offset:-3px; }
+.quietbox:empty{ display:none; }
+
+/* ---- microphone + text field ---- */
+.mic{
+  --d:min(160px, 20cqh); --edge:var(--act-edge);
+  width:var(--d); height:var(--d); min-height:72px; border-radius:50%; align-self:center; flex:0 0 auto;
+  flex-direction:column; gap:4px; padding:8px 8px 12px; background:var(--act); color:var(--act-ink);
+  box-shadow:inset 0 -4px 0 var(--edge);
+}
+:where(.screen) button.mic{ width:var(--d); padding:8px 8px 12px; border-radius:50%; flex-direction:column; gap:4px; }
+.mic .i{ width:44px; height:44px; }
+.inrow{ display:flex; gap:12px; align-items:stretch; }
+.inrow .field{ flex:1 1 auto; min-width:0; height:auto; min-height:88px; }
+:where(.screen) .inrow button.mic{ width:104px; height:auto; min-height:88px; border-radius:18px; align-self:stretch; }
+.inrow .mic .i{ width:36px; height:36px; }
+:where(.screen) .mid.tight button.mic:not(.inrow .mic){ width:100%; height:auto; min-height:76px; border-radius:18px; flex-direction:row; gap:12px; }
+.mic.listening{ animation:pulse 2s ease-in-out infinite; }
+@keyframes pulse{ 0%,100%{ box-shadow:inset 0 -4px 0 var(--edge), 0 0 0 0 rgba(11,61,145,.45); } 50%{ box-shadow:inset 0 -4px 0 var(--edge), 0 0 0 22px rgba(11,61,145,0); } }
+.field{
+  width:100%; height:76px; flex:0 0 auto;
+  font-family:var(--ui); font-weight:500; font-size:calc(36px * var(--s));
+  color:var(--ink); background:var(--surface); box-shadow:var(--lift), inset 0 0 0 2px var(--surface2);
+  border:0; border-radius:16px; padding-inline:20px;
+}
+.field::placeholder{ color:var(--placeholder); opacity:1; }
+html[data-contrast="hc"] .field{ outline:3px solid var(--ink); outline-offset:-3px; }
+.field:focus{ outline:4px solid var(--focus); outline-offset:2px; }
+.short{ display:flex; flex-direction:column; gap:12px; }
+.short .b-sec{ justify-content:flex-start; background:var(--surface); box-shadow:var(--lift); }
+.short .b-sec .i{ color:var(--act); }
+html[data-contrast="hc"] .short .b-sec .i{ color:var(--ink); }
+
+/* calm progress bar */
+.bar{ height:16px; border-radius:8px; overflow:hidden; background:var(--surface2); }
+.waitcap{ margin:0; font-weight:500; font-size:32px; color:var(--ink2); }
+html[data-contrast="hc"] .bar{ outline:3px solid var(--ink); outline-offset:-3px; }
+.bar i{ display:block; height:100%; width:10%; min-width:16px; background:var(--act); transition:width 8s linear; }
+
+/* map: an inline schematic drawn from the route (no tiles, no network) */
+.map{ position:relative; flex:1 1 auto; min-height:200px; border-radius:20px; overflow:hidden; background:var(--map-bg); box-shadow:var(--lift); }
+html[data-contrast="hc"] .map{ outline:3px solid var(--ink); outline-offset:-3px; }
+.map svg{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.map .st{ fill:none; stroke:var(--map-street); stroke-width:14; stroke-linecap:round; stroke-linejoin:round; }
+.map .bus{ fill:none; stroke:var(--map-bus); stroke-width:8; stroke-linecap:round; stroke-linejoin:round; }
+.map .bstop{ fill:var(--map-stop); stroke:var(--map-bus); stroke-width:4; }
+.map .walk{ fill:none; stroke:var(--act); stroke-width:8; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:2 16; }
+html[data-contrast="hc"] .map .walk{ stroke:#FFE14D; }
+.map .pin{ fill:var(--map-pin); stroke:#FFFFFF; stroke-width:5; }
+.map .me{ fill:var(--map-me); stroke:#FFFFFF; stroke-width:5; }
+.map .halo{ fill:var(--map-me); opacity:.25; transform-box:fill-box; transform-origin:center; animation:halo 2.4s ease-out infinite; }
+@keyframes halo{ 0%{ transform:scale(.6); opacity:.45; } 100%{ transform:scale(1.6); opacity:0; } }
+.lbl{ position:absolute; transform:translate(-50%, 0); white-space:nowrap; direction:rtl; pointer-events:none;
+  font-family:var(--ui); font-weight:700; font-size:32px; line-height:1.2; background:#FFFFFF; color:#1A1814; border-radius:8px; padding:2px 12px;
+  box-shadow:0 1px 2px rgba(26,24,20,.25), 0 4px 12px rgba(26,24,20,.18); }
+
+/* the only alert: flashing signage yellow / black, until "הבנתי" */
+.alert{
+  position:absolute; inset:0; z-index:1000;
+  display:flex; flex-direction:column; justify-content:center; align-items:center; gap:32px;
+  padding:calc(24px + var(--sa-t)) 20px calc(24px + var(--sa-b));
+  background:#FFD400; color:#000000; text-align:center;
+  animation:flash 1s steps(1, end) infinite;
+}
+.alert p{ margin:0; text-wrap:balance; }
+.alert .i{ width:120px; height:120px; stroke-width:2; }
+.alert .big{ font-family:var(--ui); font-weight:800; font-size:56px; line-height:1.2; }
+.alert .where{ font-family:var(--ui); font-weight:700; font-size:clamp(32px, 9.2cqw, calc(40px * var(--s))); line-height:1.25; }
+:where(.screen) .alert button{ min-height:120px; font-size:48px; font-weight:800; border:4px solid currentColor; border-radius:20px; animation:flashb 1s steps(1, end) infinite; color:inherit; }
+.alert button:focus{ outline:none; }
+.alert button:focus-visible{ outline:6px solid currentColor; outline-offset:4px; }
+.alert.still, :where(.screen) .alert.still button{ animation:none; }
+:where(.screen) .alert.still button{ background:#000000; color:#FFD400; border-color:#000000; }
+@keyframes flash{ 0%{ background:#FFD400; color:#000000; } 50%{ background:#000000; color:#FFD400; } }
+@keyframes flashb{ 0%{ background:#000000; color:#FFD400; border-color:#000000; } 50%{ background:#FFD400; color:#000000; border-color:#FFD400; } }
+@media (prefers-reduced-motion: reduce){
+  .alert, :where(.screen) .alert button{ animation-duration:2s; }   /* safety signal: slower (0.5 Hz), never off */
+  .mic.listening, .map .halo{ animation:none; }
+  .bar i{ transition:none; }
+}
+/* short phones: tighter rhythm (16), smaller plate, sign card side by side */
+@container screen (max-height: 860px){
+  #app{ --gap:16px; }
+  .b-pri, .b-yes, .b-no{ min-height:80px; }
+  .b-sec{ min-height:72px; }
+  .card{ padding:12px 16px; }
+  .list{ padding:4px 16px; }
+  .list li{ padding-block:8px; }
+  .okdisc{ width:60px; height:60px; }
+  .say.big{ font-size:calc(44px * var(--s)); }
+  .card.hero .nm{ font-size:calc(36px * var(--s)); }
+  .tel{ font-size:40px; }
+  .plate{ font-size:96px; padding:12px 26px 6px; }
+  .band:not(.solo){ flex-direction:row; text-align:start; gap:20px; padding:12px 16px; }
+  .band:not(.solo) .dir{ display:flex; flex-direction:column; }
+  .band:not(.solo) .dir .full{ display:none; }
+  .band:not(.solo) .dir .k{ display:block; font-weight:500; font-size:28px; }
+  .band:not(.solo) .dir .v{ display:block; }
+  .fig .num{ font-size:80px; }
+  .fig.sec .num{ font-size:64px; }
+  .fig.md .num{ font-size:44px; }
+  header.top{ height:48px; }
+}
+/* 360×780-class phones: a 12px rhythm */
+@container screen (max-height: 800px){
+  #app{ --gap:12px; }
+  .block, .block .txt{ gap:4px; }
+  .say{ line-height:1.25; }
+  .card.hero .nm{ font-size:calc(32px * var(--s)) !important; }
+  .mid{ gap:12px; }
+  .actions{ gap:12px; }
+  .foot{ padding-block-start:10px; }
+  .map{ min-height:150px; }
+  .msg{ min-height:110px; }
+  .tiles{ gap:12px; }
+  .badge{ top:-22px; height:22px; line-height:22px; }
+  .tiles #again:only-child, .tiles:has(#lost[hidden]) #again{ flex:0 0 calc(50% - 6px); }
+  .notice{ padding:8px 12px; }
+  .list li{ padding-block:4px; }
+  .card{ padding:10px 16px; }
+}
+</style>
+
+<div id="laan" lang="he" dir="rtl">
+<div class="stage">
+  <div class="pwrap" id="pwrap">
+    <div class="phone">
+      <span class="cam" aria-hidden="true"></span>
+      <div class="screen" id="screen">
+<!-- icon sprite: 24×24, stroke 2.5, round caps; objects never mirror -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5v4M8.5 21.5h7"/></symbol>
+  <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M3.5 9.5h4l5-4.5v14l-5-4.5h-4z"/><path d="M16 9a4.2 4.2 0 0 1 0 6M18.8 6.3a8 8 0 0 1 0 11.4"/></symbol>
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M15.8 8.2l-2.2 5.4-5.4 2.2 2.2-5.4z"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5.2 3.5h3.3l1.7 4.3-2.2 1.4a11.5 11.5 0 0 0 6.8 6.8l1.4-2.2 4.3 1.7v3.3a1.9 1.9 0 0 1-2 1.9A16.4 16.4 0 0 1 3.3 5.5a1.9 1.9 0 0 1 1.9-2z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21.5s-7-6.1-7-11.8a7 7 0 0 1 14 0c0 5.7-7 11.8-7 11.8z"/><circle cx="12" cy="9.7" r="2.6"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 11 12 3.8l8.5 7.2"/><path d="M5.8 9.4v11.1h12.4V9.4"/><path d="M10 20.5v-5.8h4v5.8"/></symbol>
+  <symbol id="i-bus" viewBox="0 0 24 24"><rect x="4.5" y="3" width="15" height="15" rx="3"/><path d="M4.5 11.5h15M8.5 6.5h7M7.5 18v3M16.5 18v3"/><circle cx="8.3" cy="14.6" r="1" fill="currentColor" stroke="none"/><circle cx="15.7" cy="14.6" r="1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-walk" viewBox="0 0 24 24"><circle cx="13.5" cy="4.3" r="2"/><path d="M12.8 8.2l-1.4 6.3M11.4 14.5 8.7 21M11.4 14.5l3.2 2.6.6 3.9M7.8 12.4l1.7-3.6 3.3-.6 2.4 3.2 2.6.9"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5.5 21.5V3.5"/><path d="M5.5 4.2h12.2l-2.6 4 2.6 4H5.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.8l4.8 4.7L19.5 6.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8l1.7 2.4 2.9-.7.6 2.9 2.7 1.3-1.4 2.6 1.4 2.6-2.7 1.3-.6 2.9-2.9-.7L12 21.2l-1.7-2.4-2.9.7-.6-2.9-2.7-1.3 1.4-2.6-1.4-2.6 2.7-1.3.6-2.9 2.9.7z"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M20.5 3.5 3.5 10.6l6.8 2.9 2.9 6.9z"/><path d="M20.5 3.5l-10.2 10"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5"/><path d="M12 7v5.4l3.6 2.2"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V5.8a2.3 2.3 0 0 0-2.3-2.3H5.8a2.3 2.3 0 0 0-2.3 2.3v7.4a2.3 2.3 0 0 0 2.3 2.3h2.7"/></symbol>
+</svg>
+
+<div id="app">
+  <header class="top"><div id="lead"></div><p id="topstep" class="step micro"></p></header>
+  <main id="main" class="main">
+    <p id="notice" class="notice" hidden></p>
+    <div id="block" class="block">
+      <div id="blockIcon" hidden></div>
+      <div class="txt">
+        <p id="step" class="step micro"></p>
+        <h1 id="say" class="say" tabindex="-1" aria-live="polite"></h1>
+        <p id="sub" class="sub" hidden></p>
+      </div>
+    </div>
+    <div id="mid" class="mid"></div>
+  </main>
+  <div id="actions" class="actions"></div>
+  <footer class="foot">
+    <span id="badge" class="badge" hidden>דמו</span>
+    <div class="tiles">
+      <button id="again" class="tile micro" type="button"></button>
+      <button id="lost" class="tile amber micro" type="button"></button>
+    </div>
+    <div id="quiet" class="quietbox"></div>
+  </footer>
+</div>
+
+<div id="alert" class="alert" role="alertdialog" aria-modal="true" aria-labelledby="alertBig" hidden>
+  <svg class="i" aria-hidden="true"><use href="#i-bus"/></svg>
+  <p id="alertBig" class="big"></p>
+  <p id="alertWhere" class="where"></p>
+  <p id="alertMiss" class="where" hidden></p>
+  <button id="alertOk" type="button"></button>
+</div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="pp" id="pp" aria-label="לוח המציג">
+    <div class="pp-head"><span class="pp-mark">לאן?</span><p class="pp-title">לוח המציג</p></div>
+    <p class="pp-note">הטלפון הוא האפליקציה עצמה, ואפשר ללחוץ בו. הדרך היא מסלול לדוגמה ברחוב דיזנגוף, בלי GPS אמיתי.</p>
+    <button type="button" class="pp-run" id="ppRun">▶︎ להתחיל דמו</button>
+    <p class="pp-status" id="ppStatus" aria-live="polite">דמו בלי ידיים: מהיעד ועד "הגעת!", בערך 75 שניות.</p>
+    <div class="pp-row"><span>פנייה</span><div class="seg" role="group" aria-label="איך האפליקציה פונה"><button type="button" id="ppM" aria-pressed="true">אתה</button><button type="button" id="ppF" aria-pressed="false">את</button></div></div>
+    <div class="pp-row"><span>קול</span><div class="seg" role="group" aria-label="הקראה בקול"><button type="button" id="ppVon" aria-pressed="true">פועל</button><button type="button" id="ppVoff" aria-pressed="false">כבוי</button></div></div>
+    <nav id="ppNav" aria-label="קפיצה למסך"></nav>
+  </aside>
+</div>
+</div>
+
+<script>
+/* claude-host.js - lets the "לאן?" app run as a Claude-hosted Artifact with no server.
+ *
+ * Does nothing (window.LaanHost stays undefined) unless window.claude.use exists.
+ * Inside an Artifact it exposes:
+ *   window.LaanHostReady  Promise resolving to window.LaanHost once capabilities have resolved
+ *   window.LaanHost = {
+ *     noServer: true,
+ *     understand(text, city)  -> Promise<{query, display_name}|null>      (sample.json, "quick")
+ *     whereAmI({lat,lon,street,step,route,gender,seen,candidates})
+ *                             -> Promise<{text, match}|null>              (sample.json, "quick")
+ *     dictation: null | { start(onFinal(fullText), onState("listening"|"idle")), stop() }
+ *     speak(text)             -> Promise<boolean>   (false: caller falls back to speechSynthesis)
+ *   }
+ * Every method returns null/false when a capability is absent or refused; none throws.
+ * After rate_limited / not_granted / similar a capability is switched off for this page load
+ * and never called again (no retries). Results are plain strings: the app must use textContent.
+ */
+function laanHostSetup() {
+  "use strict";
+  var W = typeof window !== "undefined" ? window : null;
+  if (!W || W.LaanHost || !W.claude || typeof W.claude.use !== "function") return;
+
+  var off = { sample: false, tts: false, dictation: false };
+  var S = null, T = null, D = null;
+  var STOP = { rate_limited: 1, not_granted: 1, sampling_disabled: 1, not_declared: 1,
+               capability_disabled: 1, capability_removed: 1, session_expired: 1 };
+
+  function use(name) {
+    try { return Promise.resolve(W.claude.use(name)).catch(function () { return null; }); }
+    catch (e) { return Promise.resolve(null); }
+  }
+  function str(v) { return typeof v === "string" ? v.trim() : ""; }
+  function fail(cap, e) { if (e && STOP[e.code]) off[cap] = true; return null; }
+
+  var DEST = "You turn an elderly Israeli's spoken Hebrew into a place search. " +
+    "Strip filler such as 'אני צריך להגיע ל', 'בבקשה', 'תביא אותי'. Expand common phrasings " +
+    "(e.g. 'קופת חולים בדיזנגוף' means a health clinic on Dizengoff street). If no city is " +
+    "mentioned, use the city given to you. Reply with JSON only: " +
+    '{"query": "<Hebrew query for Nominatim, street and city>", ' +
+    '"display_name": "<short Hebrew name, max 6 words, to read aloud>"}';
+
+  var WHERE = "You calm and orient an elderly person who feels lost on a bus journey in Israel. " +
+    "Answer in ONE Hebrew sentence of at most 14 simple words: where they are and what to do " +
+    "next. No questions, no apologies, no technical words, no English. Use the grammatical " +
+    "gender given to you. Reply with JSON only: " +
+    '{"text": "<the sentence>", "match": null}';
+
+  var MATCH = "You help an elderly person who feels lost on a bus journey in Israel. You get a list of " +
+    "named places near them and what they say they see. Decide which candidate they most likely " +
+    "see (spelling, spacing and hyphens may differ; they may be speaking from memory). Answer ONE " +
+    "calm Hebrew sentence of at most 14 simple words telling them where they are, next to that " +
+    "place. No questions, no apologies, no English. Use the grammatical gender given to you. " +
+    "Reply with JSON only: " +
+    '{"text": "<the sentence>", "match": "<the candidate name exactly as given, or null>"}';
+
+  function understand(text, city) {
+    text = str(text);
+    if (!S || off.sample || !text) return Promise.resolve(null);
+    var p = DEST + "\n\nCity: " + (str(city) || "תל אביב") + "\nSpeech: " + text;
+    return S.json(p, { modelTier: "quick" }).then(function (o) {
+      var q = o && str(o.query);
+      return q ? { query: q, display_name: str(o.display_name) || q } : null;
+    }, function (e) { return fail("sample", e); }).catch(function () { return null; });
+  }
+
+  function whereAmI(b) {
+    b = b || {};
+    if (!S || off.sample) return Promise.resolve(null);
+    var g = b.gender === "f" ? "f" : "m";
+    var seen = str(b.seen);
+    var cands = (Array.isArray(b.candidates) ? b.candidates : [])
+      .map(String).filter(function (c) { return c.trim(); }).slice(0, 12);
+    var p = (seen ? MATCH : WHERE) + "\n\nGender: " + g + "\nLocation: " + b.lat + ", " + b.lon +
+      "\nNearest street: " + (b.street || "") + "\nCurrent step: " + (b.step || "") +
+      "\nRoute: " + (b.route || "");
+    if (seen) p += "\nCandidates: " + JSON.stringify(cands) + "\nThe person says they see: " + seen;
+    try {
+      return S.json(p, { modelTier: "quick", cache: false }).then(function (o) {
+        var t = o && str(o.text).replace(/^"+|"+$/g, "");
+        if (!t) return null;
+        return { text: t, match: seen && cands.indexOf(o.match) >= 0 ? o.match : null };
+      }, function (e) { return fail("sample", e); }).catch(function () { return null; });
+    } catch (e) { return Promise.resolve(null); }
+  }
+
+  var muted = false;
+  function speak(text) {
+    text = str(text);
+    if (muted) return Promise.resolve(true);   // viewer turned the voice off: respect it, stay silent
+    if (!T || off.tts || !text) return Promise.resolve(false);
+    try {
+      return Promise.resolve(T.speak(text, { language: "he", rate: 0.85 })).then(
+        function () { return true; },
+        function (e) {
+          fail("tts", e);
+          if (e && e.code === "not_granted") { muted = true; return true; }
+          if (e && (e.code === "stopped" || e.code === "busy")) return true;   // replaced, stopped by the viewer, or dictating: stay silent
+          return false; });
+    } catch (e) { return Promise.resolve(false); }
+  }
+
+  var subs = [];
+  function unsub() { subs.forEach(function (u) { try { u(); } catch (e) {} }); subs = []; }
+
+  // Called synchronously from the click handler: nothing is awaited before D.start().
+  var dictation = {
+    start: function (onFinal, onState) {
+      if (!D || off.dictation) { if (onState) try { onState("idle"); } catch (e) {} return; }
+      var full = "";
+      function emit(fn, a) { if (typeof fn === "function") try { fn(a); } catch (e) {} }
+      try {
+        unsub();
+        subs.push(D.onFinal(function (e) {
+          full = (full + (e && typeof e.text === "string" ? e.text : "")).trim();
+          if (full) emit(onFinal, full);
+        }));
+        subs.push(D.onState(function (e) {
+          var s = e && e.state;
+          if (s === "listening") emit(onState, "listening");
+          else if (s === "idle") {
+            if (e.reason === "not_granted" || e.reason === "unavailable" || e.reason === "rate_limited") off.dictation = true;
+            emit(onState, "idle");
+          }
+        }));
+        D.start({ language: "he" }).catch(function (e) {
+          if (e && (e.code === "not_granted" || e.code === "unavailable" || e.code === "rate_limited")) off.dictation = true;
+          emit(onState, "idle");
+        });
+      } catch (e) { emit(onState, "idle"); }
+    },
+    stop: function () {
+      try { if (D) return Promise.resolve(D.stop()).catch(function () {}); } catch (e) {}
+      return Promise.resolve();
+    }
+  };
+
+  var host = { noServer: true, understand: understand, whereAmI: whereAmI, dictation: null, speak: speak };
+  W.LaanHost = host;
+  W.LaanHostReady = (async function () {
+    try {
+      var r = await Promise.all([use("sample"), use("tts"), use("dictation")]);
+      S = r[0] && typeof r[0].json === "function" ? r[0] : null;
+      T = r[1] && typeof r[1].speak === "function" ? r[1] : null;
+      D = r[2] && typeof r[2].start === "function" ? r[2] : null;
+      host.dictation = D ? dictation : null;
+    } catch (e) {}
+    return host;
+  })();
+}
+laanHostSetup();
+// window.claude normally exists before page scripts run; if not, try once more a little later
+if (!window.LaanHost){ window.addEventListener("load", laanHostSetup, { once: true }); setTimeout(laanHostSetup, 1500); }
+</script>
+<script>
+'use strict';
+/* ============================================================
+   לאן? — one instruction at a time, voice + text, nothing silent.
+   ============================================================ */
+/* In the Artifact the app always runs on the demo route (no GPS, no server, nothing stored).
+   The presenter panel jumps between screens through location.hash; the old "?screen=" ids are
+   the jump ids, and every jumped-to screen is live (it can be tapped onward). */
+const SHOT = '';                       // no frozen screenshot mode here
+const DEMO = true;
+let AUTO = false;                      // the hands-free journey (presenter: "להתחיל דמו")
+const LOSTSIM = false;
+const SPEED = 1;
+const D = ms => ms / SPEED;
+let MINUTE = 60000;                    // the hands-free journey runs 1 simulated minute = 2 s
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* numbers (and phone numbers) are isolated so they never flip the Hebrew around them */
+const UNIT = /(\d)\s(מטר|דקות|דקה|תחנות|תחנה|קילומטר)/g;
+const fmt = s => String(s == null ? '' : s).replace(UNIT, '$1\u00A0$2').split(/(\d[\d\-\u2011.,:]*\d|\d)/)
+  .map((part, i) => i % 2 ? '<bdi>' + esc(part) + '</bdi>'
+    : esc(part).replace(/\s*\/\s*/g, '\u2009/\u2009').replace(/־/g, '־\u2060')).join('');
+/* a proper name: its words never part (only the " / " between street names may break) */
+const nm = s => String(s || '').replace(/\s*\/\s*/g, '/').split('/').map(x => x.trim().replace(/ /g, '\u00A0')).join(' / ');
+const shortName = s => { let x = String(s || '').split(',')[0].trim(); if (x.length > 14) x = x.split(' ').slice(0, 2).join(' '); return x; };
+const ic = (n, c) => `<svg class="i${c ? ' ' + c : ''}" aria-hidden="true" focusable="false"><use href="#i-${n}"/></svg>`;
+
+/* ---------- optional host bridge (Claude-hosted Artifact) ---------- */
+const H = () => (window.LaanHost && typeof window.LaanHost === 'object') ? window.LaanHost : null;
+let STATIC_NO_SERVER = true;          // an Artifact has no server: every lookup uses the demo data
+const noServer = () => STATIC_NO_SERVER || !!(H() && H().noServer === true);
+async function hostCall(name, ...args){
+  const h = H(); if (!h || typeof h[name] !== 'function') return null;
+  try { const r = await Promise.race([Promise.resolve(h[name](...args)), sleep(9000).then(() => null)]); return r || null; }
+  catch (e) { return null; }
+}
+
+/* ---------- FALLBACK_ROUTE ----------
+   APPROXIMATE coordinates along Dizengoff St, Tel Aviv — hand-placed for the demo and
+   for silent fallback, not surveyed. Line 5 (Dan) northbound toward Reading. */
+const FALLBACK = {
+  start: { lat: 32.0753, lon: 34.7752 },
+  dest:  { name: 'מרפאת כללית, דיזנגוף', lat: 32.0895, lon: 34.7732 },
+  line: '5', headsign: 'רידינג', headsignBack: 'התחנה המרכזית', departs_in_min: 6,
+  stops: [
+    { name: "דיזנגוף/קינג ג'ורג'",  lat: 32.0762, lon: 34.7748 },
+    { name: 'דיזנגוף/בוגרשוב',     lat: 32.0775, lon: 34.7746 },
+    { name: 'דיזנגוף/פרישמן',      lat: 32.0810, lon: 34.7735 },
+    { name: 'דיזנגוף/גורדון',       lat: 32.0830, lon: 34.7730 },
+    { name: 'דיזנגוף/ארלוזורוב',    lat: 32.0870, lon: 34.7720 },
+    { name: "דיזנגוף/ז'בוטינסקי",   lat: 32.0890, lon: 34.7715 }
+  ],
+  walkTo: [[32.0753, 34.7752], [32.0755, 34.7760], [32.0764, 34.7756], [32.0762, 34.7748]]
+};
+/* demo "what is around me" (spec round 2, §A) */
+const DEMO_NEARBY = [
+  { name: 'סופר־פארם דיזנגוף', kind_he: 'בית מרקחת', dist: 25 },
+  { name: 'בנק לאומי', kind_he: 'בנק', dist: 40 },
+  { name: 'כיכר דיזנגוף', kind_he: 'כיכר', dist: 90 }
+];
+
+/* ---------- storage ----------
+   Nothing is stored. Settings and the journey live in memory for this page view, so the demo
+   route and the sample contact never stick to a viewer's browser. */
+const KEY_J = 'journey';
+const sdel = () => {};
+const DEMO_HOME = { name: 'הבית', lat: 32.0745, lon: 34.7760 };
+const DEFAULTS = { done:false, gender:'m', home:null, contact:null, contactName:'', size:'l', contrast:'normal',
+                   voice:true, rate:0.85, noVoiceShown:false, recent:[], visits:0 };
+function demoSettings(keep){
+  return Object.assign({}, DEFAULTS, {
+    done: true, visits: 3, home: Object.assign({}, DEMO_HOME),
+    recent: [{ name: 'מרפאת כללית, דיזנגוף', lat: FALLBACK.dest.lat, lon: FALLBACK.dest.lon },
+             { name: 'קניון דיזנגוף סנטר', lat: 32.0754, lon: 34.7749 }],
+    contact: '050-1234567', contactName: 'רותי'         // demo-only sample contact
+  }, keep || {});
+}
+let settings = demoSettings();
+const saveSettings = () => {};
+let journey = null;
+const saveJourney = () => {};
+
+/* ---------- all copy lives here: masculine / feminine ---------- */
+const g = (m, f) => settings.gender === 'f' ? f : m;
+const FAMILY = /^ה(בת|בן|נכד|נכדה|אישה|בעל|שכן|שכנה|אח|אחות|חבר|חברה|מטפל|מטפלת)(\s|$)/;
+function lName(n){                     // "רותי" → "לרותי", "הבת שלי" → "לבת שלי", "050…" → "ל־050…"
+  n = String(n || '').trim(); if (!n) return '';
+  if (FAMILY.test(n)) return 'ל' + n.slice(1);
+  return /^[א-ת]/.test(n) ? 'ל' + n : 'ל־' + n;
+}
+const contactName = () => (settings.contactName || '').trim() || (settings.contact || '').trim();
+const STR = {
+  again:      () => 'לשמוע שוב',
+  lost:       () => 'איפה אני?',
+  welcome:    () => 'שלום! אני אעזור לך להגיע בקלות.',
+  welcomeCap: () => 'הוראה אחת בכל\u00A0פעם',
+  start:      () => 'בואו נתחיל',
+  genderQ:    () => 'איך לפנות אליך?',
+  homeQ:      () => 'איפה הבית שלך?',
+  homeNeeded: () => 'כדי לחזור הביתה, אני צריך את הכתובת.',
+  notNow:     () => 'לא עכשיו',
+  save:       () => 'לשמור',
+  contactQ:   () => 'למי להתקשר אם צריך עזרה?',
+  contactSub: () => 'מספר הטלפון:',
+  contactBad: () => 'המספר קצר מדי. אפשר לכתוב אותו שוב.',
+  contactNameQ:   () => 'למי להתקשר?',
+  contactNameSub: () => 'למשל: הבת שלי רותי',
+  phoneHint:  () => 'מספר טלפון',
+  nameHint:   () => 'שם',
+  permsSay:   () => 'כדי להדריך, אני צריך מיקום ומיקרופון.',
+  permsSub:   () => g('עכשיו הטלפון ישאל — לחץ "אפשר".', 'עכשיו הטלפון ישאל — לחצי "אפשר".'),
+  okay:       () => 'בסדר',
+  destQ:      () => g('לאן אתה צריך להגיע?', 'לאן את צריכה להגיע?'),
+  destBack:   () => 'שלום שוב! לאן היום?',
+  homeBtn:    () => 'הביתה',
+  micLabel:   () => 'לדבר',
+  typeHere:   () => 'או לכתוב כאן',
+  typeShort:  () => 'לכתוב כאן',
+  listening:  () => 'אני מקשיב...',
+  checking:   () => 'רגע, אני בודק...',
+  search:     () => 'לחפש',
+  settings:   () => 'הגדרות',
+  notFound:   () => 'לא מצאתי את המקום.',
+  notFoundSub:() => 'אפשר לומר שם רחוב ועיר.',
+  noSpeech:   () => 'לא שמעתי טוב.',
+  noSpeechSub:() => 'אפשר לומר שוב, לאט, או לכתוב כאן.',
+  noMic:      () => 'אין לי רשות לשמוע.',
+  netMic:     () => 'השמיעה לא עובדת עכשיו.',
+  writeHere:  () => 'אפשר לכתוב כאן.',
+  confirmQ:   () => 'זה המקום?',
+  dist:       p  => `כ־${p.d} מכאן`,
+  yes:        () => 'כן',
+  no:         () => 'לא',
+  planning:   () => 'רגע, אני מחפש לך אוטובוס...',
+  planningSub:() => 'רק אוטובוס ישיר, בלי החלפות.',
+  planningCap:() => 'זה לוקח כמה שניות.',
+  noDirect:   () => 'אין אוטובוס ישיר לשם.',
+  noDirectSub:p  => p.L ? `אפשר לבקש עזרה מ${p.L.slice(1)}.` : 'אפשר להתקשר למוקד התחבורה הציבורית.',
+  helpCall:   p  => `לבקש עזרה מ${p.L.slice(1)}`,
+  backStart:  () => 'לחזור להתחלה',
+  walkSay:    p  => g(`לך לתחנה ${p.stop}.`, `לכי לתחנה ${p.stop}.`),
+  walkMin:    p  => p.min <= 1 ? 'זה כדקה אחת.' : `זה כ־${p.min} דקות.`,
+  leave:      () => 'יצאתי לדרך',
+  walkingSay: p  => `ממשיכים לתחנה ${p.stop}.`,
+  walkingSub: p  => p.m < 50 ? 'כמעט שם.' : `עוד ${p.m} מטר.`,
+  atStop:     () => 'הגעתי לתחנה',
+  board:      p  => `עולים על קו ${p.line}`,
+  toward:     p  => `לכיוון ${p.h}`,
+  eta:        p  => (p.min <= 0 ? 'מגיע עכשיו' : p.min === 1 ? 'מגיע בעוד דקה' : `מגיע בעוד ${p.min} דקות`) + ' (לפי לוח הזמנים)',
+  arrivingNow:() => 'האוטובוס מגיע עכשיו.',
+  boarded:    () => 'עליתי לאוטובוס',
+  late:       () => 'האוטובוס מאחר?',
+  lateSay:    () => 'האוטובוס מתאחר. זה קורה.',
+  lateSub:    () => 'אפשר לחכות עוד קצת.',
+  wait:       () => 'לחכות עוד קצת',
+  left:       p  => p.k === 1 ? 'נשארה תחנה 1' : `נשארו ${p.k} תחנות`,
+  rideSub:    () => 'אני אגיד מתי לרדת.',
+  rideSay:    () => 'אפשר לשבת בנחת.',
+  getOffAt:   () => 'יורדים בתחנה',
+  gotOff:     () => 'ירדתי מהאוטובוס',
+  alert:      () => 'יורדים בתחנה הבאה!',
+  gotIt:      () => 'הבנתי',
+  pressStop:  () => g('לחץ על כפתור העצירה.', 'לחצי על כפתור העצירה.'),
+  pressSub:   p  => `יורדים בתחנה ${p.stop}.`,
+  passed:     () => 'נראה שעברת את התחנה.',
+  passedSub:  () => g('אל דאגה — רד בתחנה הבאה, ואני אדריך אותך בחזרה.', 'אל דאגה — רדי בתחנה הבאה, ואני אדריך אותך בחזרה.'),
+  offQ:       () => 'ירדת מהאוטובוס?',
+  offSub:     () => 'אם כן, נמשיך ברגל.',
+  notYet:     () => 'עוד לא',
+  offYes:     () => 'כן, ירדתי',
+  finalSay:   p  => g(`לך ל${p.d}.`, `לכי ל${p.d}.`),
+  here:       () => 'הגעתי',
+  arrived:    () => 'הגעת!',
+  arrivedSub: () => 'שמחתי לעזור.',
+  takeHome:   () => 'קח אותי הביתה',
+  finished:   () => 'סיימתי',
+  resumeQ:    () => 'להמשיך בדרך?',
+  resumeYes:  () => 'כן, ממשיכים',
+  exitQ:      () => 'לעצור את הדרך?',
+  exitSub:    () => 'אפשר גם להמשיך בדרך.',
+  exitNo:     () => 'לא — ממשיכים בדרך',
+  exitYes:    () => 'כן — לעצור',
+  noVoice:    () => 'הטלפון לא יודע לדבר עברית, אז ההוראות יופיעו בכתב.',
+  next:       () => 'הבא',
+  setExit:    () => 'סיימתי',
+  setDone:    () => 'סיימתי',
+  chosen:     p  => `נבחר: ${p.v}.`,
+  noHome:     () => 'עוד לא נשמרה כתובת.',
+  noContact:  () => 'עוד לא נשמר מספר.',
+  you:        () => g('אתה', 'את'),
+  /* "where am I" — a short guided conversation */
+  lostCalm:   () => g('הכל בסדר. אני איתך. בוא נבדוק יחד.', 'הכל בסדר. אני איתך. בואי נבדוק יחד.'),
+  seeQ:       p  => g(`אתה רואה ${p.l}?`, `את רואה ${p.l}?`),
+  seeQ2:      p  => g(`ואולי אתה רואה ${p.l}?`, `ואולי את רואה ${p.l}?`),
+  seeYes:     () => 'כן, רואה',
+  askSee:     () => g('מה אתה רואה לידך?', 'מה את רואה לידך?'),
+  askSeeSub:  () => g('תגיד שם של חנות, רחוב או שלט.', 'תגידי שם של חנות, רחוב או שלט.'),
+  noMatch:    p  => p.L ? g(`לא הצלחתי לזהות. בוא נתקשר ${p.L}.`, `לא הצלחתי לזהות. בואי נתקשר ${p.L}.`) : 'לא הצלחתי לזהות. כדאי לבקש עזרה.',
+  okGo:       () => 'הבנתי, ממשיכים',
+  okThanks:   () => 'הבנתי, תודה',
+  needHelp:   () => 'לבקש עזרה',
+  replanSay:  () => g('זה בסדר. בוא נחפש דרך חדשה מכאן.', 'זה בסדר. בואי נחפש דרך חדשה מכאן.'),
+  replanBtn:  () => 'לחפש דרך חדשה',
+  helpSay:    p  => `אפשר לבקש עזרה מ${p.L.slice(1)}.`,
+  helpSub:    () => g('שום דבר לא נשלח בלי שתלחץ.', 'שום דבר לא נשלח בלי שתלחצי.'),
+  prepMsg:    p  => `להכין הודעה ${p.L}`,
+  whoQ:       () => 'למי להתקשר?',
+  whoSub:     () => 'מספר טלפון של מישהו קרוב:',
+  copyNum:    () => 'להעתיק את המספר',
+  copyMsg:    () => 'להעתיק את ההודעה',
+  msgSay:     p  => `זו ההודעה ${p.L}:`,
+  msgSub:     () => 'מעתיקים, ומדביקים בוואטסאפ או בהודעה.',
+  copiedSay:  () => 'ההודעה הועתקה.',
+  copiedSub:  () => 'אפשר להדביק בוואטסאפ.',
+  numCopied:  () => 'המספר הועתק.',
+  numCopiedSub:() => 'אפשר להדביק אותו בטלפון.',
+  selMsg:     () => 'ההודעה מסומנת. אפשר להעתיק אותה.',
+  selNum:     () => 'המספר מסומן. אפשר להעתיק אותו.',
+  hotlineName:() => 'מוקד התחבורה הציבורית',
+  needHelpMsg:() => g('אני צריך עזרה.', 'אני צריכה עזרה.'),
+  backToRoute:() => 'לחזור לדרך',
+  back:       () => 'לחזור',
+  offrouteSay:() => 'נראה שהתרחקת מהדרך. לעזור לך?',
+  offrouteYes:() => 'כן, תעזור לי',
+  offrouteNo: () => 'לא, אני בסדר',
+  okThanks2:  () => 'הבנתי',
+  /* the edge cases (spec-artifact.md, "All cases") */
+  ambiguousQ: () => 'יש שני מקומות כאלה. לאיזה?',
+  tooFar:     () => 'זה רחוק מדי לאוטובוס אחד.',
+  tooFarSub:  () => 'כדאי לבקש עזרה.',
+  tooClose:   () => 'זה קרוב. עדיף ללכת ברגל.',
+  tooCloseSub:p  => p.min <= 1 ? 'זו דקה אחת הליכה.' : `זה כ־${p.min} דקות הליכה.`,
+  walkThere:  () => 'ללכת ברגל',
+  noService:  () => 'עכשיו אין אוטובוסים.',
+  noServiceSub:p => `האוטובוס הבא ${p.when}.`,
+  noPerm:     () => 'בלי מיקום אני לא יכול להדריך.',
+  noPermSub:  () => 'אפשר לאפשר מיקום: הגדרות הטלפון ← מיקום ← להפעיל.',
+  tryAgain:   () => 'לנסות שוב',
+  wrongSide:  () => 'התחנה שלך בצד השני של הכביש.',
+  wrongSideSub:() => 'לחצות במעבר החציה, בזהירות.',
+  crossed:    () => 'עברתי לצד השני',
+  gpsWeak:    () => 'המיקום לא מדויק כרגע.',
+  gpsWeakSub: () => g('כשתגיע לתחנה — לחץ "הגעתי לתחנה".', 'כשתגיעי לתחנה — לחצי "הגעתי לתחנה".'),
+  missed:     () => 'נראה שהאוטובוס עבר.',
+  missedSub:  p  => `הבא מגיע בעוד ${p.min} דקות.`,
+  waitNext:   () => 'לחכות לבא',
+  wrongBus:   () => 'נראה שזה לא הקו הנכון.',
+  wrongBusSub:() => g('רד בתחנה הבאה, ואני אדריך משם.', 'רדי בתחנה הבאה, ואני אדריך משם.'),
+  gotOffShort:() => 'ירדתי',
+  waitLong:   () => 'אפשר לשבת על הספסל.',
+  waitLongSub:() => 'אני אגיד כשהאוטובוס מגיע.',
+  keepWait:   () => 'לחכות',
+  alertMissed:() => g('לחץ על הכפתור האדום באוטובוס!', 'לחצי על הכפתור האדום באוטובוס!'),
+  detour:     () => 'האוטובוס נוסע בדרך אחרת.',
+  detourSub:  () => 'להישאר רגועים. אני עוקב אחרי הדרך.',
+  battery:    () => 'הסוללה כמעט נגמרת.',
+  batterySub: p  => g(`כדאי לשלוח ${p.L} איפה אתה.`, `כדאי לשלוח ${p.L} איפה את.`),
+  batteryNoC: () => 'הסוללה כמעט נגמרת. כדאי לבקש עזרה עכשיו.',
+  offline:    () => 'אין אינטרנט כרגע.',
+  offlineSub: () => 'אני ממשיך לפי המסלול ששמרתי.',
+  hotlineSub: () => 'אפשר גם להתקשר למוקד *8787.'
+};
+const t = (k, p) => STR[k](p || {});
+
+const STRIP_NAMES = ['הליכה לתחנה', 'בתחנה', 'באוטובוס', 'הליכה ליעד'];
+const STEP = {
+  onboard: n => `היכרות · ${n} מתוך 5`, plan: 'תכנון הדרך', home: 'כתובת הבית', contact: 'מספר לעזרה',
+  help: 'איפה אני?', person: 'עזרה', settings: (i, n) => `הגדרות · ${i} מתוך ${n}`
+};
+
+/* ---------- runtime state ---------- */
+const S = {
+  screen: null, speech: '', timers: [], overlay: null, paused: false, lastBase: null,
+  pos: DEMO ? { lat: FALLBACK.start.lat, lon: FALLBACK.start.lon } : null, acc: 999,
+  busy: false, lastText: '', homeCtx: null, rec: null, micBlocked: false,
+  alertOn: false, alertTimer: null, alertAuto: null, wake: null, wantWake: false,
+  watch: null, city: null, helpTok: 0, sayTok: 0, audioUnlocked: false, gen: 0, hold: false,
+  lastPosSave: 0, trail: [], lost: null, off: null, offQuietUntil: 0, detoured: false, firstDest: true
+};
+window.laanTrail = S.trail;
+
+/* ---------- geometry ---------- */
+function dist(a, b){
+  const R = 6371000, rad = Math.PI / 180;
+  const la1 = (a.lat != null ? a.lat : a[0]) * rad, la2 = (b.lat != null ? b.lat : b[0]) * rad;
+  const lo1 = (a.lon != null ? a.lon : a[1]) * rad, lo2 = (b.lon != null ? b.lon : b[1]) * rad;
+  const x = Math.sin((la2 - la1) / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin((lo2 - lo1) / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(x)));
+}
+const P = o => [o.lat, o.lon];
+function pathLen(path){ let s = 0; for (let i = 1; i < path.length; i++) s += dist(path[i - 1], path[i]); return s; }
+function along(path, f){
+  const total = pathLen(path); let target = f * total;
+  for (let i = 1; i < path.length; i++){
+    const seg = dist(path[i - 1], path[i]);
+    if (target <= seg || i === path.length - 1){
+      const k = seg ? Math.min(1, target / seg) : 1;
+      return { lat: path[i - 1][0] + (path[i][0] - path[i - 1][0]) * k, lon: path[i - 1][1] + (path[i][1] - path[i - 1][1]) * k };
+    }
+    target -= seg;
+  }
+  return { lat: path[0][0], lon: path[0][1] };
+}
+function pathFrom(path, pos){
+  if (!pos) return path;
+  let best = 0, bd = Infinity;
+  path.forEach((p, i) => { const d = dist(p, pos); if (d < bd){ bd = d; best = i; } });
+  const rest = path.slice(best + 1);
+  return rest.length ? [P(pos)].concat(rest) : [P(pos), path[path.length - 1]];
+}
+/* shortest distance from a point to a polyline, in metres (local flat projection) */
+function distToPath(pos, path){
+  if (!path || !path.length) return 0;
+  const lat0 = pos.lat * Math.PI / 180, kx = 111320 * Math.cos(lat0), ky = 110540;
+  const xy = p => [(p[1] - pos.lon) * kx, (p[0] - pos.lat) * ky];
+  if (path.length === 1){ const a = xy(path[0]); return Math.hypot(a[0], a[1]); }
+  let best = Infinity;
+  for (let i = 1; i < path.length; i++){
+    const a = xy(path[i - 1]), b = xy(path[i]);
+    const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy;
+    const k = L2 ? Math.max(0, Math.min(1, -(a[0] * dx + a[1] * dy) / L2)) : 0;
+    best = Math.min(best, Math.hypot(a[0] + k * dx, a[1] + k * dy));
+  }
+  return best;
+}
+/* demo &lost=1: walk out sideways off the middle of the path, then come back */
+function detour(path, off){
+  const half = pathLen(path) / 2;
+  let acc = 0;
+  for (let i = 1; i < path.length; i++){
+    const seg = dist(path[i - 1], path[i]);
+    if (acc + seg >= half){
+      const k = seg ? (half - acc) / seg : 0, a = path[i - 1], b = path[i];
+      const M = [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
+      const cos = Math.cos(M[0] * Math.PI / 180);
+      const vx = (b[1] - a[1]) * 111320 * cos, vy = (b[0] - a[0]) * 110540, L = Math.hypot(vx, vy) || 1;
+      const side = k2 => [M[0] + k2 * (vx / L) * off / 110540, M[1] + k2 * (-vy / L) * off / (111320 * cos)];
+      const A = side(1), B = side(-1), far = q => distToPath({ lat: q[0], lon: q[1] }, path);
+      const O = far(A) >= far(B) ? A : B;          // the side that really leads away from the route
+      return path.slice(0, i).concat([M, O, M], path.slice(i));
+    }
+    acc += seg;
+  }
+  return path;
+}
+const round50 = m => Math.max(50, Math.round(m / 50) * 50);
+const walkMinutes = m => Math.max(1, Math.round(m / 60));
+function fmtDist(m){
+  if (m < 1000) return `${round50(m)} מטר`;
+  const km = Math.round(m / 100) / 10;
+  return `${String(km).replace(/\.0$/, '')} ק״מ`;
+}
+
+/* ---------- network: none. An Artifact may not call any server, so every lookup that used one
+   answers "not available" at once and the app uses its demo data. ---------- */
+async function api(){ return { ok: false }; }
+const enc = encodeURIComponent;
+
+/* ---------- voice ----------
+   Chrome fills getVoices() late (Android especially): listen to voiceschanged AND poll for 2 s.
+   Audio is blocked until the first gesture, so the current sentence is queued and spoken on the
+   first touch. Long text is cut into pieces ≤ 120 characters (Chrome stalls long utterances). */
+const TTS = { voice: null, loaded: false, checked: false };
+function pickVoice(){
+  try {
+    const vs = speechSynthesis.getVoices() || [];
+    if (!vs.length) return;
+    TTS.loaded = true;
+    const he = vs.filter(v => /^(he|iw)/i.test(v.lang || ''));
+    TTS.voice = he.find(v => /IL/i.test(v.lang)) || he[0] || null;
+  } catch (e) {}
+}
+if ('speechSynthesis' in window){
+  pickVoice();
+  try { speechSynthesis.addEventListener('voiceschanged', pickVoice); } catch (e) { speechSynthesis.onvoiceschanged = pickVoice; }
+  let polls = 0;
+  const poll = setInterval(() => { pickVoice(); if (TTS.voice || ++polls >= 10) clearInterval(poll); }, 200);
+}
+function forSpeech(s){
+  return String(s)
+    .replace(/ק״מ/g, 'קילומטר').replace(/כ־/g, 'בערך ').replace(/ל־/g, 'ל')
+    .replace(/\//g, ' פינת ').replace(/[()]/g, ', ').replace(/[✓✗—·]/g, ' ')
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}️]/gu, '').replace(/"/g, '')
+    .replace(/\u2060/g, '').replace(/\s+/g, ' ').trim();
+}
+function chunks(s, max){
+  const out = [];
+  String(s).split(/(?<=[.!?])\s+/).forEach(sent => {
+    while (sent.length > max){
+      let cut = sent.lastIndexOf(',', max); if (cut < 40) cut = sent.lastIndexOf(' ', max); if (cut < 20) cut = max;
+      out.push(sent.slice(0, cut + 1).trim()); sent = sent.slice(cut + 1).trim();
+    }
+    if (sent) out.push(sent);
+  });
+  return out;
+}
+const gestureSeen = () => S.audioUnlocked || !!(navigator.userActivation && navigator.userActivation.hasBeenActive);
+function speak(text){
+  if (!text || !settings.voice) return;
+  const said = forSpeech(text);
+  const tok = ++S.sayTok;
+  if (!gestureSeen()){ S.pendingVoice = said; try { console.log('[voice:queued] ' + said); } catch (e) {} return; }
+  const h = H();
+  if (h && typeof h.speak === 'function'){
+    try { console.log('[voice] ' + said); } catch (e) {}
+    let p; try { p = Promise.resolve(h.speak(said)); } catch (e) { p = Promise.resolve(false); }
+    p.then(ok => { if (!ok && tok === S.sayTok) nativeSpeak(said, tok); }, () => { if (tok === S.sayTok) nativeSpeak(said, tok); });
+    return;
+  }
+  nativeSpeak(said, tok);
+}
+function nativeSpeak(said, tok){
+  if (!('speechSynthesis' in window)) return;
+  if (!gestureSeen()){ S.pendingVoice = said; try { console.log('[voice:queued] ' + said); } catch (e) {} return; }
+  try {
+    speechSynthesis.cancel();
+    // a short gap after cancel(): Android Chrome sometimes drops an utterance queued in the same tick
+    setTimeout(() => {
+      if (tok !== S.sayTok) return;
+      try { console.log('[voice] ' + said); } catch (e) {}
+      chunks(said, 120).forEach(part => {
+        const u = new SpeechSynthesisUtterance(part);
+        u.lang = (TTS.voice && TTS.voice.lang) || 'he-IL'; u.rate = settings.rate || 0.85; u.pitch = 1;
+        if (TTS.voice) u.voice = TTS.voice;
+        try { speechSynthesis.speak(u); } catch (e) {}
+      });
+      try { speechSynthesis.resume(); } catch (e) {}
+    }, 60);
+  } catch (e) {}
+  checkHebrewVoice();
+}
+function checkHebrewVoice(){
+  if (TTS.checked || settings.noVoiceShown) return;
+  setTimeout(() => {
+    pickVoice();
+    if (TTS.checked || !TTS.loaded) return;
+    TTS.checked = true;
+    if (!TTS.voice && !settings.noVoiceShown){
+      settings.noVoiceShown = true; saveSettings();
+      const n = $('notice'); n.textContent = t('noVoice'); n.hidden = false;
+    }
+  }, 2000);
+}
+function vib(p){ try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+
+/* ---------- taps: debounced for tremor, felt, and they unlock audio ---------- */
+let lastTap = 0;
+function tap(fn){
+  return function (ev){
+    const now = Date.now();
+    if (now - lastTap < 600){ if (ev) ev.preventDefault(); return; }
+    lastTap = now;
+    S.hold = false;                       // a jumped-to screen comes alive with the first tap
+    vib(30); unlockAudio(ev && ev.isTrusted);
+    return fn.call(this, ev);
+  };
+}
+function unlockAudio(trusted){
+  if (S.audioUnlocked || trusted === false) return;
+  S.audioUnlocked = true;
+  try { if ('speechSynthesis' in window) speechSynthesis.resume(); } catch (e) {}
+}
+// the first real touch anywhere unlocks audio and speaks the sentence that was waiting
+document.addEventListener('pointerdown', function first(ev){
+  document.removeEventListener('pointerdown', first, true);
+  const wasLocked = !S.audioUnlocked;
+  unlockAudio(true);
+  // a first click on the presenter panel starts something new: the waiting sentence is dropped
+  if (ev && ev.target && ev.target.closest && ev.target.closest('#pp')){ S.pendingVoice = null; return; }
+  if (wasLocked) setTimeout(() => { if (S.pendingVoice || S.speech) speak(S.alertOn ? alertSpeech() : S.speech); S.pendingVoice = null; }, 50);
+}, true);
+document.addEventListener('touchstart', () => {}, { passive: true }); // enables :active on Android
+
+/* ---------- screen renderer: one layout for every screen ---------- */
+function later(fn, ms){ const id = setTimeout(fn, ms); S.timers.push(id); return id; }
+function clearScreenTimers(){ S.timers.forEach(clearTimeout); S.timers = []; if (S.tick){ clearInterval(S.tick); S.tick = null; } }
+function makeBtn(b){
+  const el = document.createElement('button');
+  el.type = 'button'; el.id = 'b-' + b.id;
+  el.className = 'b-' + (b.kind || 'pri');
+  el.innerHTML = (b.icon ? ic(b.icon) : '') + '<span>' + fmt(b.label) + '</span>';
+  el.addEventListener('click', tap(b.onTap));
+  return el;
+}
+function setButtons(list){
+  const box = $('actions'), quiet = $('quiet');
+  box.innerHTML = ''; quiet.innerHTML = '';
+  (list || []).filter(Boolean).forEach(b => (b.kind === 'quiet' ? quiet : box).appendChild(makeBtn(b)));
+}
+function journeyIdx(){
+  if (!journey) return -1;
+  return { walk: 0, stop: 1, ride: 2, off: 2, passed: 2, finalwalk: 3, arrived: 4 }[journey.step] ?? -1;
+}
+function leadHTML(o){
+  if (o.lead === 'strip'){
+    const cur = o.stripAt != null ? o.stripAt : journeyIdx();
+    const icons = ['walk', 'pin', 'bus', 'flag'];
+    return '<div class="strip" role="img" aria-label="' + esc(cur >= 4 ? 'סוף הדרך' : `שלב ${cur + 1} מתוך 4`) + '">' +
+      icons.map((n, i) => (i ? `<span class="ln${i <= cur ? ' done' : ''}"></span>` : '') +
+        `<span class="n${i < cur ? ' done' : i === cur ? ' cur' : ''}">${ic(i < cur ? 'check' : n)}</span>`).join('') + '</div>';
+  }
+  if (o.lead && o.lead.dots){
+    let s = '<div class="dots" role="img" aria-label="' + esc(STEP.onboard(o.lead.dots)) + '">';
+    for (let i = 1; i <= 5; i++) s += `<i class="${i < o.lead.dots ? 'on' : i === o.lead.dots ? 'cur' : ''}"></i>`;
+    return s + '</div>';
+  }
+  return o.name === 'dest' ? '<span class="mark">לאן?</span>' : '';
+}
+function stripLabel(){
+  const i = journeyIdx(); if (!journey) return '';
+  const p = journey.plan;
+  return i >= 4 ? 'סוף הדרך' : i === 0 ? 'בדרך לתחנה' : i === 1 ? `בתחנה ${nm(p.origin_stop.name)}` : i === 2 ? `קו ${p.line} לכיוון ${p.headsign}` : `בדרך ל${destShort()}`;
+}
+function render(o){
+  clearScreenTimers();
+  stopListening();
+  S.screen = o.name;
+  document.body.dataset.screen = o.name;
+  S.trail.push([Date.now(), o.name]);
+  $('lead').innerHTML = leadHTML(o);
+  const stepText = o.step != null ? o.step : (o.lead === 'strip' ? stripLabel() : '');
+  // journey screens: the contextual label sits above the sentence; elsewhere it shares the top row
+  $('step').innerHTML = o.lead === 'strip' ? fmt(stepText) : '';
+  $('step').hidden = !(o.lead === 'strip' && stepText);
+  $('topstep').innerHTML = o.lead === 'strip' ? '' : fmt(stepText);
+  const bi = $('blockIcon');
+  if (o.blockIcon){ bi.innerHTML = o.blockIcon; bi.hidden = false; $('block').classList.add('row'); }
+  else { bi.innerHTML = ''; bi.hidden = true; $('block').classList.remove('row'); }
+  $('say').innerHTML = fmt(o.say);
+  $('say').classList.toggle('big', !!o.bigSay);
+  const sub = $('sub'); sub.innerHTML = o.sub ? fmt(o.sub) : ''; sub.hidden = !o.sub;
+  $('notice').hidden = true;
+  const mid = $('mid'); mid.className = 'mid' + (o.midClass ? ' ' + o.midClass : ''); mid.innerHTML = o.mid || '';
+  setButtons(o.buttons);
+  $('lost').hidden = !!o.noLost;
+  $('main').scrollTop = 0;
+  S.speech = o.speak || [o.say, o.sub].filter(Boolean).join(' ');
+  try { $('say').focus({ preventScroll: true }); } catch (e) {}
+  if (o.after) o.after();
+  if (!o.silent) later(() => speak(S.speech), 300);
+  onRendered(o.name);
+}
+function setSay(say, sub, doSpeak){
+  $('say').innerHTML = fmt(say);
+  const el = $('sub'); el.innerHTML = sub ? fmt(sub) : ''; el.hidden = !sub;
+  S.speech = [say, sub].filter(Boolean).join(' ');
+  $('mid').classList.toggle('tight', !!sub && !!$('mic'));
+  if (doSpeak) speak(S.speech);
+}
+function autoTap(id, ms){
+  if (!AUTO) return;
+  later(() => { if (!AUTO) return; const b = $('b-' + id); if (b) b.click(); }, D(ms));
+}
+const card = (icon, title, detail, cls, lead) => `<div class="card${cls ? ' ' + cls : ''}">${lead || ic(icon)}<div class="txt"><span class="nm">${fmt(String(title).includes('/') ? nm(title) : title)}</span>${detail ? `<span class="ds">${fmt(detail)}</span>` : ''}</div></div>`;
+const contactCard = () => telCard();
+const KIND_ICON = { 'בית מרקחת': 'pin', 'בנק': 'pin', 'תחנת אוטובוס': 'bus' };
+const kmText = m => m < 1000 ? `${round50(m)} מטר` : `${String(m < 1500 ? 1 : Math.round(m / 500) / 2).replace(/\.0$/, '')} קילומטר`;
+/* one big figure: parts are [text, 'n'|'u'|'s'|'soft'] */
+const fig = (parts, cls, cap) => `<div class="fig${cls ? ' ' + cls : ''}">${parts.map(p => p[1] === 'n' ? `<span class="num"><bdi>${esc(p[0])}</bdi></span>` : `<span class="${p[1] === 's' ? 'sep' : p[1] === 'soft' ? 'soft' : 'unit'}">${fmt(p[0])}</span>`).join('')}</div>` + (cap ? `<p class="figcap micro">${esc(cap)}</p>` : '');
+function countdownFig(min, cap, cls){
+  return min <= 0 ? fig([['מגיע עכשיו', 'u']], cls, cap) : fig([['בעוד', 'u'], [String(min), 'n'], [min === 1 ? 'דקה' : 'דקות', 'u']], cls, cap);
+}
+const destShort = () => journey ? shortName(journey.dest.name) : '';
+function routeMap(){ return '<div class="map" id="mapslot" role="img" aria-label="מפה: איפה אני ואיפה הדרך"></div>'; }
+function legMap(){              // the leg the person is on now, for the help screens
+  if (!journey) return null;
+  if (journey.step === 'finalwalk'){
+    const path = (journey.walkFrom.path && journey.walkFrom.path.length > 1) ? journey.walkFrom.path : [P(journey.plan.dest_stop), P(journey.dest)];
+    return { path, target: journey.dest, label: 'היעד' };
+  }
+  if (journey.step === 'walk') return { path: journey.walkTo.path, target: journey.plan.origin_stop, label: 'התחנה' };
+  return null;
+}
+const journeyCard = () => journey ? card('flag', journey.dest.name, `קו ${journey.plan.line}, ${STRIP_NAMES[Math.min(3, Math.max(0, journeyIdx()))]}`) : '';
+function contactBtn(kind){
+  if (!settings.contact) return null;
+  return { id: 'call', kind: kind || 'sec', icon: 'phone', label: t('helpCall', { L: lName(contactName()) }), onTap: callContact };
+}
+/* phone-dial and text-message links are unreliable inside an Artifact: "call" opens the help screen, which shows
+   the number big and selectable, with a copy button */
+function callContact(){ helpScreen(); }
+
+/* ---------- settings applied to the page ---------- */
+function applySettings(){
+  const r = document.documentElement;
+  r.dataset.size = settings.size === 'xl' ? 'xl' : 'l';
+  r.dataset.contrast = settings.contrast === 'hc' ? 'hc' : 'normal';
+  const tc = document.querySelector('meta[name="theme-color"]');
+  if (tc) tc.content = settings.contrast === 'hc' ? '#000000' : '#0B3D91';
+  $('again').innerHTML = ic('speaker') + '<span>' + esc(t('again')) + '</span>';
+  $('lost').innerHTML = '<span class="disc">' + ic('compass') + '</span><span>' + esc(t('lost')) + '</span>';
+  $('alertOk').textContent = t('gotIt');
+  syncPanel();
+}
+
+/* ============================================================
+   First run (never again)
+   ============================================================ */
+function screenWelcome(){
+  S.lastBase = screenWelcome;
+  render({ name: 'welcome', lead: { dots: 1 }, step: STEP.onboard(1), say: t('welcome'),
+    mid: `<div class="band solo"><div class="plate">לאן?</div><div class="tag">${esc(t('welcomeCap'))}</div></div>`,
+    buttons: [{ id: 'start', label: t('start'), onTap: screenGender }] });
+}
+function screenGender(){
+  S.lastBase = screenGender;
+  const pick = v => tap(() => { settings.gender = v; saveSettings(); applySettings(); S.homeCtx = 'onboard'; placeScreen('home'); });
+  render({ name: 'gender', lead: { dots: 2 }, step: STEP.onboard(2), say: t('genderQ'),
+    sub: 'ככה אדבר איתך.',
+    mid: `<div class="who"><button type="button" id="b-m">אתה</button><button type="button" id="b-f">את</button></div>`,
+    after(){ $('b-m').addEventListener('click', pick('m')); $('b-f').addEventListener('click', pick('f')); } });
+}
+function screenContact(ctx){
+  S.lastBase = () => screenContact(ctx);
+  const next = () => screenContactName(ctx);
+  const skip = () => ctx === 'onboard' ? screenPerms() : screenSettings(6);
+  render({
+    name: 'contact', lead: ctx === 'onboard' ? { dots: 4 } : null, step: ctx === 'onboard' ? STEP.onboard(4) : STEP.contact,
+    say: t('contactQ'), sub: t('contactSub'),
+    mid: `<input id="field" class="field" type="tel" inputmode="tel" dir="auto" autocomplete="tel"
+            aria-label="${esc(t('phoneHint'))}" placeholder="${esc(t('phoneHint'))}" value="${esc(settings.contact || '')}">`,
+    after(){
+      const f = $('field');
+      const save = () => {
+        const v = f.value.trim();
+        if (v.replace(/\D/g, '').length < 3){ setSay(t('contactBad'), null, true); return; }
+        settings.contact = v; saveSettings(); f.blur(); next();
+      };
+      let had = null;
+      const refresh = () => {
+        const h = !!f.value.trim(); if (h === had) return; had = h;
+        setButtons([h ? { id: 'save', icon: 'check', label: t('save'), onTap: save } : null,
+                    { id: 'notnow', kind: 'quiet', label: t('notNow'), onTap: skip }]);
+      };
+      f.addEventListener('input', refresh);
+      f.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); save(); } });
+      f.addEventListener('focus', () => setTimeout(() => intoView(f), 350));
+      refresh();
+    }
+  });
+}
+function screenContactName(ctx){
+  S.lastBase = () => screenContactName(ctx);
+  const next = () => ctx === 'onboard' ? screenPerms() : screenSettings(6);
+  render({
+    name: 'contactName', lead: ctx === 'onboard' ? { dots: 4 } : null, step: ctx === 'onboard' ? STEP.onboard(4) : STEP.contact,
+    say: t('contactNameQ'), sub: t('contactNameSub'),
+    mid: `<input id="field" class="field" type="text" dir="auto" autocomplete="off"
+            aria-label="${esc(t('nameHint'))}" placeholder="${esc(t('nameHint'))}" value="${esc(settings.contactName || '')}">`,
+    after(){
+      const f = $('field');
+      const save = () => { settings.contactName = f.value.trim(); saveSettings(); f.blur(); next(); };
+      let had = null;
+      const refresh = () => {
+        const h = !!f.value.trim(); if (h === had) return; had = h;
+        setButtons([h ? { id: 'save', icon: 'check', label: t('save'), onTap: save } : null,
+                    { id: 'notnow', kind: 'quiet', label: t('notNow'), onTap: next }]);
+      };
+      f.addEventListener('input', refresh);
+      f.addEventListener('keydown', e => { if (e.key === 'Enter' && f.value.trim()){ e.preventDefault(); save(); } });
+      f.addEventListener('focus', () => setTimeout(() => intoView(f), 350));
+      refresh();
+    }
+  });
+}
+function screenPerms(){
+  S.lastBase = screenPerms;
+  render({ name: 'perms', lead: { dots: 5 }, step: STEP.onboard(5), say: t('permsSay'), sub: t('permsSub'),
+    mid: `<ul class="list"><li>${ic('pin')}<span>מיקום — לדעת איפה ${esc(t('you'))}</span></li><li>${ic('mic')}<span>מיקרופון — לשמוע אותך</span></li></ul>`,
+    buttons: [{ id: 'ok', icon: 'check', label: t('okay'), onTap: async () => {
+      if (S.busy) return; S.busy = true;
+      await askPerms();
+      S.busy = false;
+      settings.done = true; settings.visits = Math.max(1, settings.visits || 0); saveSettings(); startTracking();
+      S.geoDenied ? screenNoPerm() : screenDest();
+    } }] });
+}
+async function askPerms(){ /* the Artifact never asks for device permissions: the journey runs on the demo route */ }
+
+/* ============================================================
+   Destination / home address input (mic + field)
+   ============================================================ */
+/* the microphone: Claude's dictation when the viewer has it; otherwise a tap fills the demo words */
+const hostDictation = () => { const h = H(); return h && h.dictation && typeof h.dictation.start === 'function' ? h.dictation : null; };
+const canListen = () => !S.micBlocked;
+const DEMO_TEXT = { dest: 'קופת חולים בדיזנגוף', home: "קינג ג'ורג' 20, תל אביב", lost: 'סופר פארם' };
+function screenDest(prefill){ S.homeCtx = null; placeScreen('dest', prefill); }
+function shortcuts(){
+  const list = [];
+  if (settings.home) list.push({ place: settings.home, icon: 'home', label: t('homeBtn') });
+  settings.recent.filter(r => !(settings.home && dist(r, settings.home) < 30)).slice(0, 2)
+    .forEach(r => list.push({ place: r, icon: 'pin', label: shortName(r.name) }));
+  return list;
+}
+function placeScreen(mode, prefill){
+  const isDest = mode === 'dest';
+  S.lastBase = () => placeScreen(mode, prefill);
+  const hasMic = canListen();
+  const returning = isDest && (settings.visits || 0) >= 2;
+  const cuts = returning ? shortcuts() : [];
+  const greet = returning && S.firstDest;
+  const lead = isDest ? null : (S.homeCtx === 'onboard' ? { dots: 3 } : null);
+  const step = isDest ? STEP.plan : (S.homeCtx === 'onboard' ? STEP.onboard(3) : STEP.home);
+  const ask = isDest ? (greet ? t('destBack') : t('destQ')) : t('homeQ');
+  const micBtn = cls => hasMic ? `<button id="mic" class="mic${cls || ''}" type="button">${ic('mic')}<span>${esc(t('micLabel'))}</span></button>` : '';
+  const field = ph => `<input id="field" class="field" type="text" dir="auto" autocomplete="off" enterkeyhint="search"
+            aria-label="${esc(ask)}" placeholder="${esc(ph)}" value="${esc(prefill || '')}">`;
+  let mid;
+  if (cuts.length){
+    mid = `<div class="short">${cuts.map((c, i) => `<button type="button" class="b-sec" id="cut${i}">${ic(c.icon)}<span>${fmt(c.label)}</span></button>`).join('')}</div>` +
+          `<div class="inrow">${field(t('typeShort'))}${micBtn()}</div>`;
+  } else {
+    mid = micBtn() + field(t('typeHere'));
+  }
+  const arrival = !isDest && S.homeCtx === 'arrival';
+  render({
+    name: isDest ? 'dest' : 'home', lead, step, say: ask,
+    sub: arrival ? t('homeNeeded') : null,
+    midClass: arrival ? 'tight' : (cuts.length ? 'top' : ''),
+    mid,
+    after(){
+      if (isDest) S.firstDest = false;
+      const f = $('field'), mic = $('mic');
+      let had = null;
+      const quiet = isDest ? { id: 'settings', kind: 'quiet', icon: 'gear', label: t('settings'), onTap: () => screenSettings(0) }
+                           : { id: 'notnow', kind: 'quiet', label: t('notNow'), onTap: homeSkip };
+      const refresh = () => {
+        const h = !!f.value.trim(); if (h === had) return; had = h;
+        const go = isDest ? { id: 'go', icon: 'check', label: t('search'), onTap: () => submitPlace(mode, f.value.trim()) }
+                          : { id: 'go', icon: 'check', label: t('save'), onTap: () => submitPlace(mode, f.value.trim()) };
+        setButtons([h ? go : null, quiet]);
+      };
+      f.addEventListener('input', refresh);
+      f.addEventListener('keydown', e => { if (e.key === 'Enter' && f.value.trim()){ e.preventDefault(); f.blur(); submitPlace(mode, f.value.trim()); } });
+      f.addEventListener('focus', () => setTimeout(() => intoView(f), 350));
+      refresh();
+      cuts.forEach((c, i) => $('cut' + i).addEventListener('click', tap(() => screenConfirm(c.place, 'dest'))));
+      if (mic) mic.addEventListener('click', tap(() => {
+        if (S.busy) return;
+        if (S.rec){ stopListening(); return; }
+        hostDictation() ? listen(text => { const ff = $('field'); if (ff){ ff.value = text; ff.dispatchEvent(new Event('input')); } submitPlace(mode, text); }) : demoFill(mode);
+      }));
+      if (AUTO && !prefill && !cuts.length){     // the hands-free demo: "as if spoken"
+        later(() => setListening(true), D(800));
+        later(() => demoFill(mode), D(2000));
+      }
+    }
+  });
+}
+function setListening(on){
+  const mic = $('mic');
+  if (mic) mic.classList.toggle('listening', on);
+  if (on){ $('say').innerHTML = fmt(t('listening')); $('sub').hidden = true; }
+}
+function demoFill(mode){
+  const f = $('field'); if (!f) return;
+  setListening(false);
+  f.value = DEMO_TEXT[mode] || DEMO_TEXT.dest;
+  f.dispatchEvent(new Event('input'));
+  if (mode === 'lost') lostSubmit(f.value); else submitPlace(mode, f.value);
+}
+function stopListening(){
+  if (!S.rec) return;
+  try { S.rec.abort ? S.rec.abort() : S.rec.stop(); } catch (e) {}
+  S.rec = null;
+}
+/* listening: Claude's dictation only (the browser's own speech recognition is refused in an Artifact).
+   dictation.start runs synchronously inside the tap; the first settled phrase ends the listening. */
+function listen(onText){
+  try { speechSynthesis.cancel(); } catch (e) {}
+  const host = hostDictation(); if (!host) return;
+  let got = false, heard = false;
+  const end = () => { try { host.stop(); } catch (e) {} };
+  S.rec = { stop: end, abort: end };
+  setListening(true);
+  try {
+    host.start(txt => {
+      if (got) return;
+      txt = String(txt || '').trim(); if (!txt) return;
+      got = true; S.rec = null; end(); setListening(false); onText(txt);
+    }, st => {
+      if (st === 'listening'){ heard = true; setListening(true); return; }
+      if (got) return;
+      S.rec = null; setListening(false);
+      if (!heard){            // refused or unavailable before it ever listened: typing only from now on
+        S.micBlocked = true; const m = $('mic'); if (m) m.hidden = true;
+        setSay(t('noMic'), t('writeHere'), true);
+      } else if (!S.busy) setSay(t('noSpeech'), t('noSpeechSub'), true);
+    });
+  } catch (e) { S.rec = null; setListening(false); }
+}
+function homeSkip(){
+  if (S.homeCtx === 'onboard') return screenContact('onboard');
+  if (S.homeCtx === 'settings') return screenSettings(5);
+  return screenArrived();
+}
+async function submitPlace(mode, text){
+  if (S.busy || !text) return;
+  S.busy = true; S.lastText = text;
+  stopListening();
+  const screen = S.screen;
+  setListening(false);
+  setSay(t('checking'), null, true);
+  const gen = S.gen;
+  const r = await resolvePlace(text, mode);
+  if (gen !== S.gen) return;
+  S.busy = false;
+  if (S.screen !== screen) return;
+  if (r.status === 'notfound'){ setSay(t('notFound'), t('notFoundSub'), true); return; }
+  screenConfirm(r.place, mode);
+}
+const hasLatin = s => /[A-Za-z]/.test(s || '');
+function ownWords(text){
+  return String(text || '')
+    .replace(/^\s*(אני\s+)?(צריך|צריכה|רוצה)\s+(להגיע|לנסוע|ללכת)\s+(אל\s+|ל־?)?/, '')
+    .replace(/^\s*(תביא|תביאי|קח|קחי)\s+אותי\s+(אל\s+|ל־?)?/, '')
+    .replace(/\s*בבקשה\s*/g, ' ').replace(/\s+/g, ' ').trim() || String(text || '').trim();
+}
+function placeName(modelName, text){
+  if (modelName && !hasLatin(modelName)) return modelName;
+  const own = ownWords(text);
+  return hasLatin(own) ? 'המקום שביקשת' : own;
+}
+/* the place: Claude reads the words (when the viewer allows it); the route is always the demo route */
+async function resolvePlace(text, mode){
+  const t0 = Date.now();
+  if (mode === 'home'){ await sleep(D(600)); return { status: 'ok', place: Object.assign({}, DEMO_HOME) }; }
+  // the demo's own words (the hands-free run, or the mic without dictation) lead to the demo clinic
+  const demoWords = AUTO || text === DEMO_TEXT.dest || /כללית|קופת\s*חולים|מרפא/.test(text);
+  let name = '';
+  if (!AUTO){
+    const hu = await hostCall('understand', text, 'תל אביב');
+    if (hu && hu.display_name && !hasLatin(hu.display_name)) name = hu.display_name;
+  }
+  await sleep(Math.max(0, D(600) - (Date.now() - t0)));
+  // words nobody understood are never swapped for the demo destination
+  if (!name && !demoWords) return { status: 'notfound' };
+  return { status: 'ok', place: Object.assign({}, FALLBACK.dest, name ? { name } : {}) };
+}
+function screenConfirm(place, mode){
+  S.lastBase = () => screenConfirm(place, mode);
+  const d = (mode === 'dest' && S.pos) ? dist(S.pos, place) : null;
+  render({
+    name: 'confirm', step: mode === 'dest' ? STEP.plan : STEP.home,
+    say: t('confirmQ'), speak: `${place.name}. ${t('confirmQ')}`,
+    mid: card(mode === 'dest' ? 'pin' : 'home', place.name, d != null && d > 40 ? t('dist', { d: kmText(d) }) : null, 'hero'),
+    buttons: [
+      { id: 'yes', kind: 'yes', icon: 'check', label: t('yes'), onTap: () => mode === 'dest' ? planJourney(place) : saveHome(place) },
+      { id: 'no', kind: 'no', icon: 'x', label: t('no'), onTap: () => mode === 'dest' ? screenDest(S.lastText) : placeScreen('home', S.lastText) }
+    ],
+    after(){ autoTap('yes', 3000); }
+  });
+}
+function saveHome(place){
+  settings.home = { name: place.name, lat: place.lat, lon: place.lon }; saveSettings();
+  if (S.homeCtx === 'onboard') return screenContact('onboard');
+  if (S.homeCtx === 'settings') return screenSettings(5);
+  if (S.homeCtx === 'arrival') return planJourney(settings.home);
+  screenDest();
+}
+
+/* ============================================================
+   Planning: direct line only, every step falls back silently
+   ============================================================ */
+function fallbackPlan(dest){
+  const fwd = dist(dest, FALLBACK.dest) <= dist(dest, FALLBACK.start);
+  const list = fwd ? FALLBACK.stops.slice() : FALLBACK.stops.slice().reverse();
+  return {
+    line: FALLBACK.line, headsign: fwd ? FALLBACK.headsign : FALLBACK.headsignBack,
+    origin_stop: list[0], stops: list.slice(1), dest_stop: list[list.length - 1],
+    departs_in_min: FALLBACK.departs_in_min, fallback: true
+  };
+}
+function currentPos(timeout){
+  if (S.pos) return Promise.resolve(S.pos);
+  return freshFix(timeout, 30000);
+}
+function freshFix(){ return Promise.resolve(null); }   // no GPS in an Artifact
+async function walkPath(a, b, timeout){
+  const straight = () => ({ meters: Math.round(dist(a, b)), path: [P(a), P(b)] });
+  if (DEMO || !a || !b || noServer()){
+    if (a && b && dist(a, FALLBACK.start) < 15 && dist(b, FALLBACK.stops[0]) < 15)
+      return { meters: Math.round(pathLen(FALLBACK.walkTo)), path: FALLBACK.walkTo.slice() };
+    return a && b ? straight() : { meters: 0, path: [] };
+  }
+  const r = await api('GET', `api/walk?from=${a.lat},${a.lon}&to=${b.lat},${b.lon}`, null, timeout);
+  if (r.ok && Array.isArray(r.path) && r.path.length > 1) return { meters: Math.round(r.meters || pathLen(r.path)), path: r.path };
+  return straight();
+}
+function screenPlanning(){
+  render({
+    name: 'planning', step: STEP.plan, say: t('planning'), sub: t('planningSub'), midClass: 'top',
+    mid: '<div class="bar" role="progressbar" aria-label="מחפש"><i id="barfill"></i></div>' + `<p class="waitcap">${esc(t('planningCap'))}</p>`,
+    after(){ requestAnimationFrame(() => requestAnimationFrame(() => { const b = $('barfill'); if (b) b.style.width = SHOT ? '60%' : '100%'; })); }
+  });
+}
+function rememberRecent(dest){
+  if (settings.home && dist(dest, settings.home) < 30) return;
+  const item = { name: dest.name, lat: dest.lat, lon: dest.lon };
+  settings.recent = [item].concat(settings.recent.filter(r => r.name !== item.name)).slice(0, 3);
+  saveSettings();
+}
+async function planJourney(dest){
+  if (S.busy) return; S.busy = true;
+  const gen = S.gen;
+  SIM.stop();
+  rememberRecent(dest);
+  S.planFor = dest;
+  screenPlanning();
+  const t0 = Date.now();
+  const origin = DEMO ? (S.pos || FALLBACK.start) : ((await currentPos(3000)) || FALLBACK.start);
+  const span = dist(origin, dest);
+  if (span > 25000){ S.busy = false; return screenTooFar(); }
+  if (span < 400){ S.busy = false; return screenTooClose(dest, origin); }
+  let plan = null;
+  if (!plan) plan = fallbackPlan(dest);
+  if (plan.departs_in_min > 90){ S.busy = false; return screenNoService(plan.departs_in_min); }
+  const left = Math.max(1500, 8000 - (Date.now() - t0));
+  const [wt, wf] = await Promise.all([walkPath(origin, plan.origin_stop, left), walkPath(plan.dest_stop, dest, left)]);
+  if (DEMO) await sleep(Math.max(0, D(1000) - (Date.now() - t0)));
+  if (gen !== S.gen) return;               // the presenter jumped elsewhere meanwhile
+  journey = {
+    dest: { name: dest.name, lat: dest.lat, lon: dest.lon }, plan, origin: { lat: origin.lat, lon: origin.lon },
+    walkTo: wt, walkFrom: wf, step: 'walk', walking: false, passedIdx: -1, startedAt: Date.now(),
+    departsAt: DEMO ? null : Date.now() + plan.departs_in_min * MINUTE, alert: null, minDest: null, lastPos: null
+  };
+  S.off = null;
+  saveJourney();
+  S.busy = false;
+  if (S.overlay){ S.lastBase = screenWalk; return; }
+  screenWalk();
+}
+function screenNoDirect(dest){
+  S.lastBase = () => screenNoDirect(dest);
+  const call = contactBtn('pri');
+  render({ name: 'nodirect', step: STEP.plan, say: t('noDirect'), sub: t('noDirectSub', { L: settings.contact ? lName(contactName()) : '' }),
+    mid: settings.contact ? contactCard() : '',
+    buttons: [call || { id: 'hot', icon: 'phone', label: t('needHelp'), onTap: () => helpScreen() }, { id: 'back', kind: 'sec', label: t('backStart'), onTap: () => screenDest() }] });
+}
+
+/* ============================================================
+   The journey
+   ============================================================ */
+function stopName(s){ return nm((s && s.name) || ''); }
+function screenWalk(){
+  const j = journey; j.step = 'walk'; saveJourney();
+  S.lastBase = screenWalk;
+  const stop = j.plan.origin_stop;
+  const m = round50(j.walkTo.meters || 0);
+  const remain = S.pos ? round50(dist(S.pos, stop)) : m;
+  render({
+    name: 'walk', lead: 'strip',
+    say: j.walking ? t('walkingSay', { stop: stopName(stop) }) : t('walkSay', { m, stop: stopName(stop) }),
+    speak: j.walking ? `${t('walkingSay', { stop: stopName(stop) })} ${t('walkingSub', { m: remain })}`
+                     : `${t('walkSay', { m, stop: stopName(stop) })} ${m} מטר. ${t('walkMin', { min: walkMinutes(j.walkTo.meters || 0) })}`,
+    mid: `<div id="walkfig">${walkFig(j.walking ? remain : m, j.walking ? null : walkMinutes(j.walkTo.meters || 0))}</div>` +
+         '<div class="map" id="mapslot" role="img" aria-label="מפה של הדרך לתחנה"></div>',
+    buttons: j.walking
+      ? [{ id: 'atstop', icon: 'pin', label: t('atStop'), onTap: toStop }]
+      : [{ id: 'leave', icon: 'walk', label: t('leave'), onTap: () => { journey.walking = true; saveJourney(); screenWalk(); } }],
+    after(){
+      wakeOn();
+      showMap({ path: j.walkTo.path, target: stop, label: 'התחנה' });
+      if (DEMO && j.walking && SIM.kind !== 'walk'){
+        let path = pathFrom(j.walkTo.path, S.pos);
+        if (LOSTSIM && !S.detoured){ S.detoured = true; path = detour(path, 120); }
+        SIM.run('walk', path, 22);
+      }
+      if (!j.walking) autoTap('leave', 1500);
+    }
+  });
+}
+function walkFig(m, min){
+  return m < 50 ? fig([['כמעט שם', 'u']], 'md') : fig([[String(m), 'n'], ['מטר', 'u']].concat(min ? [[`כ־${min} ${min === 1 ? 'דקה' : 'דקות'}`, 'soft']] : []), 'md');
+}
+function toStop(){
+  if (!journey || journey.step !== 'walk') return;
+  SIM.stop();
+  journey.step = 'stop';
+  if (DEMO || !journey.departsAt) journey.departsAt = Date.now() + journey.plan.departs_in_min * MINUTE;
+  journey.atStopSince = Date.now();
+  saveJourney(); screenStop();
+}
+function minsToBus(){ return journey && journey.departsAt ? Math.max(0, Math.ceil((journey.departsAt - Date.now()) / MINUTE)) : (journey ? journey.plan.departs_in_min : 0); }
+function etaText(){ return t('eta', { min: minsToBus() }); }
+function etaHTML(){ const s = etaText(), k = s.indexOf(' ('); return k < 0 ? fmt(s) : fmt(s.slice(0, k)) + ' <span class="nb">' + fmt(s.slice(k + 1)) + '</span>'; }
+function screenStop(){
+  const j = journey; S.lastBase = screenStop;
+  const line = j.plan.line;
+  render({
+    name: 'stop', lead: 'strip', say: t('board', { line }),
+    mid: `<div class="band"><div class="plate" aria-label="קו ${esc(line)}"><bdi>${esc(line)}</bdi></div>
+            <div class="cap">${dirHTML(j.plan.headsign)}</div></div>
+          <div id="eta">${countdownFig(minsToBus(), 'לפי לוח הזמנים', 'sec')}</div>`,
+    speak: `${t('board', { line })}, ${t('toward', { h: j.plan.headsign })}. ${etaText()}.`,
+    buttons: [{ id: 'boarded', icon: 'bus', label: t('boarded'), onTap: toRide },
+              { id: 'late', kind: 'sec', icon: 'clock', label: t('late'), onTap: openLate }],
+    after(){
+      wakeOn();
+      let said = false;
+      const upd = () => {
+        const e = $('eta'); if (!e) return;
+        e.innerHTML = countdownFig(minsToBus(), 'לפי לוח הזמנים', 'sec');
+        if (!said && journey.departsAt - Date.now() <= 0){ said = true; S.speech = t('arrivingNow'); speak(t('arrivingNow')); }
+        if (SHOT || S.overlay) return;
+        const over = Date.now() - journey.departsAt, j2 = journey;
+        if (over > 10 * MINUTE && !j2.missedShown){ j2.missedShown = true; saveJourney(); return caseMissed(); }
+        if (over > 5 * MINUTE && !j2.lateShown){ j2.lateShown = true; saveJourney(); return openLate(); }
+        if (j2.atStopSince && Date.now() - j2.atStopSince > 20 * MINUTE && !j2.waitShown){ j2.waitShown = true; saveJourney(); return caseWaitLong(); }
+      };
+      S.tick = setInterval(upd, (DEMO && !SHOT) ? 1000 / SPEED : 30000);
+      autoTap('boarded', 10000);
+    }
+  });
+}
+function screenLate(){
+  render({ name: 'late', lead: 'strip', say: t('lateSay'), sub: t('lateSub'), mid: countdownFig(minsToBus(), 'לפי לוח הזמנים'),
+    buttons: [{ id: 'wait', icon: 'clock', label: t('wait'), onTap: closeOverlay }, contactBtn('sec')] });
+}
+function openLate(){ S.overlay = 'late'; S.paused = true; screenLate(); }
+function toRide(){
+  if (!journey) return;
+  SIM.stop();
+  journey.step = 'ride'; journey.passedIdx = -1; journey.minDest = null; journey.alert = null;
+  saveJourney(); screenRide();
+}
+function stopsLeft(){ return journey.plan.stops.length - journey.passedIdx - 1; }
+function screenRide(){
+  const j = journey; j.step = 'ride'; saveJourney();
+  S.lastBase = screenRide;
+  const K = Math.max(0, stopsLeft());
+  const pressed = j.alert === 'done';
+  const willAlert = !S.alertOn && ((K === 1 && j.alert !== 'done') || j.alert === 'on');
+  render({
+    name: 'ride', lead: 'strip', silent: willAlert,
+    say: pressed ? t('pressStop') : t('rideSay'),
+    sub: pressed ? null : t('rideSub'),
+    speak: pressed ? `${t('pressStop')} ${t('pressSub', { stop: stopName(j.plan.dest_stop) })}`
+                   : `${K === 1 ? 'נשארה עוד תחנה אחת.' : t('left', { k: K }) + '.'} ${t('pressSub', { stop: stopName(j.plan.dest_stop) })} ${t('rideSay')} ${t('rideSub')}`,
+    mid: (K === 1 ? fig([['עוד תחנה אחת', 'u']]) : fig([['עוד', 'u'], [String(K), 'n'], ['תחנות', 'u']])) +
+         card('pin', j.plan.dest_stop.name, 'כאן יורדים'),
+    buttons: [{ id: 'gotoff', kind: 'sec', icon: 'walk', label: t('gotOff'), onTap: gotOffEarly }],
+    after(){
+      wakeOn();
+      if (DEMO && SIM.kind !== 'ride'){
+        const all = [P(j.plan.origin_stop)].concat(j.plan.stops.map(P));
+        const rest = all.slice(j.passedIdx + 1);
+        SIM.run('ride', j.lastPos && j.passedIdx >= 0 ? [P(j.lastPos)].concat(rest.slice(1)) : rest, 40);
+      }
+      if (willAlert) openAlert();
+    }
+  });
+}
+function gotOffEarly(){
+  if (!journey) return;
+  if (journey.passedIdx >= journey.plan.stops.length - 1 || !S.pos) return toFinal();
+  finalFromHere();
+}
+function screenPassed(){
+  S.lastBase = screenPassed;
+  render({ name: 'passed', lead: 'strip', say: t('passed'), sub: t('passedSub'), mid: card('pin', journey.plan.dest_stop.name, 'התחנה שלך'),
+    buttons: [{ id: 'offnow', icon: 'walk', label: t('gotOff'), onTap: finalFromHere }],
+    after(){ wakeOn(); } });
+}
+async function finalFromHere(){
+  if (!journey || S.busy) return; S.busy = true;
+  SIM.stop();
+  render({ name: 'checking', lead: 'strip', say: t('checking'), mid: '<div class="bar"><i style="width:60%"></i></div>', noLost: true });
+  const from = S.pos || journey.plan.dest_stop, gen = S.gen;
+  const wf = await walkPath(from, journey.dest, 6000);
+  if (gen !== S.gen || !journey) return;
+  journey.walkFrom = wf;
+  S.busy = false;
+  toFinal();
+}
+function toOff(){ if (!journey) return; SIM.stop(); journey.step = 'off'; saveJourney(); screenOff(); }
+function screenOff(){
+  S.lastBase = screenOff;
+  render({ name: 'off', lead: 'strip', say: t('offQ'), sub: t('offSub'), mid: card('pin', journey.plan.dest_stop.name, 'התחנה שלך'),
+    buttons: [{ id: 'offyes', icon: 'check', label: t('offYes'), onTap: toFinal },
+              { id: 'notyet', kind: 'sec', label: t('notYet'), onTap: () => { journey.step = 'ride'; journey.alert = 'done'; saveJourney(); screenRide(); } }],
+    after(){ wakeOn(); autoTap('offyes', 3000); } });
+}
+function toFinal(){
+  if (!journey) return;
+  SIM.stop(); closeAlert();
+  journey.step = 'finalwalk'; journey.lastPos = null; S.off = null; saveJourney(); screenFinal();
+}
+function screenFinal(){
+  const j = journey; S.lastBase = screenFinal;
+  const m = round50(j.walkFrom.meters || dist(j.plan.dest_stop, j.dest));
+  render({
+    name: 'finalwalk', lead: 'strip', say: t('finalSay', { d: nm(destShort()) }),
+    speak: `${t('finalSay', { d: destShort() })} עוד ${m} מטר.`,
+    mid: `<div id="walkfig">${walkFig(m, walkMinutes(m))}</div>` + '<div class="map" id="mapslot" role="img" aria-label="מפה של הדרך ליעד"></div>',
+    buttons: [{ id: 'here', icon: 'flag', label: t('here'), onTap: toArrived }],
+    after(){
+      wakeOn();
+      const path = (j.walkFrom.path && j.walkFrom.path.length > 1) ? j.walkFrom.path : [P(j.plan.dest_stop), P(j.dest)];
+      showMap({ path, target: j.dest, label: 'היעד' });
+      if (DEMO && SIM.kind !== 'final') SIM.run('final', pathFrom(path, S.pos), 21);
+    }
+  });
+}
+function toArrived(){
+  if (!journey) return;
+  SIM.stop(); wakeOff();
+  journey.step = 'arrived'; journey.arrivedAt = Date.now(); saveJourney(); screenArrived();
+}
+function screenArrived(){
+  S.lastBase = screenArrived;
+  const took = journey && journey.startedAt ? Math.max(1, Math.round(((journey.arrivedAt || Date.now()) - journey.startedAt) / MINUTE)) : null;
+  render({ name: 'arrived', lead: 'strip', stripAt: 4, step: '', say: t('arrived'), bigSay: true, sub: t('arrivedSub'),
+    mid: journey ? card('flag', journey.dest.name, took ? `הדרך לקחה ${took} דקות` : null, 'hero') : '',
+    buttons: [{ id: 'home', icon: 'home', label: t('takeHome'), onTap: goHome },
+              { id: 'finish', kind: 'sec', icon: 'check', label: t('finished'), onTap: () => { journey = null; sdel(KEY_J); screenDest(); } }] });
+}
+function goHome(){
+  if (settings.home) return planJourney(settings.home);
+  S.homeCtx = 'arrival'; placeScreen('home');
+}
+function stopJourney(){
+  SIM.stop(); wakeOff(); closeAlert();
+  journey = null; sdel(KEY_J);
+  S.overlay = null; S.paused = false;
+  screenDest();
+}
+function resumeStep(){
+  if (!journey) return screenDest();
+  if (journey.lastPos) S.pos = { lat: journey.lastPos.lat, lon: journey.lastPos.lon };
+  switch (journey.step){
+    case 'walk': return screenWalk();
+    case 'stop': return screenStop();
+    case 'ride': return screenRide();
+    case 'passed': return screenPassed();
+    case 'off': return screenOff();
+    case 'finalwalk': return screenFinal();
+    default: return screenDest();
+  }
+}
+function resumeCaption(){
+  const p = journey.plan, st = journey.step;
+  if (st === 'walk') return `בדרך לתחנה ${stopName(p.origin_stop)}`;
+  if (st === 'stop') return `בתחנה ${stopName(p.origin_stop)}`;
+  if (st === 'finalwalk') return `בדרך ל${destShort()}`;
+  return `באוטובוס קו ${p.line}`;
+}
+function screenResume(){
+  S.lastBase = screenResume;
+  render({ name: 'resume', step: STEP.plan, say: t('resumeQ'), speak: `להמשיך את הדרך ל${journey.dest.name}?`,
+    mid: card('flag', journey.dest.name, resumeCaption(), 'hero'),
+    buttons: [{ id: 'yes', kind: 'yes', icon: 'check', label: t('resumeYes'), onTap: resumeStep },
+              { id: 'no', kind: 'no', icon: 'x', label: t('no'), onTap: () => { journey = null; sdel(KEY_J); screenDest(); } }],
+    after(){ autoTap('yes', 3000); } });
+}
+
+/* ---------- position: one handler for GPS and the demo simulator ---------- */
+function onPos(lat, lon, acc){
+  S.pos = { lat, lon }; S.acc = acc;
+  updateMe();
+  if (!journey || S.paused) return;
+  if (Date.now() - S.lastPosSave > 2000 && ['walk', 'ride', 'finalwalk'].includes(journey.step)){
+    S.lastPosSave = Date.now(); journey.lastPos = { lat, lon }; saveJourney();
+  }
+  if (acc > 60){
+    if (!DEMO && ['walk', 'finalwalk', 'stop'].includes(journey.step) && !S.overlay){
+      S.weakSince = S.weakSince || Date.now();
+      if (Date.now() - S.weakSince > 30000 && !journey['weak_' + journey.step]){ journey['weak_' + journey.step] = true; saveJourney(); caseGpsWeak(); }
+    }
+    return;
+  }
+  S.weakSince = 0;
+  const pos = S.pos;
+  if (journey.step === 'walk'){
+    const d = dist(pos, journey.plan.origin_stop);
+    if (S.screen === 'walk' && journey.walking){ const w = $('walkfig'); if (w) w.innerHTML = walkFig(d < 50 ? 0 : round50(d)); }
+    if (d <= 30 && S.screen === 'walk') return toStop();
+    checkOffRoute(pos, acc);
+  } else if (journey.step === 'ride'){
+    rideProgress(pos);
+  } else if (journey.step === 'finalwalk'){
+    if (dist(pos, journey.dest) <= 30 && S.screen === 'finalwalk') return toArrived();
+    if (S.screen === 'finalwalk'){ const w = $('walkfig'); const dd = dist(pos, journey.dest); if (w) w.innerHTML = walkFig(dd < 50 ? 0 : round50(dd), walkMinutes(dd)); }
+    checkOffRoute(pos, acc);
+  }
+}
+function rideProgress(pos){
+  const stops = journey.plan.stops, last = stops.length - 1;
+  let changed = false;
+  for (let i = journey.passedIdx + 1; i < stops.length; i++){
+    if (dist(pos, stops[i]) <= 40){ journey.passedIdx = i; changed = true; }
+  }
+  const dd = dist(pos, stops[last]);
+  journey.minDest = journey.minDest == null ? dd : Math.min(journey.minDest, dd);
+  if (changed){
+    saveJourney();
+    if (journey.passedIdx >= last){ if (!S.alertOn) toOff(); return; }
+    if (S.screen === 'ride') screenRide();
+    return;
+  }
+  const offLine = distToPath(pos, [P(journey.plan.origin_stop)].concat(stops.map(P)));
+  if (offLine > 300 && !S.alertOn && S.screen === 'ride'){
+    S.rideOff = (S.rideOff || 0) + 1;
+    if (S.rideOff >= 3){
+      S.rideOff = 0;
+      if (journey.passedIdx < 0 && !journey.wrongShown){ journey.wrongShown = true; saveJourney(); return caseWrongBus(); }
+      if (journey.passedIdx >= 0 && !journey.detourShown){ journey.detourShown = true; saveJourney(); return caseDetour(); }
+    }
+  } else S.rideOff = 0;
+  if (journey.passedIdx < last && journey.minDest < 200 && dd > journey.minDest + 150 && !S.alertOn && S.screen === 'ride'){
+    SIM.stop(); journey.step = 'passed'; saveJourney(); screenPassed();
+  }
+}
+/* off the walking path: > 60 m from the line, or 40 m further from the target than the closest point
+   reached — for 3 good fixes in a row (≥ 4 s apart) or 45 s. Never more often than every 3 minutes. */
+function checkOffRoute(pos, acc){
+  if (!journey || S.overlay || S.alertOn || acc > 60) return;
+  const st = journey.step;
+  if (!((st === 'walk' && journey.walking) || st === 'finalwalk')) return;
+  if (S.screen !== 'walk' && S.screen !== 'finalwalk') return;
+  const now = Date.now();
+  if (now < S.offQuietUntil) return;
+  const path = st === 'walk' ? journey.walkTo.path : journey.walkFrom.path;
+  const target = st === 'walk' ? journey.plan.origin_stop : journey.dest;
+  const dT = dist(pos, target);
+  if (!S.off || S.off.step !== st) S.off = { step: st, minT: dT, n: 0, since: 0, lastAt: 0 };
+  const o = S.off;
+  o.minT = Math.min(o.minT, dT);
+  const away = distToPath(pos, path) > 60 || dT > o.minT + 40;
+  if (!away){ o.n = 0; o.since = 0; return; }
+  if (!o.since) o.since = now;
+  const gap = DEMO ? 1000 / SPEED : 4000;
+  if (now - o.lastAt >= gap){ o.n++; o.lastAt = now; }
+  if (o.n >= 3 || now - o.since >= 45000){ o.n = 0; o.since = 0; openOffroute(); }
+}
+function startTracking(){ /* no GPS in an Artifact: the demo simulator moves the position */ }
+
+/* ---------- demo simulator: moves a fake position along a path ---------- */
+const SIM = {
+  timer: null, kind: null,
+  run(kind, path, mps){
+    this.stop();
+    if (SHOT || S.hold || !path || path.length < 2) return;   // a jumped-to screen waits for a tap
+    this.kind = kind;
+    const total = pathLen(path), dur = Math.max(1000, total / (mps * SPEED) * 1000);
+    let t = 0;
+    this.timer = setInterval(() => {
+      if (S.paused) return;
+      t += 200;
+      const p = along(path, Math.min(1, t / dur));
+      onPos(p.lat, p.lon, 8);
+      if (t >= dur) this.stop();
+    }, 200);
+  },
+  stop(){ if (this.timer) clearInterval(this.timer); this.timer = null; this.kind = null; }
+};
+
+/* ---------- the "get off" alert: voice + vibration every 5 s until הבנתי ---------- */
+function alertSpeech(){ return `${t('alert')} ${stopName(journey && journey.plan.dest_stop)}.` + (S.alertSlow ? ' ' + t('alertMissed') : ''); }
+function openAlert(){
+  if (S.alertOn || !journey) return;
+  S.alertOn = true; journey.alert = 'on'; saveJourney();
+  $('alertBig').innerHTML = 'יורדים<br>בתחנה הבאה!';
+  $('alertWhere').innerHTML = fmt(stopName(journey.plan.dest_stop));
+  $('alertOk').textContent = t('gotIt');
+  $('alertMiss').hidden = true;
+  $('alert').classList.toggle('still', !!SHOT);
+  $('alert').hidden = false;
+  document.body.dataset.screen = 'alert';
+  S.trail.push([Date.now(), 'alert']);
+  try { $('alertOk').focus({ preventScroll: true }); } catch (e) {}
+  const ring = () => { speak(alertSpeech()); vib([500, 200, 500, 200, 500]); };
+  ring();
+  if (!SHOT) S.alertTimer = setInterval(ring, 5000);
+  S.alertMissT = setTimeout(alertMissed, 30000);
+  if (AUTO) S.alertAuto = setTimeout(() => $('alertOk').click(), D(4000));
+}
+function alertMissed(){
+  if (!S.alertOn) return;
+  $('alertMiss').textContent = t('alertMissed'); $('alertMiss').hidden = false;
+  S.alertSlow = true;
+}
+function closeAlert(){
+  if (S.alertMissT) clearTimeout(S.alertMissT);
+  S.alertSlow = false;
+  if (S.alertTimer) clearInterval(S.alertTimer);
+  if (S.alertAuto) clearTimeout(S.alertAuto);
+  S.alertTimer = S.alertAuto = null;
+  if (S.alertOn){ vib(0); try { speechSynthesis.cancel(); } catch (e) {} }
+  S.alertOn = false; $('alert').hidden = true;
+}
+$('alertOk').addEventListener('click', tap(() => {
+  closeAlert();
+  if (!journey) return;
+  journey.alert = 'done'; saveJourney();
+  if (journey.passedIdx >= journey.plan.stops.length - 1) toOff(); else screenRide();
+}));
+
+/* ============================================================
+   "איפה אני?" — calm, confirm with a landmark, then one next step
+   ============================================================ */
+const DEF_KIND = { 'בית מרקחת': 'בית המרקחת', 'בנק': 'הבנק', 'סופרמרקט': 'הסופרמרקט', 'מרפאה': 'המרפאה',
+  'דואר': 'הדואר', 'בית ספר': 'בית הספר', 'בית כנסת': 'בית הכנסת', 'גן ציבורי': 'הגן הציבורי', 'חנות': 'החנות',
+  'בית קפה': 'בית הקפה', 'מסעדה': 'המסעדה', 'מקום': 'המקום', 'כיכר': 'הכיכר', 'תחנת אוטובוס': 'התחנה' };
+function landmarkPhrase(it){
+  if (it.kind === 'street') return `שלט של רחוב ${it.name}`;
+  if (it.isStop) return `את התחנה ${nm(it.name)}`;
+  return `את ${it.name}`;              // the card under the question names the kind
+}
+const normHe = s => String(s || '').replace(/[֑-ׇ]/g, '').replace(/[^א-תA-Za-z0-9]/g, '').replace(/^ה(?=..)/, '').toLowerCase();
+function fuzzyPick(seen, items){
+  const n = normHe(seen); if (n.length < 2) return null;
+  let best = null;
+  items.forEach(it => { const m = normHe(it.name); if (m.length >= 2 && (m.includes(n) || n.includes(m)) && (!best || m.length > normHe(best.name).length)) best = it; });
+  return best;
+}
+function journeyStopFor(pos){
+  if (!journey) return null;
+  const st = journey.step;
+  if (st === 'walk' || st === 'stop') return journey.plan.origin_stop;
+  if (st === 'finalwalk' || st === 'off') return journey.plan.dest_stop;
+  let best = null, bd = Infinity;
+  [journey.plan.origin_stop].concat(journey.plan.stops).forEach(s => { const d = dist(pos, s); if (d < bd){ bd = d; best = s; } });
+  return best;
+}
+async function gatherLost(){
+  let pos = S.pos;
+  if (!DEMO){ const f = await freshFix(8000, 0); if (f) pos = f; }
+  pos = pos || (journey && (journey.lastPos || journey.origin)) || FALLBACK.start;
+  let street = '', items = [];
+  if (DEMO){ street = 'דיזנגוף'; items = DEMO_NEARBY.map(x => Object.assign({}, x)); }
+  else {
+    const [rev, near] = await Promise.all([
+      api('GET', `api/reverse?lat=${pos.lat}&lon=${pos.lon}`, null, 4000),
+      api('GET', `api/nearby?lat=${pos.lat}&lon=${pos.lon}`, null, 7000)
+    ]);
+    street = (rev.ok && rev.street) || '';
+    if (near.ok && Array.isArray(near.items))
+      items = near.items.filter(x => x && typeof x.name === 'string' && x.name.trim() && !hasLatin(x.name)).slice(0, 8);
+  }
+  const js = journeyStopFor(pos);
+  if (js && dist(pos, js) <= 80){
+    items = items.filter(x => x.name !== js.name);
+    items.unshift({ name: js.name, kind_he: 'תחנת אוטובוס', dist: Math.round(dist(pos, js)), isStop: true });
+  }
+  if (!items.length && street) items.push({ name: street, kind: 'street' });
+  return { pos, street, items };
+}
+function lostBase(){ S.overlay = 'lost'; S.paused = true; stopListening(); }
+async function openLost(opts){
+  opts = opts || {};
+  if (S.overlay === 'lost' && !opts.force) return;
+  lostBase();
+  const tok = ++S.helpTok;
+  S.lost = { pos: S.pos, street: '', items: [], landmark: null, replan: !!opts.replan, ready: false };
+  renderLostCalm();
+  const [data] = await Promise.all([gatherLost(), sleep(DEMO ? D(2600) : 2800)]);
+  if (tok !== S.helpTok || S.overlay !== 'lost') return;
+  Object.assign(S.lost, data, { ready: true });
+  lostLandmark(0);
+}
+function renderLostCalm(){
+  const lm = legMap();
+  render({ name: 'lost-calm', step: STEP.help, say: t('lostCalm'), sub: 'רגע, אני מסתכל סביבך.', noLost: true,
+    mid: lm ? routeMap() : journeyCard(), after(){ if (lm) showMap(lm); } });
+}
+function lostLandmark(i){
+  const L = S.lost, it = L.items[i];
+  if (!it) return lostAsk();
+  const pr = landmarkPhrase(it);
+  const kind = it.kind === 'street' ? 'שלט רחוב' : (it.kind_he || 'מקום');
+  const far = it.dist ? `, כ־${Math.max(10, Math.round(it.dist / 5) * 5)} מטר ממך` : '';
+  render({
+    name: 'lost-landmark', step: STEP.help, noLost: true,
+    say: i === 0 ? t('seeQ', { l: pr }) : t('seeQ2', { l: pr }),
+    mid: card('', it.kind === 'street' ? 'רחוב ' + it.name : it.name, kind + far, 'hero', `<span class="lt">${ic(it.isStop ? 'bus' : 'pin')}</span>`),
+    buttons: [
+      { id: 'see', kind: 'yes', icon: 'check', label: t('seeYes'), onTap: () => { L.landmark = it; lostOrient(); } },
+      { id: 'nosee', kind: 'no', icon: 'x', label: t('no'), onTap: () => (i === 0 && L.items[1]) ? lostLandmark(1) : lostAsk() }
+    ]
+  });
+}
+function lostAsk(){
+  const hasMic = canListen();
+  render({
+    name: 'lost-ask', step: STEP.help, noLost: true, say: t('askSee'), sub: t('askSeeSub'),
+    mid: (hasMic ? `<button id="mic" class="mic" type="button">${ic('mic')}<span>${esc(t('micLabel'))}</span></button>` : '') +
+         `<input id="field" class="field" type="text" dir="auto" autocomplete="off" aria-label="${esc(t('askSee'))}" placeholder="${esc(t('typeHere'))}">`,
+    after(){
+      const f = $('field'), mic = $('mic');
+      let had = null;
+      const refresh = () => {
+        const h = !!f.value.trim(); if (h === had) return; had = h;
+        setButtons([h ? { id: 'go', icon: 'check', label: 'זה מה שאני רואה', onTap: () => lostSubmit(f.value.trim()) } : null,
+                    { id: 'tohelp', kind: 'sec', icon: 'phone', label: t('needHelp'), onTap: () => helpScreen() }]);
+      };
+      f.addEventListener('input', refresh);
+      f.addEventListener('keydown', e => { if (e.key === 'Enter' && f.value.trim()){ e.preventDefault(); f.blur(); lostSubmit(f.value.trim()); } });
+      refresh();
+      if (mic) mic.addEventListener('click', tap(() => {
+        if (S.busy) return;
+        if (S.rec){ stopListening(); return; }
+        hostDictation() ? listen(text => { const ff = $('field'); if (ff){ ff.value = text; ff.dispatchEvent(new Event('input')); } lostSubmit(text); }) : demoFill('lost');
+      }));
+    }
+  });
+}
+const cleanHe = s => typeof s === 'string' && s.trim() && s.length <= 160 && !hasLatin(s) && /[א-ת]/.test(s);
+async function lostSubmit(text){
+  if (S.busy || !text) return;
+  S.busy = true; stopListening(); setListening(false);
+  const tok = S.helpTok;
+  setSay(t('checking'), null, true);
+  const L = S.lost, cands = L.items.filter(x => x.kind !== 'street').map(x => x.name);
+  const body = { lat: L.pos.lat, lon: L.pos.lon, accuracy: Math.round(S.acc || 0), street: L.street, seen: text, candidates: cands,
+                 step: journey ? journey.step : '', route: routeSummary(), gender: settings.gender };
+  let r = null;
+  if (!AUTO) r = await hostCall('whereAmI', body);     // Claude matches what the person sees
+  S.busy = false;
+  if (tok !== S.helpTok || S.overlay !== 'lost') return;
+  const byName = n => L.items.find(x => x.name === n);
+  if (r && r.match && byName(r.match)){ L.landmark = byName(r.match); return lostOrient(); }
+  const local = fuzzyPick(text, L.items.filter(x => x.kind !== 'street'));
+  if (local){ L.landmark = local; return lostOrient(); }
+  if (r && cleanHe(r.text)) return lostOrient(r.text.trim());
+  helpScreen(t('noMatch', { L: lName(contactName()) }));
+}
+function routeSummary(){
+  if (!journey) return 'עוד לא נבחר יעד';
+  const p = journey.plan;
+  return `הליכה לתחנה ${p.origin_stop.name}, קו ${p.line} עד ${p.dest_stop.name}, ואז הליכה אל ${journey.dest.name}`;
+}
+function hereText(){
+  const L = S.lost || {}, you = t('you');
+  const lm = L.landmark && L.landmark.kind !== 'street' ? L.landmark.name : '';
+  const st = L.street || (L.landmark && L.landmark.kind === 'street' ? L.landmark.name : '');
+  if (lm) return `${you} ליד ${lm}.`;           // the thing they can see beats a street name
+  return st ? `${you} ברחוב ${st}.` : '';
+}
+/* a reference the person can see: the landmark they confirmed, else the street sign around them */
+function refText(withStreet){
+  const L = S.lost || {};
+  const lm = L.landmark && L.landmark.kind !== 'street' && !L.landmark.isStop ? L.landmark.name : '';
+  const st = L.street || (L.landmark && L.landmark.kind === 'street' ? L.landmark.name : '');
+  if (lm) return `מ${lm}`;                       // the landmark alone: short enough for one glance
+  return st ? `מכאן, ברחוב ${st}` : 'מכאן';
+}
+/* the sentence says where I am; the sub says the one next thing */
+function lostOrient(claudeText){
+  const L = S.lost, pos = L.pos || S.pos || FALLBACK.start, you = t('you');
+  let say = claudeText || hereText(), sub = null, mid = journeyCard(), replan = false, map = null;
+  if (journey){
+    const st = journey.step, p = journey.plan;
+    if (st === 'walk'){
+      const dP = distToPath(pos, journey.walkTo.path), m = round50(dist(pos, p.origin_stop));
+      if (L.replan || dP > 300) replan = true;
+      else { sub = `התחנה ${m} מטר ${refText(true)}.`; map = { path: journey.walkTo.path, target: p.origin_stop, label: 'התחנה' }; }
+    } else if (st === 'stop'){
+      const d = dist(pos, p.origin_stop);
+      if (d <= 80){ const mn = minsToBus(); say = `${you} בתחנה הנכונה.`; sub = `קו ${p.line} ${mn <= 0 ? 'מגיע עכשיו' : mn === 1 ? 'מגיע בעוד דקה' : `מגיע בעוד ${mn} דקות`}.`; mid = lineBand(p); }
+      else sub = `התחנה ${round50(d)} מטר ${refText(true)}.`;
+    } else if (st === 'ride'){
+      const k = Math.max(1, stopsLeft());
+      say = `${you} באוטובוס הנכון.`; sub = null;
+      mid = (k === 1 ? fig([['עוד תחנה אחת', 'u']]) : fig([['עוד', 'u'], [String(k), 'n'], ['תחנות', 'u']])) + card('pin', p.dest_stop.name, 'כאן יורדים');
+    } else if (st === 'passed'){
+      replan = true;
+    } else {
+      const path = (journey.walkFrom.path && journey.walkFrom.path.length > 1) ? journey.walkFrom.path : [P(p.dest_stop), P(journey.dest)];
+      const dP = distToPath(pos, path);
+      if (L.replan || dP > 300) replan = true;
+      else { sub = `היעד ${round50(dist(pos, journey.dest))} מטר ${refText(false)}.`; map = { path, target: journey.dest, label: 'היעד' }; }
+    }
+  }
+  if (!say && sub){ say = sub; sub = null; }
+  if (!say && !replan) say = 'אני לא בטוח איפה בדיוק. אפשר לבקש עזרה.';
+  if (replan){ say = t('replanSay'); sub = null; map = legMap(); mid = journeyCard(); }
+  render({
+    name: 'lost-orient', step: STEP.help, noLost: true, say, sub,
+    mid: map ? '<div class="map" id="mapslot" role="img" aria-label="מפה: איפה אני ולאן הולכים"></div>' : mid,
+    buttons: replan
+      ? [{ id: 'replan', icon: 'compass', label: t('replanBtn'), onTap: replanFromHere }, { id: 'tohelp', kind: 'sec', icon: 'phone', label: t('needHelp'), onTap: () => helpScreen() }]
+      : [{ id: 'okgo', icon: 'check', label: journey ? t('okGo') : t('okThanks'), onTap: closeOverlay }, { id: 'tohelp', kind: 'sec', icon: 'phone', label: t('needHelp'), onTap: () => helpScreen() }],
+    after(){ if (map){ S.pos = pos; showMap(map); } }
+  });
+}
+function replanFromHere(){
+  if (!journey) return closeOverlay();
+  const dest = journey.dest;
+  if (S.lost && S.lost.pos) S.pos = S.lost.pos;
+  S.overlay = null; S.paused = false; S.off = null;
+  planJourney(dest);
+}
+/* ---------- help from a person ----------
+   Inside an Artifact nothing can be sent or dialled for the person. The help screen shows the
+   contact's number big and selectable with a copy button; the message screen shows the exact text
+   that the copy button puts on the clipboard. Nothing ever says "sent" or "calling". */
+function selectEl(el){
+  try { if (!el) return; const r = document.createRange(); r.selectNodeContents(el); const s = window.getSelection(); s.removeAllRanges(); s.addRange(r); } catch (e) {}
+}
+/* called synchronously from the tap, so the clipboard sees the viewer's gesture */
+function copyText(text, el, ok, fail){
+  const failed = () => { selectEl(el); if (fail) fail(); };
+  try {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function'){
+      navigator.clipboard.writeText(String(text)).then(() => { if (ok) ok(); }, failed);
+      return;
+    }
+  } catch (e) {}
+  failed();
+}
+const telCard = () => {
+  const n = contactName(), ini = esc((settings.contactName || '?').trim().replace(/^ה(?=בת|בן|נכד)/, '').charAt(0));
+  return `<div class="card hero telc"><div class="telw"><span class="ini">${ini}</span><span class="nm">${fmt(n)}</span></div>` +
+         `<span class="tel" id="telnum">${esc(settings.contact)}</span></div>`;
+};
+const hotlineCard = () => `<div class="card">${ic('phone')}<div class="txt"><span class="ds">${esc(t('hotlineName'))}</span><span class="tel" id="hotnum">*8787</span></div></div>`;
+const copyNumBtn = (num, elId) => ({ id: 'copynum', kind: 'sec', icon: 'copy', label: t('copyNum'),
+  onTap: () => copyText(num, $(elId), () => setSay(t('numCopied'), t('numCopiedSub'), true), () => setSay(t('selNum'), null, true)) });
+function ensureLost(){ if (!S.lost) S.lost = { pos: S.pos || FALLBACK.start, street: 'דיזנגוף', items: [], landmark: null }; }
+function helpScreen(sayOverride){
+  lostBase(); ensureLost();
+  if (settings.contact){
+    const L = lName(contactName());
+    render({
+      name: 'help', step: STEP.person, noLost: true, say: sayOverride || t('helpSay', { L }),
+      mid: telCard(),
+      buttons: [{ id: 'prep', icon: 'send', label: t('prepMsg', { L }), onTap: () => messageScreen(false) },
+                copyNumBtn(settings.contact, 'telnum')]
+    });
+    return;
+  }
+  // no contact saved: add one, or use the public transport information line
+  render({
+    name: 'nocontact', step: STEP.person, noLost: true, say: sayOverride ? `${sayOverride} ${t('whoQ')}` : t('whoQ'), sub: t('whoSub'),
+    mid: `<input id="field" class="field" type="tel" inputmode="tel" dir="auto" autocomplete="off" aria-label="${esc(t('phoneHint'))}" placeholder="${esc(t('phoneHint'))}">` + hotlineCard(),
+    after(){
+      const f = $('field');
+      const save = () => {
+        const v = f.value.trim();
+        if (v.replace(/\D/g, '').length < 3){ setSay(t('contactBad'), null, true); return; }
+        settings.contact = v; settings.contactName = ''; f.blur(); helpScreen();
+      };
+      const hot = copyNumBtn('*8787', 'hotnum');
+      let had = null;
+      const refresh = () => { const h = !!f.value.trim(); if (h === had) return; had = h; setButtons([h ? { id: 'save', icon: 'check', label: t('save'), onTap: save } : null, hot]); };
+      f.addEventListener('input', refresh);
+      f.addEventListener('keydown', e => { if (e.key === 'Enter' && f.value.trim()){ e.preventDefault(); save(); } });
+      f.addEventListener('focus', () => setTimeout(() => intoView(f), 350));
+      refresh();
+    }
+  });
+}
+const stopPlain = s => String((s && s.name) || '').replace(/\s*\/\s*/g, ' / ');
+/* the message the person can paste: where I am, where I am going, which line, my coordinates */
+function shareInfo(){
+  const L = S.lost || {}, pos = L.pos || S.pos || FALLBACK.start;
+  const lm = L.landmark && L.landmark.kind !== 'street' ? L.landmark.name : '';
+  const st = L.street || '';
+  const here = lm ? `אני ליד ${lm}${st ? `, ברחוב ${st}` : ''}.` : st ? `אני ברחוב ${st}.` : '';
+  const lines = [[t('needHelpMsg'), here].filter(Boolean).join(' ')];
+  if (journey && journey.step !== 'arrived'){
+    const p = journey.plan, stp = journey.step;
+    if (stp === 'walk' || stp === 'stop') lines.push(`אני בדרך ל${journey.dest.name}, בקו ${p.line} מהתחנה ${stopPlain(p.origin_stop)}.`);
+    else if (stp === 'ride'){ const k = Math.max(1, stopsLeft()); lines.push(`אני בקו ${p.line} בדרך ל${journey.dest.name}. ${k === 1 ? 'נשארה תחנה אחת' : `נשארו ${k} תחנות`}.`); }
+    else lines.push(`ירדתי מהאוטובוס בדרך ל${journey.dest.name}. נשארו כ־${round50(dist(pos, journey.dest))} מטר.`);
+  }
+  const coords = `${pos.lat.toFixed(5)}, ${pos.lon.toFixed(5)}`;
+  lines.push(`המיקום שלי: ${coords}`);
+  // on screen the coordinate pair is one left-to-right run (it may wrap only after the comma), so it never flips
+  const html = lines.slice(0, -1).map(fmt).concat([`המיקום שלי: <span dir="ltr">${esc(coords)}</span>`]);
+  // the copied text carries a map link (plain text the recipient taps in WhatsApp; the page itself loads nothing)
+  const mapLink = 'https://maps.google.com/?q=' + pos.lat.toFixed(5) + ',' + pos.lon.toFixed(5);
+  return { text: lines.join('\n') + '\n' + mapLink, lines, html };
+}
+function copyMessage(){
+  copyText(shareInfo().text, $('msgtext'), () => messageScreen(true), () => setSay(t('selMsg'), null, true));
+}
+function messageScreen(copied){
+  lostBase(); ensureLost();
+  if (!settings.contact) return helpScreen();
+  const info = shareInfo(), L = lName(contactName());
+  const back = { id: 'backroute', kind: copied ? 'pri' : 'sec', icon: copied ? 'check' : null, label: journey ? t('backToRoute') : t('back'), onTap: closeOverlay };
+  render({
+    name: copied ? 'sent' : 'message', step: STEP.person, noLost: true,
+    blockIcon: copied ? `<span class="okdisc">${ic('check')}</span>` : null,
+    say: copied ? t('copiedSay') : t('msgSay', { L }),
+    sub: copied ? t('copiedSub') : null,             // together: "ההודעה הועתקה. אפשר להדביק בוואטסאפ."
+    speak: copied ? `${t('copiedSay')} ${t('copiedSub')}` : `${t('msgSay', { L })} ${info.lines.slice(0, -1).join(' ')}`,
+    mid: `<div class="msg" id="msgtext" tabindex="0" aria-label="ההודעה">${info.html.join('\n')}</div>`,
+    midClass: 'top',
+    buttons: copied ? [back, { id: 'copyagain', kind: 'sec', icon: 'copy', label: t('copyMsg'), onTap: copyMessage }]
+                    : [{ id: 'copymsg', icon: 'copy', label: t('copyMsg'), onTap: copyMessage }, back]
+  });
+}
+/* ---------- proactive off-route prompt (gentle, not the flashing alert) ---------- */
+function openOffroute(){
+  S.overlay = 'offroute'; S.paused = true;
+  S.offQuietUntil = Date.now() + 180000;
+  vib(200);
+  renderOffroute();
+}
+function renderOffroute(){
+  render({
+    name: 'offroute', lead: 'strip', say: t('offrouteSay'), noLost: true, mid: legMap() ? routeMap() : journeyCard(),
+    buttons: [{ id: 'offyes', icon: 'compass', label: t('offrouteYes'), onTap: () => { S.overlay = null; openLost({ replan: true, force: true }); } },
+              { id: 'offno', kind: 'sec', label: t('offrouteNo'), onTap: () => { S.offQuietUntil = Date.now() + 180000; S.off = null; closeOverlay(); } }],
+    after(){ const lm = legMap(); if (lm) showMap(lm); autoTap('offno', 4000); }
+  });
+}
+function caseScreen(o){
+  S.overlay = o.name; S.paused = true;
+  render(Object.assign({ buttons: [{ id: 'ok', icon: 'check', label: t('gotIt'), onTap: closeOverlay }] }, o));
+}
+function dirHTML(h){ return `<span class="dir"><span class="k">לכיוון</span><span class="full">${fmt(t('toward', { h: nm(h) }))}</span><span class="v">${fmt(nm(h))}</span></span>`; }
+function lineBand(p){ return `<div class="band row"><div class="plate sm"><bdi>${esc(p.line)}</bdi></div><div class="cap">${dirHTML(p.headsign)}</div></div>`; }
+function noServiceMid(when, clock){
+  if (!clock){ const m = when.match(/(\d\d:\d\d)/); clock = m ? m[1] : ''; when = when.replace(/\s*בשעה\s*\d\d:\d\d/, ''); }
+  return fig([[clock, 'n']], '', `האוטובוס הבא, ${when}`);
+}
+function nextBusText(min){
+  const d = new Date(Date.now() + min * 60000), hh = String(d.getHours()).padStart(2, '0'), mm = String(d.getMinutes()).padStart(2, '0');
+  const sameDay = d.toDateString() === new Date().toDateString();
+  return `${sameDay ? 'היום' : 'מחר'} בשעה ${hh}:${mm}`;
+}
+function screenAmbiguous(list){
+  S.lastBase = () => screenAmbiguous(list);
+  render({ name: 'ambiguous', step: STEP.plan, say: t('ambiguousQ'), mid: '',
+    buttons: list.slice(0, 2).map((pl, i) => ({ id: 'amb' + i, kind: 'sec', icon: 'pin', label: pl.name, onTap: () => screenConfirm(pl, 'dest') })) });
+}
+function screenTooFar(){
+  S.lastBase = screenTooFar;
+  render({ name: 'toofar', step: STEP.plan, say: t('tooFar'), sub: t('tooFarSub'), mid: S.planFor ? card('pin', S.planFor.name, 'יותר מ־25 ק״מ מכאן') : '',
+    buttons: [{ id: 'tohelp', icon: 'phone', label: t('needHelp'), onTap: () => helpScreen() },
+              { id: 'back', kind: 'sec', label: t('backStart'), onTap: () => screenDest() }] });
+}
+function screenTooClose(dest, origin){
+  S.lastBase = () => screenTooClose(dest, origin);
+  const m = dist(origin, dest);
+  render({ name: 'tooclose', step: STEP.plan, say: t('tooClose'), mid: fig([[String(round50(m)), 'n'], ['מטר', 'u'], [`כ־${walkMinutes(m)} דקות הליכה`, 'soft']], 'md') + card('pin', dest.name, null),
+    buttons: [{ id: 'walkonly', icon: 'walk', label: t('walkThere'), onTap: async () => {
+                if (S.busy) return; S.busy = true;
+                const wf = await walkPath(origin, dest, 6000);
+                const plan = fallbackPlan(dest);
+                journey = { dest: { name: dest.name, lat: dest.lat, lon: dest.lon }, plan, origin: { lat: origin.lat, lon: origin.lon },
+                  walkTo: { meters: 0, path: [] }, walkFrom: wf, step: 'finalwalk', walking: true, passedIdx: plan.stops.length - 1,
+                  departsAt: null, alert: null, minDest: null, lastPos: null, walkOnly: true };
+                S.busy = false; saveJourney(); screenFinal();
+              } },
+              { id: 'back', kind: 'sec', label: t('backStart'), onTap: () => screenDest() }] });
+}
+function screenNoService(min){
+  S.lastBase = () => screenNoService(min);
+  render({ name: 'nightnoservice', step: STEP.plan, say: t('noService'), mid: noServiceMid(nextBusText(min)),
+    buttons: [contactBtn('pri') || { id: 'tohelp', icon: 'phone', label: t('needHelp'), onTap: () => helpScreen() },
+              { id: 'back', kind: 'sec', label: t('backStart'), onTap: () => screenDest() }] });
+}
+function screenNoPerm(){
+  S.lastBase = screenNoPerm;
+  render({ name: 'noperm', step: STEP.plan, say: t('noPerm'), sub: 'אפשר לבקש עזרה, או לאפשר מיקום:', mid: `<ul class="list"><li>${ic('gear')}<span>הגדרות הטלפון</span></li><li>${ic('pin')}<span>מיקום ← להפעיל</span></li></ul>`,
+    buttons: [{ id: 'retry', icon: 'pin', label: t('tryAgain'), onTap: async () => { S.geoDenied = false; await askPerms(); S.geoDenied ? screenNoPerm() : screenDest(); } },
+              { id: 'tohelp', kind: 'sec', icon: 'phone', label: t('needHelp'), onTap: () => helpScreen() }] });
+}
+const caseWrongSide = () => caseScreen({ name: 'wrongside', lead: 'strip', say: t('wrongSide'), sub: t('wrongSideSub'), mid: card('pin', journey ? journey.plan.origin_stop.name : '', journey ? `קו ${journey.plan.line} לכיוון ${journey.plan.headsign}` : null),
+  buttons: [{ id: 'crossed', icon: 'check', label: t('crossed'), onTap: closeOverlay }] });
+const caseGpsWeak = () => caseScreen({ name: 'gpsweak', lead: 'strip', say: t('gpsWeak'), sub: t('gpsWeakSub'), mid: journey ? card('pin', journey.plan.origin_stop.name, 'התחנה שלך') : '' });
+function caseMissed(){
+  if (journey) journey.departsAt = Date.now() + 12 * MINUTE;
+  caseScreen({ name: 'missed', lead: 'strip', say: t('missed'), mid: fig([['הבא בעוד', 'u'], ['12', 'n'], ['דקות', 'u']], '', 'אותו קו, אותה תחנה'),
+    buttons: [{ id: 'waitnext', icon: 'clock', label: t('waitNext'), onTap: closeOverlay }, contactBtn('sec')] });
+}
+const caseWaitLong = () => caseScreen({ name: 'waitlong', lead: 'strip', say: t('waitLong'), sub: t('waitLongSub'), mid: countdownFig(minsToBus(), 'לפי לוח הזמנים'),
+  buttons: [{ id: 'keepwait', icon: 'clock', label: t('keepWait'), onTap: closeOverlay }, contactBtn('sec')] });
+const caseWrongBus = () => caseScreen({ name: 'wrongbus', lead: 'strip', say: t('wrongBus'), sub: t('wrongBusSub'), mid: journey ? lineBand(journey.plan) : '',
+  buttons: [{ id: 'offwrong', icon: 'walk', label: t('gotOffShort'), onTap: () => { S.overlay = null; S.paused = false; journey && planJourney(journey.dest); } },
+            { id: 'tohelp', kind: 'sec', icon: 'phone', label: t('needHelp'), onTap: () => openLost({ force: true }) }] });
+const caseDetour = () => caseScreen({ name: 'detour', lead: 'strip', say: t('detour'), sub: t('detourSub'), mid: journey ? lineBand(journey.plan) : '' });
+function caseBattery(){
+  const L = lName(contactName());
+  caseScreen({ name: 'battery', lead: journey ? 'strip' : null, say: settings.contact ? t('battery') : t('batteryNoC'), sub: settings.contact ? t('batterySub', { L }) : null, noLost: false, mid: settings.contact ? contactCard() : '',
+    buttons: [settings.contact ? { id: 'share', icon: 'send', label: t('prepMsg', { L }), onTap: () => { S.overlay = null; messageScreen(false); } }
+                               : { id: 'tohelp', icon: 'phone', label: t('needHelp'), onTap: () => helpScreen() },
+              { id: 'later', kind: 'sec', label: t('notNow'), onTap: closeOverlay }] });
+}
+const caseOffline = () => caseScreen({ name: 'offline', lead: journey ? 'strip' : null, say: t('offline'), sub: t('offlineSub'), mid: journeyCard(),
+  buttons: [{ id: 'okgo', icon: 'check', label: t('okGo'), onTap: closeOverlay }] });
+function closeOverlay(){
+  S.overlay = null; S.paused = false;
+  (S.lastBase || screenDest)();
+}
+
+/* ---------- stop the journey (in the app this is the Android back button; here a presenter jump) ---------- */
+function openExit(){
+  S.overlay = 'exit'; S.paused = true;
+  render({ name: 'exit', lead: journey ? 'strip' : null, say: t('exitQ'), sub: t('exitSub'), mid: journeyCard(),
+    buttons: [{ id: 'keep', icon: 'check', label: t('exitNo'), onTap: closeOverlay },
+              { id: 'stopit', kind: 'no', icon: 'x', label: t('exitYes'), onTap: stopJourney }] });
+}
+/* ---------- wake lock: not used in an Artifact (the screen stays on in a demo anyway) ---------- */
+function wakeOn(){}
+function wakeOff(){}
+
+/* ---------- settings: one choice per page ---------- */
+const SETTINGS_PAGES = [
+  { say: 'גודל הכתב', key: 'size', opts: [['l', 'גדול'], ['xl', 'ענק']] },
+  { say: 'צבעי המסך', key: 'contrast', opts: [['normal', 'רגיל'], ['hc', 'שחור־צהוב']] },
+  { say: 'להקריא את ההוראות?', key: 'voice', opts: [[true, 'כן'], [false, 'לא']] },
+  { say: 'מהירות הדיבור', key: 'rate', opts: [[0.85, 'רגיל'], [0.7, 'איטי']] },
+  { say: 'איך לפנות אליך?', key: 'gender', opts: [['m', 'אתה'], ['f', 'את']] },
+  { say: 'כתובת הבית', kind: 'home' },
+  { say: 'מספר לעזרה', kind: 'contact' }
+];
+function screenSettings(i, silent){
+  S.lastBase = () => screenSettings(i);
+  const pg = SETTINGS_PAGES[i], last = i === SETTINGS_PAGES.length - 1;
+  let mid = '', sub = null;
+  if (pg.key){
+    mid = `<div class="opts">${pg.opts.map((o, k) => {
+      const on = settings[pg.key] === o[0];
+      return `<button type="button" class="opt" id="opt${k}" aria-pressed="${on}">${on ? ic('check') : '<span class="slot"></span>'}<span>${esc(o[1])}</span></button>`;
+    }).join('')}</div>` + (i <= 1 ? `<div class="sample">${fmt(t('board', { line: 5 }))}</div>` : '');
+  } else if (pg.kind === 'home'){
+    sub = settings.home ? settings.home.name : t('noHome');
+    mid = `<button type="button" class="b-sec" id="chg">${settings.home ? 'לשנות את הכתובת' : 'להוסיף כתובת'}</button>`;
+  } else {
+    sub = settings.contact ? [settings.contactName, settings.contact].filter(Boolean).join(', ') : t('noContact');
+    mid = `<button type="button" class="b-sec" id="chg">${settings.contact ? 'לשנות את המספר' : 'להוסיף מספר'}</button>`;
+  }
+  render({
+    name: 'settings', step: STEP.settings(i + 1, SETTINGS_PAGES.length), say: pg.say, sub, mid, silent,
+    buttons: last ? [{ id: 'done', icon: 'check', label: t('setDone'), onTap: () => screenDest() }]
+                  : [{ id: 'next', label: t('next'), onTap: () => screenSettings(i + 1) },
+                     { id: 'exit', kind: 'sec', label: t('setExit'), onTap: () => screenDest() }],
+    after(){
+      if (pg.key) pg.opts.forEach((o, k) => $('opt' + k).addEventListener('click', tap(() => {
+        settings[pg.key] = o[0]; saveSettings(); applySettings();
+        screenSettings(i, true);
+        speak(t('chosen', { v: o[1] }));
+      })));
+      const c = $('chg');
+      if (c) c.addEventListener('click', tap(() => {
+        if (pg.kind === 'home'){ S.homeCtx = 'settings'; placeScreen('home'); } else screenContact('settings');
+      }));
+    }
+  });
+}
+
+/* ---------- map: an inline schematic drawn from the route ----------
+   No tiles, no network. The streets are APPROXIMATE soft lines around Dizengoff St, hand-placed for
+   the demo and not surveyed. The bus line is solid with its stops, the walking path is dashed blue,
+   "you" is a pulsing dot (still with reduced motion). Drawn in the panel's own pixels, so the labels
+   keep their real 32px size. */
+const STREETS = [
+  [[32.0735,34.7757],[32.0762,34.7748],[32.0775,34.7746],[32.0810,34.7735],[32.0830,34.7730],[32.0870,34.7720],[32.0890,34.7715],[32.0915,34.7709]],
+  [[32.0735,34.7767],[32.0755,34.7761],[32.0764,34.7757],[32.0790,34.7752],[32.0830,34.7742],[32.0870,34.7733],[32.0915,34.7722]],
+  [[32.0748,34.7725],[32.0753,34.7752],[32.0755,34.7761],[32.0758,34.7790]],
+  [[32.0768,34.7715],[32.0762,34.7748],[32.0764,34.7757],[32.0770,34.7790]],
+  [[32.0777,34.7720],[32.0775,34.7746],[32.0779,34.7785]],
+  [[32.0807,34.7705],[32.0810,34.7735],[32.0814,34.7775]],
+  [[32.0827,34.7700],[32.0830,34.7730],[32.0834,34.7770]],
+  [[32.0867,34.7690],[32.0870,34.7720],[32.0874,34.7760]],
+  [[32.0886,34.7685],[32.0890,34.7715],[32.0896,34.7735],[32.0899,34.7760]]
+];
+const MAP = { opts: null, proj: null, ro: null };
+function mapProject(opts, W, H){
+  const pts = opts.path.concat([P(opts.target)], S.pos ? [P(S.pos)] : []);
+  const lat0 = pts[0][0], lon0 = pts[0][1];
+  const kx = 111320 * Math.cos(lat0 * Math.PI / 180), ky = 110540;
+  const m = p => [(p[1] - lon0) * kx, -(p[0] - lat0) * ky];          // metres, y grows downward
+  const ms = pts.map(m);
+  let x0 = Math.min(...ms.map(q => q[0])), x1 = Math.max(...ms.map(q => q[0]));
+  let y0 = Math.min(...ms.map(q => q[1])), y1 = Math.max(...ms.map(q => q[1]));
+  const minSpan = 120;
+  if (x1 - x0 < minSpan){ const c = (x0 + x1) / 2; x0 = c - minSpan / 2; x1 = c + minSpan / 2; }
+  if (y1 - y0 < minSpan){ const c = (y0 + y1) / 2; y0 = c - minSpan / 2; y1 = c + minSpan / 2; }
+  const padX = 56, padT = 72, padB = 60;
+  const s = Math.max(0.01, Math.min((W - 2 * padX) / (x1 - x0), (H - padT - padB) / (y1 - y0)));
+  const ox = W / 2 - (x0 + x1) / 2 * s, oy = padT + (H - padT - padB) / 2 - (y0 + y1) / 2 * s;
+  return p => { const q = m(p); return [q[0] * s + ox, q[1] * s + oy]; };
+}
+/* a label sits above (or below) its marker; if that leaves the panel it flips side, then is clamped in */
+function placeLabel(el, x, y, side, W, H, altY){
+  if (!el) return;
+  const w = el.offsetWidth, h = el.offsetHeight;
+  let top = side === 'above' ? y - h : y;
+  if (top < 6 || top + h > H - 6) top = side === 'above' ? altY : altY - h;
+  top = Math.max(6, Math.min(H - 6 - h, top));
+  const left = Math.max(6 + w / 2, Math.min(W - 6 - w / 2, x));
+  el.style.left = left.toFixed(1) + 'px'; el.style.top = top.toFixed(1) + 'px';
+}
+function drawMap(slot, opts){
+  const W = slot.clientWidth, H = slot.clientHeight;
+  if (!W || !H) return;
+  const pr = MAP.proj = mapProject(opts, W, H);
+  const xy = p => pr(p).map(v => v.toFixed(1));
+  const pl = arr => arr.map(p => xy(p).join(',')).join(' ');
+  let svg = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true" focusable="false">`;
+  STREETS.forEach(s => { svg += `<polyline class="st" points="${pl(s)}"/>`; });
+  if (journey && journey.plan && !journey.walkOnly){
+    const line = [journey.plan.origin_stop].concat(journey.plan.stops).map(P);
+    svg += `<polyline class="bus" points="${pl(line)}"/>`;
+    line.forEach(p => { const q = xy(p); svg += `<circle class="bstop" cx="${q[0]}" cy="${q[1]}" r="9"/>`; });
+  }
+  if (opts.path.length > 1) svg += `<polyline class="walk" points="${pl(opts.path)}"/>`;
+  const tg = pr(P(opts.target)), tx = tg[0].toFixed(1), ty = tg[1].toFixed(1);
+  svg += `<path class="pin" d="M${tx} ${ty}c-6-10-18-18-18-30a18 18 0 0 1 36 0c0 12-12 20-18 30z"/><circle cx="${tx}" cy="${(tg[1] - 30).toFixed(1)}" r="6" fill="#FFFFFF"/>`;
+  const me = pr(S.pos ? P(S.pos) : opts.path[0]);
+  svg += `<g id="mapMe" transform="translate(${me[0].toFixed(1)} ${me[1].toFixed(1)})"><circle class="halo" r="30"/><circle class="me" r="14"/></g></svg>`;
+  slot.innerHTML = svg + `<span class="lbl" id="lblT">${fmt(opts.label)}</span><span class="lbl" id="lblMe">${esc(t('you'))}</span>`;
+  placeLabel($('lblT'), tg[0], tg[1] - 54, 'above', W, H, tg[1] + 10);
+  placeLabel($('lblMe'), me[0], me[1] + 22, 'below', W, H, me[1] - 22);
+}
+function showMap(opts){
+  const slot = $('mapslot'); if (!slot || !opts.path || opts.path.length < 1) return;
+  MAP.opts = opts;
+  drawMap(slot, opts);
+  try {
+    if (MAP.ro) MAP.ro.disconnect();
+    if ('ResizeObserver' in window){
+      let w = slot.clientWidth, h = slot.clientHeight;
+      MAP.ro = new ResizeObserver(() => {
+        if (!slot.isConnected || MAP.opts !== opts) return;
+        if (slot.clientWidth !== w || slot.clientHeight !== h){ w = slot.clientWidth; h = slot.clientHeight; drawMap(slot, opts); }
+      });
+      MAP.ro.observe(slot);
+    }
+  } catch (e) {}
+}
+function updateMe(){
+  if (!S.pos || !MAP.proj) return;
+  const g = document.getElementById('mapMe'), slot = $('mapslot'); if (!g || !slot) return;
+  const q = MAP.proj(P(S.pos));
+  g.setAttribute('transform', `translate(${q[0].toFixed(1)} ${q[1].toFixed(1)})`);
+  placeLabel($('lblMe'), q[0], q[1] + 22, 'below', slot.clientWidth, slot.clientHeight, q[1] - 22);
+}
+
+/* ---------- ?screen=<id>: one screen with realistic demo content, frozen ---------- */
+function shotJourney(step, extra){
+  const plan = fallbackPlan(FALLBACK.dest);
+  journey = Object.assign({
+    dest: Object.assign({}, FALLBACK.dest), plan, origin: Object.assign({}, FALLBACK.start),
+    walkTo: { meters: Math.round(pathLen(FALLBACK.walkTo)), path: FALLBACK.walkTo.slice() },
+    walkFrom: { meters: Math.round(dist(plan.dest_stop, FALLBACK.dest)), path: [P(plan.dest_stop), P(FALLBACK.dest)] },
+    step, walking: false, passedIdx: -1, departsAt: Date.now() + 4 * MINUTE + 5000, alert: null, minDest: null, lastPos: null,
+    startedAt: Date.now() - 18 * MINUTE, arrivedAt: Date.now()
+  }, extra || {});
+}
+function shotLost(){
+  S.lost = { pos: along(FALLBACK.walkTo, 0.35), street: 'דיזנגוף', items: DEMO_NEARBY.map(x => Object.assign({}, x)), landmark: null, ready: true };
+  S.pos = S.lost.pos;
+}
+const SHOTS = {
+  'welcome':      () => { settings.done = false; screenWelcome(); },
+  'gender':       () => screenGender(),
+  'home':         () => { S.homeCtx = 'onboard'; placeScreen('home', DEMO_TEXT.home); },
+  'contact':      () => { settings.contact = '050-1234567'; screenContact('onboard'); },
+  'contactname':  () => screenContactName('onboard'),
+  'perms':        () => screenPerms(),
+  'dest-first':   () => { settings.visits = 1; screenDest(); },
+  'dest-return':  () => { settings.visits = 3; screenDest(); },
+  'listening':    () => { settings.visits = 1; screenDest(); setListening(true); },
+  'confirm':      () => screenConfirm(Object.assign({}, FALLBACK.dest), 'dest'),
+  'planning':     () => screenPlanning(),
+  'walk':         () => { shotJourney('walk'); screenWalk(); },
+  'stop':         () => { shotJourney('stop'); S.pos = P2(FALLBACK.stops[0]); screenStop(); },
+  'ride':         () => { shotJourney('ride', { passedIdx: 1 }); S.pos = P2(FALLBACK.stops[2]); screenRide(); },
+  'alert':        () => { shotJourney('ride', { passedIdx: 3 }); S.pos = P2(FALLBACK.stops[4]); screenRide(); },
+  'off':          () => { shotJourney('off', { passedIdx: 4 }); screenOff(); },
+  'finalwalk':    () => { shotJourney('finalwalk', { passedIdx: 4 }); S.pos = P2(FALLBACK.stops[5]); screenFinal(); },
+  'arrived':      () => { shotJourney('arrived'); S.pos = P2(FALLBACK.dest); screenArrived(); },
+  'gohome':       () => { shotJourney('arrived'); S.pos = P2(FALLBACK.dest); S.hold = false; goHome(); },
+  'resume':       () => { shotJourney('ride', { passedIdx: 1 }); screenResume(); },
+  'nodirect':     () => screenNoDirect(FALLBACK.dest),
+  'notfound':     () => { settings.visits = 1; screenDest('בית החולים הגדול'); setSay(t('notFound'), t('notFoundSub'), false); },
+  'lost-calm':    () => { walkBase(); shotLost(); lostBase(); renderLostCalm(); },
+  'lost-landmark':() => { walkBase(); shotLost(); lostBase(); lostLandmark(0); },
+  'lost-ask':     () => { walkBase(); shotLost(); lostBase(); lostAsk(); },
+  'lost-orient':  () => { walkBase(); shotLost(); S.lost.landmark = S.lost.items[0]; lostBase(); lostOrient(); },
+  'help':         () => { walkBase(); shotLost(); S.lost.landmark = S.lost.items[0]; helpScreen(); },
+  'message':      () => { walkBase(); shotLost(); S.lost.landmark = S.lost.items[0]; messageScreen(false); },
+  'sent':         () => { walkBase(); shotLost(); S.lost.landmark = S.lost.items[0]; messageScreen(true); },
+  'offroute':     () => { walkBase(); S.pos = { lat: 32.0757, lon: 34.7772 }; S.overlay = 'offroute'; S.paused = true; renderOffroute(); },
+  'prefs':        () => screenSettings(0),
+  'nounderstand': () => { settings.visits = 1; screenDest(); setSay(t('noSpeech'), t('noSpeechSub'), false); },
+  'ambiguous':    () => screenAmbiguous([{ name: 'כללית, דיזנגוף 150', lat: 32.0895, lon: 34.7732 }, { name: 'כללית, ארלוזורוב 40', lat: 32.0880, lon: 34.7790 }]),
+  'toofar':       () => screenTooFar(),
+  'tooclose':     () => screenTooClose({ name: 'הדואר', lat: 32.0770, lon: 34.7760 }, FALLBACK.start),
+  'nightnoservice': () => { S.lastBase = null; render({ name: 'nightnoservice', step: STEP.plan, say: t('noService'), mid: noServiceMid('בשבת בערב', '19:10'),
+                      buttons: [contactBtn('pri'), { id: 'back', kind: 'sec', label: t('backStart'), onTap: () => screenDest() }] }); },
+  'noperm':       () => screenNoPerm(),
+  'wrongside':    () => { walkBase(); S.pos = P2(FALLBACK.stops[0]); caseWrongSide(); },
+  'gpsweak':      () => { walkBase(); caseGpsWeak(); },
+  'late':         () => { shotJourney('stop'); S.lastBase = screenStop; openLate(); },
+  'missed':       () => { shotJourney('stop'); S.lastBase = screenStop; caseMissed(); },
+  'wrongbus':     () => { shotJourney('ride'); S.lastBase = screenRide; caseWrongBus(); },
+  'waitlong':     () => { shotJourney('stop'); S.lastBase = screenStop; caseWaitLong(); },
+  'passed':       () => { shotJourney('passed', { passedIdx: 3 }); screenPassed(); },
+  'alertmissed':  () => { shotJourney('ride', { passedIdx: 3 }); S.pos = P2(FALLBACK.stops[4]); screenRide(); alertMissed(); },
+  'detour':       () => { shotJourney('ride', { passedIdx: 2 }); S.lastBase = screenRide; caseDetour(); },
+  'nocontact':    () => { walkBase(); shotLost(); settings.contact = null; settings.contactName = ''; helpScreen(); },
+  'battery':      () => { shotJourney('ride', { passedIdx: 1 }); S.lastBase = screenRide; caseBattery(); },
+  'offline':      () => { walkBase(); caseOffline(); },
+  'novoice':      () => { settings.visits = 1; screenDest(); const n = $('notice'); n.textContent = t('noVoice'); n.hidden = false; },
+  'exit':         () => { shotJourney('ride', { passedIdx: 1 }); S.lastBase = screenRide; openExit(); }
+};
+function walkBase(){ shotJourney('walk', { walking: true }); S.lastBase = screenWalk; }
+function P2(o){ return { lat: o.lat, lon: o.lon }; }
+window.laanShots = Object.keys(SHOTS);
+
+/* ---------- start ---------- */
+$('again').addEventListener('click', tap(() => speak(S.alertOn ? alertSpeech() : S.speech)));
+$('lost').addEventListener('click', tap(() => openLost()));
+/* a focused field is scrolled to the middle of the content area only (never the page around the phone) */
+function intoView(el){
+  const main = $('main'); if (!el || !main || !main.contains(el)) return;
+  main.scrollTop = Math.max(0, (el.offsetTop - main.offsetTop) - (main.clientHeight - el.offsetHeight) / 2);
+}
+
+/* ============================================================
+   Presenter panel (wider screens): screen jumps on location.hash, the hands-free demo,
+   אתה/את, voice. ASCII ids only.
+   ============================================================ */
+const JUMPS = [
+  { h: 'כניסה ראשונה', items: [['welcome', 'ברוכים הבאים'], ['gender', 'אתה או את'], ['home', 'כתובת הבית'], ['contact', 'מספר לעזרה'], ['contactname', 'שם איש הקשר'], ['perms', 'מיקום ומיקרופון']] },
+  { h: 'כניסה חוזרת', items: [['dest-return', 'שלום שוב'], ['dest-first', 'לאן?'], ['listening', 'מקשיב'], ['confirm', 'זה המקום?'], ['planning', 'מחפש אוטובוס'], ['resume', 'להמשיך בדרך?'], ['prefs', 'הגדרות']] },
+  { h: 'הדרך', items: [['walk', 'הליכה לתחנה'], ['stop', 'בתחנה'], ['ride', 'באוטובוס'], ['alert', 'יורדים בבאה'], ['off', 'ירדת?'], ['finalwalk', 'הליכה ליעד'], ['arrived', 'הגעת!']] },
+  { h: 'איפה אני', items: [['lost-calm', 'הכל בסדר'], ['lost-landmark', 'רואה את…?'], ['lost-ask', 'מה רואים?'], ['lost-orient', 'איפה ומה עכשיו']] },
+  { h: 'עזרה', items: [['help', 'עזרה מרותי'], ['message', 'ההודעה'], ['sent', 'ההודעה הועתקה'], ['nocontact', 'אין איש קשר']] },
+  { h: 'מקרים', sub: [
+    { h: 'לפני היציאה', items: [[1, 'nounderstand', 'לא שמעתי'], [2, 'notfound', 'לא מצאתי'], [3, 'ambiguous', 'שני מקומות'], [4, 'toofar', 'רחוק מדי'], [5, 'nodirect', 'אין קו ישיר'], [6, 'tooclose', 'קרוב, ברגל'], [7, 'nightnoservice', 'אין אוטובוסים'], [8, 'noperm', 'אין מיקום']] },
+    { h: 'בהליכה לתחנה', items: [[9, 'offroute', 'התרחקת מהדרך'], [10, 'wrongside', 'הצד השני'], [11, 'gpsweak', 'מיקום לא מדויק']] },
+    { h: 'בתחנה', items: [[12, 'late', 'מתאחר'], [13, 'missed', 'האוטובוס עבר'], [14, 'wrongbus', 'קו לא נכון'], [15, 'waitlong', 'המתנה ארוכה']] },
+    { h: 'באוטובוס', items: [[16, 'alert', 'יורדים בבאה'], [17, 'passed', 'עברת את התחנה'], [18, 'alertmissed', 'לא לחצו "הבנתי"'], [19, 'detour', 'דרך אחרת']] },
+    { h: 'בכל מקום', items: [[20, 'lost-landmark', 'איפה אני?'], [21, 'help', 'עזרה והודעה'], [22, 'nocontact', 'אין איש קשר'], [23, 'battery', 'סוללה חלשה'], [24, 'offline', 'אין אינטרנט'], [25, 'resume', 'חזרה לאפליקציה'], [26, 'exit', 'לעצור את הדרך'], [27, 'novoice', 'אין קול בעברית'], [28, 'arrived', 'הגעת'], [28, 'gohome', 'קח אותי הביתה']] }
+  ] }
+];
+const LABEL = { dest: 'לאן?', checking: 'בודק', settings: 'הגדרות', alert: 'יורדים בבאה', 'lost-calm': 'איפה אני?' };
+JUMPS.forEach(gr => (gr.items || []).forEach(i => { LABEL[i[0]] = LABEL[i[0]] || i[1]; }));
+let CUR = '', DEMO_T0 = 0;
+const DEFAULT_STATUS = 'דמו בלי ידיים: מהיעד ועד "הגעת!", בערך 75 שניות.';
+function buildPanel(){
+  const chip = (id, label, no) => `<a href="#${id}" data-jump="${id}">${no ? `<span class="no">${no}</span>` : ''}${esc(label)}</a>`;
+  $('ppNav').innerHTML = JUMPS.map(gr => `<section class="pp-group"><h3>${esc(gr.h)}</h3>` +
+    (gr.items ? `<div class="chips">${gr.items.map(i => chip(i[0], i[1])).join('')}</div>` : '') +
+    (gr.sub ? gr.sub.map(s => `<h4>${esc(s.h)}</h4><div class="chips">${s.items.map(i => chip(i[1], i[2], i[0])).join('')}</div>`).join('') : '') +
+    '</section>').join('');
+  $('ppNav').addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('a[data-jump]'); if (!a) return;
+    e.preventDefault();
+    const id = a.dataset.jump;
+    unlockAudio(true);
+    jump(id);
+    try { if (location.hash.slice(1) !== id){ S.skipHash = id; location.hash = id; } } catch (er) { S.skipHash = null; }
+  });
+  $('ppRun').addEventListener('click', () => {
+    unlockAudio(true);
+    if (AUTO){ stopDemo(); status('הדמו נעצר. אפשר להמשיך ללחוץ בטלפון.'); } else startDemo();
+  });
+  const gset = gd => () => { settings.gender = gd; applySettings(); rerender(); };
+  $('ppM').addEventListener('click', gset('m'));
+  $('ppF').addEventListener('click', gset('f'));
+  $('ppVon').addEventListener('click', () => { settings.voice = true; unlockAudio(true); syncPanel(); });
+  $('ppVoff').addEventListener('click', () => { settings.voice = false; S.pendingVoice = null; try { speechSynthesis.cancel(); } catch (e) {} syncPanel(); });
+}
+function markPanel(){
+  document.querySelectorAll('#ppNav a[data-jump]').forEach(a => a.setAttribute('aria-current', a.dataset.jump === CUR ? 'true' : 'false'));
+}
+function syncPanel(){
+  const set = (id, on) => { const b = $(id); if (b) b.setAttribute('aria-pressed', on ? 'true' : 'false'); };
+  set('ppM', settings.gender !== 'f'); set('ppF', settings.gender === 'f');
+  set('ppVon', !!settings.voice); set('ppVoff', !settings.voice);
+}
+function status(s){ const el = $('ppStatus'); if (el) el.textContent = s; }
+function updStatus(){
+  if (!AUTO) return;
+  const sc = document.body.dataset.screen;
+  status(`הדמו רץ · ${Math.round((Date.now() - DEMO_T0) / 1000)} שניות · ${LABEL[sc] || sc}`);
+}
+function onRendered(name){
+  syncPanel();
+  if (!AUTO) return;
+  if (name === 'arrived'){
+    const secs = (Date.now() - DEMO_T0) / 1000;
+    window.laanDemoSeconds = Math.round(secs * 10) / 10;
+    stopDemo();
+    status(`הגעת! הדמו הגיע ליעד אחרי ${Math.round(secs)} שניות.`);
+  } else updStatus();
+}
+function setRun(on){ $('ppRun').textContent = on ? '■ לעצור את הדמו' : '▶︎ להתחיל דמו'; }
+function stopDemo(){
+  AUTO = false; MINUTE = 60000;
+  if (S.demoTick){ clearInterval(S.demoTick); S.demoTick = null; }
+  setRun(false);
+}
+/* back to a clean demo state; the viewer's own choices (אתה/את, voice, text size, colours) stay */
+function resetAll(){
+  S.gen++; S.helpTok++;
+  clearScreenTimers(); SIM.stop(); closeAlert(); stopListening();
+  try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) {}
+  Object.assign(S, { overlay: null, paused: false, busy: false, lost: null, off: null, offQuietUntil: 0, detoured: false,
+    lastBase: null, firstDest: true, rideOff: 0, alertSlow: false, homeCtx: null, lastText: '', planFor: null, weakSince: 0,
+    pos: { lat: FALLBACK.start.lat, lon: FALLBACK.start.lon }, acc: 8 });
+  journey = null;
+  settings = demoSettings({ gender: settings.gender, voice: settings.voice, size: settings.size, contrast: settings.contrast,
+                            rate: settings.rate, noVoiceShown: settings.noVoiceShown });
+  $('notice').hidden = true;
+  applySettings();
+}
+function jump(id){
+  if (!SHOTS[id]) id = 'dest-return';
+  const wasAuto = AUTO;
+  stopDemo();
+  if (wasAuto) status(DEFAULT_STATUS);
+  resetAll();
+  S.hold = true;                       // the screen stays as it is until someone taps in the phone
+  CUR = id;
+  SHOTS[id]();
+  markPanel();
+}
+function startDemo(){
+  resetAll();
+  CUR = ''; markPanel();
+  AUTO = true; MINUTE = 2000; S.hold = false;
+  settings.visits = 1;                 // the "as if spoken" destination screen
+  DEMO_T0 = Date.now();
+  setRun(true);
+  S.demoTick = setInterval(updStatus, 500);
+  screenDest();
+}
+function rerender(){
+  if (AUTO) return;                    // the running demo picks the change up on its next screen
+  if (S.alertOn){ if (S.alertSlow) $('alertMiss').textContent = t('alertMissed'); return; }
+  if (!S.overlay && S.lastBase) return S.lastBase();
+  if (CUR) return jump(CUR);
+  if (S.lastBase) S.lastBase();
+}
+function idFromHash(){
+  let h = ''; try { h = decodeURIComponent((location.hash || '').slice(1)).trim(); } catch (e) {}
+  return SHOTS[h] ? h : '';
+}
+window.addEventListener('hashchange', () => {
+  const id = idFromHash(); if (!id) return;
+  if (S.skipHash === id){ S.skipHash = null; return; }
+  jump(id);
+});
+/* wider than a phone: the phone body is scaled to fit the height (and the width under 1100px) */
+function fit(){
+  const w = window.innerWidth, h = window.innerHeight;
+  let k = 1;
+  if (w > 600){
+    k = Math.min(1, (h - 48) / 939);
+    if (w < 1100) k = Math.min(k, (w - 32) / 436);
+    k = Math.max(0.3, k);
+  }
+  $('laan').style.setProperty('--k', k.toFixed(4));
+}
+window.addEventListener('resize', fit);
+window.laanJump = jump; window.laanStartDemo = startDemo;
+function init(){
+  buildPanel(); fit();
+  $('badge').hidden = false;
+  jump(idFromHash() || 'dest-return');   // first frame: the return visit, with real content
+}
+init();
+</script>

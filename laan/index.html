@@ -19,7 +19,9 @@
 (function(){
   try {
     var q = new URLSearchParams(location.search);
-    if (q.get('frame') !== '1' || window.innerWidth <= 600 || window.self !== window.top) return;
+    // a wide screen with a mouse gets the phone frame by default; ?frame=0 opts out, ?frame=1 forces it
+    var want = q.get('frame') === '1' || (q.get('frame') !== '0' && window.matchMedia && matchMedia('(pointer: fine)').matches);
+    if (!want || window.innerWidth <= 600 || window.self !== window.top) return;
     window.LAAN_FRAMED = true;
     q.delete('frame');
     var src = location.pathname.replace(/^.*\//, '') + (q.toString() ? '?' + q.toString() : '');
@@ -63,6 +65,9 @@ body{
   font-variant-numeric:tabular-nums;
 }
 bdi{ unicode-bidi:isolate; }
+/* phone numbers: one left-to-right run that never wraps, never smaller than 32px */
+.tel{ direction:ltr; unicode-bidi:isolate; white-space:nowrap; font-size:32px; letter-spacing:-0.01em; font-variant-numeric:tabular-nums; }
+.card .ds.tel-row, .sub.hotline{ overflow-wrap:normal; }
 .nb{ white-space:nowrap; }
 .card .nm, .lbl, .band .dir, .alert .where, .list li{ overflow-wrap:normal; }
 .i{ width:36px; height:36px; flex:0 0 auto; fill:none; stroke:currentColor; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
@@ -104,6 +109,13 @@ html[data-contrast="hc"] .dots i:not(.on):not(.cur){ outline:3px solid var(--ink
 .block{ display:flex; flex-direction:column; gap:8px; flex:0 0 auto; }
 .block.row{ flex-direction:row; align-items:center; gap:16px; }
 .block .txt{ display:flex; flex-direction:column; gap:8px; min-width:0; }
+/* TEXT-SIZE RULE: every word a person reads is ≥ 32px. The ONLY exceptions (keep this the one list):
+     1. .step / #topstep  — the small context label above the sentence ("בדרך לתחנה", "היכרות · 2 מתוך 5"), 28px
+     2. .figcap            — the caption under a big figure ("לפי לוח הזמנים"), 28px
+     3. .band .k           — the key word "לכיוון" beside the line plate, 28px
+     4. .badge             — the "דמו" tab, demo mode only, 24px
+     5. .leaflet-control-attribution — the map licence notice (OpenStreetMap), 11px
+   Each repeats or labels something already said at ≥ 32px; no instruction, button or phone number is ever below 32px. */
 .step{ margin:0; font-weight:500; font-size:28px; line-height:1.25; color:var(--ink2); }
 .say{ font-family:var(--ui); font-weight:700; font-size:calc(40px * var(--s)); line-height:1.3; margin:0; color:var(--ink); }
 .say.big{ font-size:calc(48px * var(--s)); }
@@ -183,7 +195,7 @@ button:focus-visible{ outline:4px solid var(--focus); outline-offset:2px; }
 .b-sec{ min-height:76px; background:var(--surface2); color:var(--ink); white-space:nowrap; }
 .b-sec:active, .tile:active, .opt:active, .who button:active{ background:var(--press); }
 .b-quiet:active{ background:var(--surface2); }
-.b-quiet{ min-height:72px; font-weight:500; font-size:30px; color:var(--ink); text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:7px; padding-block:4px; }
+.b-quiet{ min-height:72px; font-weight:500; font-size:32px; color:var(--ink); text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:7px; padding-block:4px; }
 .b-quiet .i{ width:32px; height:32px; }
 html[data-contrast="hc"] .b-sec, html[data-contrast="hc"] .opt, html[data-contrast="hc"] .who button{ outline:3px solid var(--ink); outline-offset:-3px; }
 .actions{ flex:0 0 auto; display:flex; flex-direction:column; gap:16px; }
@@ -206,7 +218,7 @@ html[data-contrast="hc"] .b-sec, html[data-contrast="hc"] .opt, html[data-contra
 html[data-contrast="hc"] .foot{ border-top:3px solid var(--ink); }
 .tiles{ display:flex; gap:16px; }
 .tiles #again:only-child, .tiles:has(#lost[hidden]) #again{ flex:0 0 calc(50% - 8px); }
-.tile{ flex:1 1 0; min-width:0; min-height:88px; flex-direction:column; gap:4px; padding:8px 6px; border-radius:16px; background:var(--surface); color:var(--ink); font-weight:500; font-size:30px; line-height:1.1; white-space:nowrap; }
+.tile{ flex:1 1 0; min-width:0; min-height:88px; flex-direction:column; gap:4px; padding:8px 6px; border-radius:16px; background:var(--surface); color:var(--ink); font-weight:500; font-size:32px; line-height:1.1; white-space:nowrap; letter-spacing:-0.01em; }
 .tile .i{ width:32px; height:32px; }
 .tile.amber{ box-shadow:inset 0 4px 0 var(--amber-edge); }
 .tile .disc{ width:40px; height:40px; margin-block:-4px; border-radius:50%; display:grid; place-items:center; background:var(--amber); color:#1A1814; }
@@ -320,6 +332,13 @@ body.pf{ overflow:hidden; background:#E9E2D3; }
   .fig.md .num{ font-size:44px; }
   .top{ height:48px; }
 }
+/* narrow phones (360): a smaller initial disc so a phone number fits on one line */
+@media (max-width: 380px){
+  .card{ gap:12px; }
+  .card .ini{ width:48px; height:48px; }
+  .tiles{ gap:10px; }
+  .tile{ padding:8px 4px; }
+}
 /* 360×780-class phones: a 12px rhythm */
 @media (max-height: 800px){
   :root{ --gap:12px; }
@@ -330,6 +349,7 @@ body.pf{ overflow:hidden; background:#E9E2D3; }
   .actions{ gap:12px; }
   .foot{ padding-block-start:10px; }
   .map{ min-height:150px; }
+  .mid.orient .map{ min-height:110px; }   /* "איפה אני?": the two-line instruction comes first, the map takes what is left */
   .tiles{ gap:12px; }
   .badge{ top:-11px; height:22px; line-height:22px; }
   .tiles #again:only-child, .tiles:has(#lost[hidden]) #again{ flex:0 0 calc(50% - 6px); }
@@ -378,8 +398,8 @@ body.pf{ overflow:hidden; background:#E9E2D3; }
   <footer class="foot">
     <span id="badge" class="badge" hidden>דמו</span>
     <div class="tiles">
-      <button id="again" class="tile micro" type="button"></button>
-      <button id="lost" class="tile amber micro" type="button"></button>
+      <button id="again" class="tile" type="button"></button>
+      <button id="lost" class="tile amber" type="button"></button>
     </div>
     <div id="quiet" class="quietbox"></div>
   </footer>
@@ -448,9 +468,9 @@ const FALLBACK = {
 };
 /* demo "what is around me" (spec round 2, §A) */
 const DEMO_NEARBY = [
-  { name: 'סופר־פארם דיזנגוף', kind_he: 'בית מרקחת', dist: 25 },
-  { name: 'בנק לאומי', kind_he: 'בנק', dist: 40 },
-  { name: 'כיכר דיזנגוף', kind_he: 'כיכר', dist: 90 }
+  { name: 'סופר־פארם דיזנגוף', kind_he: 'בית מרקחת', dist: 25, lat: 32.0757, lon: 34.7760 },
+  { name: 'בנק לאומי', kind_he: 'בנק', dist: 40, lat: 32.0752, lon: 34.7764 },
+  { name: 'כיכר דיזנגוף', kind_he: 'כיכר', dist: 90, lat: 32.0779, lon: 34.7741 }   // approximate, demo only
 ];
 
 /* ---------- storage ----------
@@ -498,14 +518,14 @@ const STR = {
   notNow:     () => 'לא עכשיו',
   save:       () => 'לשמור',
   contactQ:   () => 'למי להתקשר אם צריך עזרה?',
-  contactSub: () => 'מספר הטלפון שלו:',
+  contactSub: () => 'אפשר לכתוב כאן מספר טלפון.',
   contactBad: () => 'המספר קצר מדי. אפשר לכתוב אותו שוב.',
-  contactNameQ:   () => 'איך קוראים לו?',
+  contactNameQ:   () => 'מה השם?',
   contactNameSub: () => 'למשל: הבת שלי רותי',
   phoneHint:  () => 'מספר טלפון',
   nameHint:   () => 'שם',
   permsSay:   () => 'כדי להדריך, אני צריך מיקום ומיקרופון.',
-  permsSub:   () => g('עכשיו הטלפון ישאל — לחץ "אפשר".', 'עכשיו הטלפון ישאל — לחצי "אפשר".'),
+  permsSub:   () => g('עכשיו הטלפון ישאל. לחץ על הכפתור שמאשר.', 'עכשיו הטלפון ישאל. לחצי על הכפתור שמאשר.'),
   okay:       () => 'בסדר',
   destQ:      () => g('לאן אתה צריך להגיע?', 'לאן את צריכה להגיע?'),
   destBack:   () => 'שלום שוב! לאן היום?',
@@ -633,7 +653,7 @@ const STR = {
   gpsWeakSub: () => g('כשתגיע לתחנה — לחץ "הגעתי לתחנה".', 'כשתגיעי לתחנה — לחצי "הגעתי לתחנה".'),
   missed:     () => 'נראה שהאוטובוס עבר.',
   missedSub:  p  => `הבא מגיע בעוד ${p.min} דקות.`,
-  waitNext:   () => 'לחכות לבא',
+  waitNext:   () => 'לחכות לאוטובוס הבא',
   wrongBus:   () => 'נראה שזה לא הקו הנכון.',
   wrongBusSub:() => g('רד בתחנה הבאה, ואני אדריך משם.', 'רדי בתחנה הבאה, ואני אדריך משם.'),
   gotOffShort:() => 'ירדתי',
@@ -648,8 +668,26 @@ const STR = {
   batteryNoC: () => 'הסוללה כמעט נגמרת. כדאי לבקש עזרה עכשיו.',
   offline:    () => 'אין אינטרנט כרגע.',
   offlineSub: () => 'אני ממשיך לפי המסלול ששמרתי.',
-  hotlineSub: () => 'אפשר גם להתקשר למוקד *8787.'
+  hotlineSub: () => 'אפשר גם להתקשר למוקד',
+  /* no server, no Claude: I cannot look places up (real mode only; the demo keeps its route) */
+  noPlaces:   () => 'עכשיו אני לא יכול למצוא מקומות בלי אינטרנט.',
+  noPlacesSub:p  => p.L ? g(`אתה יכול לבקש עזרה מ${p.L.slice(1)}.`, `את יכולה לבקש עזרה מ${p.L.slice(1)}.`)
+                        : g('אתה יכול להתקשר למוקד לעזרה.', 'את יכולה להתקשר למוקד לעזרה.'),
+  noPlacesHome:() => g('אתה יכול לשמור את הבית אחר כך.', 'את יכולה לשמור את הבית אחר כך.'),
+  goOn:       () => 'להמשיך',
+  noBus:      () => 'עכשיו אני לא יכול לחפש אוטובוס בלי אינטרנט.',
+  noFixSub:   () => 'אני לא יודע איפה בדיוק. אפשר לנסות שוב.',
+  hereRef:    p  => `התחנה ${p.m} מטר מכאן. ללכת לכיוון ${p.ref}.`,
+  hereRefNo:  p  => `התחנה ${p.m} מטר מכאן. המפה מראה לאן.`,
+  resumeWalk: p  => `בדרך לתחנה ${p.stop}`,
+  resumeStop: p  => `בתחנה ${p.stop}, קו ${p.line}`,
+  resumeRide: p  => `באוטובוס, קו ${p.line}`,
+  resumeFinal:() => 'בדרך ליעד, ברגל',
+  walkingDest:() => g('הולך ליעד', 'הולכת ליעד')
 };
+const HOTLINE = '*8787';
+/* a phone number: one LTR run that never breaks (help, nodirect, battery, nocontact) */
+const telHTML = n => `<bdi dir="ltr" class="tel">${esc(String(n || '').replace(/-/g, '\u2011'))}</bdi>`;
 const t = (k, p) => STR[k](p || {});
 
 const STRIP_NAMES = ['הליכה לתחנה', 'בתחנה', 'באוטובוס', 'הליכה ליעד'];
@@ -783,9 +821,9 @@ if ('speechSynthesis' in window){
 function forSpeech(s){
   return String(s)
     .replace(/ק״מ/g, 'קילומטר').replace(/כ־/g, 'בערך ').replace(/ל־/g, 'ל')
-    .replace(/\//g, ' פינת ').replace(/[()]/g, ', ').replace(/[✓✗—·]/g, ' ')
+    .replace(/\//g, ' פינת ').replace(/\s*\(([^)]*)\)/g, ', $1').replace(/[()]/g, ' ').replace(/[✓✗—·]/g, ' ')
     .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}️]/gu, '').replace(/"/g, '')
-    .replace(/\u2060/g, '').replace(/\s+/g, ' ').trim();
+    .replace(/\u2060/g, '').replace(/\s+/g, ' ').replace(/\s+([,.!?])/g, '$1').replace(/,+([.!?])/g, '$1').replace(/,{2,}/g, ',').trim();
 }
 function chunks(s, max){
   const out = [];
@@ -838,7 +876,7 @@ function checkHebrewVoice(){
     TTS.checked = true;
     if (!TTS.voice && !settings.noVoiceShown){
       settings.noVoiceShown = true; saveSettings();
-      const n = $('notice'); n.textContent = t('noVoice'); n.hidden = false;
+      const n = $('notice'); n.textContent = t('noVoice'); n.hidden = false; fitText();
     }
   }, 2000);
 }
@@ -884,6 +922,7 @@ function setButtons(list){
   const box = $('actions'), quiet = $('quiet');
   box.innerHTML = ''; quiet.innerHTML = '';
   (list || []).filter(Boolean).forEach(b => (b.kind === 'quiet' ? quiet : box).appendChild(makeBtn(b)));
+  if (typeof fitText === 'function' && S.screen) fitText();
 }
 function journeyIdx(){
   if (!journey) return -1;
@@ -935,13 +974,24 @@ function render(o){
   S.speech = o.speak || [o.say, o.sub].filter(Boolean).join(' ');
   try { $('say').focus({ preventScroll: true }); } catch (e) {}
   if (o.after) o.after();
+  fitText();
   if (!o.silent) later(() => speak(S.speech), 300);
 }
+/* ענק on a short phone: the reading text steps down (1.2 → 1.0, never below 32px) until the screen fits without scrolling */
+function fitText(){
+  const r = document.documentElement;
+  r.style.removeProperty('--s');
+  if (settings.size !== 'xl') return;
+  const m = $('main'); let k = 1.2;
+  while (m.scrollHeight - m.clientHeight > 1 && k > 1.001){ k = Math.round((k - 0.05) * 100) / 100; r.style.setProperty('--s', String(k)); }
+}
+window.addEventListener('resize', () => { try { fitText(); } catch (e) {} });
 function setSay(say, sub, doSpeak){
   $('say').innerHTML = fmt(say);
   const el = $('sub'); el.innerHTML = sub ? fmt(sub) : ''; el.hidden = !sub;
   S.speech = [say, sub].filter(Boolean).join(' ');
   $('mid').classList.toggle('tight', !!sub && !!$('mic'));
+  fitText();
   if (doSpeak) speak(S.speech);
 }
 function autoTap(id, ms){
@@ -949,7 +999,13 @@ function autoTap(id, ms){
   later(() => { const b = $('b-' + id); if (b) b.click(); }, D(ms));
 }
 const card = (icon, title, detail, cls, lead) => `<div class="card${cls ? ' ' + cls : ''}">${lead || ic(icon)}<div class="txt"><span class="nm">${fmt(String(title).includes('/') ? nm(title) : title)}</span>${detail ? `<span class="ds">${fmt(detail)}</span>` : ''}</div></div>`;
-const contactCard = () => { const n = contactName(); return card('', n, settings.contactName ? settings.contact.replace(/-/g, '\u2011') : null, 'hero', `<span class="ini">${esc((settings.contactName || '?').trim().replace(/^ה(?=בת|בן|נכד)/, '').charAt(0))}</span>`); };
+const contactCard = () => {
+  const ini = `<span class="ini">${esc((settings.contactName || '?').trim().replace(/^ה(?=בת|בן|נכד)/, '').charAt(0))}</span>`;
+  const title = settings.contactName ? fmt(contactName()) : telHTML(settings.contact);
+  const num = settings.contactName ? `<span class="ds tel-row">${telHTML(settings.contact)}</span>` : '';
+  return `<div class="card hero">${ini}<div class="txt"><span class="nm">${title}</span>${num}</div></div>`;
+};
+const hotlineCard = () => `<div class="card">${ic('phone')}<div class="txt"><span class="nm">מוקד התחבורה הציבורית</span><span class="ds tel-row">${telHTML(HOTLINE)}</span></div></div>`;
 const KIND_ICON = { 'בית מרקחת': 'pin', 'בנק': 'pin', 'תחנת אוטובוס': 'bus' };
 const kmText = m => m < 1000 ? `${round50(m)} מטר` : `${String(m < 1500 ? 1 : Math.round(m / 500) / 2).replace(/\.0$/, '')} קילומטר`;
 /* one big figure: parts are [text, 'n'|'u'|'s'|'soft'] */
@@ -1237,6 +1293,7 @@ async function submitPlace(mode, text){
   S.busy = false;
   if (S.screen !== screen) return;
   if (r.status === 'notfound'){ setSay(t('notFound'), t('notFoundSub'), true); return; }
+  if (r.status === 'nolookup') return screenNoPlaces(mode);
   screenConfirm(r.place, mode);
 }
 async function getCity(){
@@ -1265,6 +1322,7 @@ async function resolvePlace(text, mode){
     if (mode === 'home') return { status: 'ok', place: { name: 'הבית', lat: FALLBACK.start.lat, lon: FALLBACK.start.lon } };
     return { status: 'ok', place: Object.assign({}, FALLBACK.dest) };
   }
+  if (noServer()) return { status: 'nolookup' };      // see below: the demo clinic is never used here
   let query = text, name = '';
   const city = await getCity();
   const hu = await hostCall('understand', text, city);
@@ -1273,13 +1331,32 @@ async function resolvePlace(text, mode){
     const c = await api('POST', 'api/destination', { text, city }, 4000);
     if (c.ok && c.query){ query = c.query; name = c.display_name || ''; }
   }
-  if (noServer()) return { status: 'ok', place: Object.assign({}, FALLBACK.dest, name && !hasLatin(name) ? { name } : {}) };
+  // Only the demo may use the demo clinic. In real mode a typed place is never swapped for it:
+  // without the server there are no coordinates for it, so say so calmly.
   const left = Math.max(2000, 8000 - (Date.now() - t0));
   const near = S.pos ? `&lat=${S.pos.lat}&lon=${S.pos.lon}` : '';
   const geo = await api('GET', `api/geocode?q=${enc(query)}${near}`, null, left);
   if (geo.ok && geo.found) return { status: 'ok', place: { name: placeName(name, text), lat: geo.lat, lon: geo.lon } };
   if (geo.ok && geo.found === false) return { status: 'notfound' };
-  return { status: 'ok', place: Object.assign({}, FALLBACK.dest) };
+  return { status: 'nolookup' };
+}
+/* real mode, no way to look places up (GitHub Pages, no internet, every /api failing).
+   Never a made-up place, never a fake home. */
+function screenNoPlaces(mode){
+  const isHome = mode === 'home';
+  S.lastBase = () => screenNoPlaces(mode);
+  const L = settings.contact ? lName(contactName()) : '';
+  const retry = { id: 'retry', kind: 'sec', label: t('tryAgain'), onTap: () => mode === 'bus' && S.planFor ? planJourney(S.planFor) : placeScreen(mode, S.lastText) };
+  const hot = { id: 'hotline', icon: 'phone', label: t('hotline'), onTap: () => { if (!SHOT) location.href = 'tel:' + HOTLINE; } };
+  render({
+    name: 'noplaces', step: isHome ? (S.homeCtx === 'onboard' ? STEP.onboard(3) : STEP.home) : STEP.plan,
+    lead: isHome && S.homeCtx === 'onboard' ? { dots: 3 } : null,
+    say: mode === 'bus' ? t('noBus') : t('noPlaces'), sub: isHome ? t('noPlacesHome') : t('noPlacesSub', { L }),
+    mid: isHome ? '' : (settings.contact ? contactCard() : hotlineCard()),
+    buttons: isHome
+      ? [{ id: 'goon', icon: 'check', label: t('goOn'), onTap: homeSkip }, retry]
+      : [contactBtn('pri') || hot, retry]
+  });
 }
 function screenConfirm(place, mode){
   S.lastBase = () => screenConfirm(place, mode);
@@ -1314,6 +1391,16 @@ function fallbackPlan(dest){
     origin_stop: list[0], stops: list.slice(1), dest_stop: list[list.length - 1],
     departs_in_min: FALLBACK.departs_in_min, fallback: true
   };
+}
+function nearFallback(a, b){
+  const near = q => FALLBACK.stops.concat([FALLBACK.start, FALLBACK.dest]).some(s => dist(q, s) <= 500);
+  return near(a) && near(b);
+}
+function screenNoFix(dest){
+  S.lastBase = () => screenNoFix(dest);
+  render({ name: 'nofix', step: STEP.plan, say: t('gpsWeak'), sub: t('noFixSub'), mid: card('pin', dest.name, null),
+    buttons: [{ id: 'retry', icon: 'pin', label: t('tryAgain'), onTap: () => planJourney(dest) },
+              { id: 'tohelp', kind: 'sec', icon: 'phone', label: t('needHelp'), onTap: () => helpScreen() }] });
 }
 function currentPos(timeout){
   if (S.pos) return Promise.resolve(S.pos);
@@ -1361,7 +1448,8 @@ async function planJourney(dest){
   S.planFor = dest;
   screenPlanning();
   const t0 = Date.now();
-  const origin = DEMO ? (S.pos || FALLBACK.start) : ((await currentPos(3000)) || FALLBACK.start);
+  const origin = DEMO ? (S.pos || FALLBACK.start) : await currentPos(8000);
+  if (!origin){ S.busy = false; return screenNoFix(dest); }   // never plan from a made-up place
   const span = dist(origin, dest);
   if (span > 25000){ S.busy = false; return screenTooFar(); }
   if (span < 400){ S.busy = false; return screenTooClose(dest, origin); }
@@ -1377,7 +1465,11 @@ async function planJourney(dest){
       return screenNoDirect(dest);
     }
   }
-  if (!plan) plan = fallbackPlan(dest);
+  if (!plan){
+    // the hand-placed Dizengoff route is only true near Dizengoff: elsewhere, say that the search failed
+    if (!DEMO && !nearFallback(origin, dest)){ S.busy = false; return screenNoPlaces('bus'); }
+    plan = fallbackPlan(dest);
+  }
   if (plan.departs_in_min > 90){ S.busy = false; return screenNoService(plan.departs_in_min); }
   const left = Math.max(1500, 8000 - (Date.now() - t0));
   const [wt, wf] = await Promise.all([walkPath(origin, plan.origin_stop, left), walkPath(plan.dest_stop, dest, left)]);
@@ -1397,8 +1489,8 @@ function screenNoDirect(dest){
   S.lastBase = () => screenNoDirect(dest);
   const call = contactBtn('pri');
   render({ name: 'nodirect', step: STEP.plan, say: t('noDirect'), sub: t('noDirectSub', { L: settings.contact ? lName(contactName()) : '' }),
-    mid: settings.contact ? contactCard() : '',
-    buttons: [call || { id: 'hot', icon: 'phone', label: 'להתקשר למוקד', onTap: () => { if (!SHOT) location.href = 'tel:*8787'; } }, { id: 'back', kind: 'sec', label: t('backStart'), onTap: () => screenDest() }] });
+    mid: settings.contact ? contactCard() : hotlineCard(),
+    buttons: [call || { id: 'hot', icon: 'phone', label: 'להתקשר למוקד', onTap: () => { if (!SHOT) location.href = 'tel:' + HOTLINE; } }, { id: 'back', kind: 'sec', label: t('backStart'), onTap: () => screenDest() }] });
 }
 
 /* ============================================================
@@ -1599,12 +1691,20 @@ function resumeStep(){
     default: return screenDest();
   }
 }
+/* the resume caption names the step the person is really on */
+function resumeWhere(){
+  const p = journey.plan, st = journey.step;
+  if (st === 'walk') return t('resumeWalk', { stop: stopName(p.origin_stop) });
+  if (st === 'stop') return t('resumeStop', { stop: stopName(p.origin_stop), line: p.line });
+  if (st === 'ride' || st === 'passed') return t('resumeRide', { line: p.line });
+  return t('resumeFinal');
+}
 function screenResume(){
   S.lastBase = screenResume;
   render({ name: 'resume', step: STEP.plan, say: t('resumeQ'), speak: `להמשיך את הדרך ל${journey.dest.name}?`,
-    mid: card('flag', journey.dest.name, `באמצע הנסיעה בקו ${journey.plan.line}`, 'hero'),
+    mid: card('flag', journey.dest.name, resumeWhere(), 'hero'),
     buttons: [{ id: 'yes', kind: 'yes', icon: 'check', label: t('resumeYes'), onTap: resumeStep },
-              { id: 'no', kind: 'no', icon: 'x', label: t('no'), onTap: () => { journey = null; sdel(KEY_J); screenDest(); } }],
+              { id: 'no', kind: 'no', icon: 'x', label: t('no'), onTap: () => { S.lastBase = resumeStep; openExit(); } }],
     after(){ autoTap('yes', 3000); } });
 }
 
@@ -1787,8 +1887,9 @@ function journeyStopFor(pos){
 async function gatherLost(){
   let pos = S.pos;
   if (!DEMO){ const f = await freshFix(8000, 0); if (f) pos = f; }
-  pos = pos || (journey && (journey.lastPos || journey.origin)) || FALLBACK.start;
+  pos = pos || (journey && (journey.lastPos || journey.origin)) || (DEMO ? FALLBACK.start : null);
   let street = '', items = [];
+  if (!pos) return { pos: null, street, items };      // real mode, no fix at all: ask what they see, never guess
   if (DEMO){ street = 'דיזנגוף'; items = DEMO_NEARBY.map(x => Object.assign({}, x)); }
   else {
     const [rev, near] = await Promise.all([
@@ -1873,7 +1974,7 @@ async function lostSubmit(text){
   const tok = S.helpTok;
   setSay(t('checking'), null, true);
   const L = S.lost, cands = L.items.filter(x => x.kind !== 'street').map(x => x.name);
-  const body = { lat: L.pos.lat, lon: L.pos.lon, accuracy: Math.round(S.acc || 0), street: L.street, seen: text, candidates: cands,
+  const body = { lat: L.pos ? L.pos.lat : null, lon: L.pos ? L.pos.lon : null, accuracy: Math.round(S.acc || 0), street: L.street, seen: text, candidates: cands,
                  step: journey ? journey.step : '', route: routeSummary(), gender: settings.gender };
   let r = null;
   if (!DEMO){
@@ -1903,14 +2004,19 @@ function hereText(){
 }
 /* the sentence says where I am; the sub says the one next thing */
 function lostOrient(claudeText){
-  const L = S.lost, pos = L.pos || S.pos || FALLBACK.start, you = t('you');
+  const L = S.lost, pos = L.pos || S.pos || (DEMO ? FALLBACK.start : null), you = t('you');
   let say = claudeText || hereText(), sub = null, mid = journeyCard(), replan = false, map = null;
-  if (journey){
+  if (journey && pos){
     const st = journey.step, p = journey.plan;
     if (st === 'walk'){
       const dP = distToPath(pos, journey.walkTo.path), m = round50(dist(pos, p.origin_stop));
       if (L.replan || dP > 300) replan = true;
-      else { sub = `התחנה ${m} מטר ${dP < 60 ? 'קדימה' : 'ממך'}.`; map = { path: journey.walkTo.path, target: p.origin_stop, label: 'התחנה' }; }
+      else {
+        // never "forward": name a thing they can see in the direction of the stop, and show you + the stop on the map
+        const ref = towardRef(pos, p.origin_stop, L);
+        sub = ref ? t('hereRef', { m, ref }) : t('hereRefNo', { m });
+        map = { path: pathFrom(journey.walkTo.path, pos), target: p.origin_stop, label: 'התחנה' };
+      }
     } else if (st === 'stop'){
       const d = dist(pos, p.origin_stop);
       if (d <= 80){ const mn = minsToBus(); say = `${you} בתחנה הנכונה.`; sub = `קו ${p.line} ${mn <= 0 ? 'מגיע עכשיו' : mn === 1 ? 'מגיע בעוד דקה' : `מגיע בעוד ${mn} דקות`}.`; mid = lineBand(p); }
@@ -1932,13 +2038,33 @@ function lostOrient(claudeText){
   if (!say && !replan) say = 'אני לא בטוח איפה בדיוק. אפשר לבקש עזרה.';
   if (replan){ say = t('replanSay'); sub = null; map = legMap(); mid = journeyCard(); }
   render({
-    name: 'lost-orient', step: STEP.help, noLost: true, say, sub,
+    name: 'lost-orient', step: STEP.help, noLost: true, say, sub, midClass: map ? 'orient' : '',
     mid: map ? '<div class="map" id="mapslot" role="img" aria-label="מפה: איפה אני ולאן הולכים"></div>' : mid,
     buttons: replan
       ? [{ id: 'replan', icon: 'compass', label: t('replanBtn'), onTap: replanFromHere }, { id: 'tohelp', kind: 'sec', icon: 'phone', label: t('needHelp'), onTap: () => helpScreen() }]
       : [{ id: 'okgo', icon: 'check', label: journey ? t('okGo') : t('okThanks'), onTap: closeOverlay }, { id: 'tohelp', kind: 'sec', icon: 'phone', label: t('needHelp'), onTap: () => helpScreen() }],
     after(){ if (map){ S.pos = pos; showMap(map); } }
   });
+}
+/* compass bearing a→b in degrees */
+function bearing(a, b){
+  const r = Math.PI / 180, la1 = a.lat * r, la2 = b.lat * r, dl = (b.lon - a.lon) * r;
+  return (Math.atan2(Math.sin(dl) * Math.cos(la2), Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dl)) / r + 360) % 360;
+}
+/* a visible reference toward the stop: a nearby place in that direction (≤ 45°), else the stop's cross street */
+function towardRef(pos, stop, L){
+  const want = bearing(pos, stop), seen = L.landmark && L.landmark.name;
+  let best = null, bestA = 46;
+  (L.items || []).forEach(x => {
+    if (!x || x.kind === 'street' || x.isStop || x.name === seen || x.lat == null || x.lon == null) return;
+    const a = Math.abs(((bearing(pos, x) - want) + 540) % 360 - 180);
+    if (a < bestA){ bestA = a; best = x; }
+  });
+  if (best) return best.name;
+  const parts = String(stop.name || '').split('/').map(x => x.trim()).filter(Boolean);
+  const street = L.street || '';
+  const cross = parts.find(x => x !== street) || parts[0];
+  return cross ? 'רחוב ' + cross : '';
 }
 function replanFromHere(){
   if (!journey) return closeOverlay();
@@ -1964,10 +2090,12 @@ function helpScreen(sayOverride){
   }
   render({
     name: 'help', step: STEP.person, noLost: true, say: sayOverride ? `${sayOverride} ${t('whoQ')}` : t('whoQ'), sub: t('whoSub'),
-    mid: `<input id="field" class="field" type="tel" inputmode="tel" dir="auto" autocomplete="tel" aria-label="${esc(t('phoneHint'))}" placeholder="${esc(t('phoneHint'))}">`,
+    mid: `<input id="field" class="field" type="tel" inputmode="tel" dir="auto" autocomplete="tel" aria-label="${esc(t('phoneHint'))}" placeholder="${esc(t('phoneHint'))}">` +
+         `<p class="sub hotline">${esc(t('hotlineSub'))} ${telHTML(HOTLINE)}.</p>`,
+    speak: `${sayOverride ? sayOverride + ' ' : ''}${t('whoQ')} ${t('whoSub')} ${t('hotlineSub')} כוכבית 8787.`,
     after(){
       const f = $('field');
-      const hot = { id: 'hotline', kind: 'sec', icon: 'phone', label: t('hotline'), onTap: () => { if (!SHOT) location.href = 'tel:*8787'; } };
+      const hot = { id: 'hotline', kind: 'sec', icon: 'phone', label: t('hotline'), onTap: () => { if (!SHOT) location.href = 'tel:' + HOTLINE; } };
       const save = () => { const v = f.value.trim(); if (v.replace(/\D/g, '').length < 3) return; settings.contact = v; saveSettings(); callContact(); helpScreen(); };
       let had = null;
       const refresh = () => { const h = !!f.value.trim(); if (h === had) return; had = h; setButtons([h ? { id: 'savecall', icon: 'phone', label: t('saveCall'), onTap: save } : null, hot]); };
@@ -1976,11 +2104,11 @@ function helpScreen(sayOverride){
   });
 }
 function shareInfo(){
-  const L = S.lost || {}, pos = L.pos || S.pos || FALLBACK.start, you = t('you');
+  const L = S.lost || {}, pos = L.pos || S.pos || (DEMO ? FALLBACK.start : null), you = t('you');
   const lm = L.landmark && L.landmark.kind !== 'street' ? L.landmark.name : '';
   const st = L.street || '';
   const where = [st ? 'רחוב ' + st : '', lm ? 'ליד ' + lm : ''].filter(Boolean).join(', ');
-  const url = `https://maps.google.com/?q=${pos.lat.toFixed(5)},${pos.lon.toFixed(5)}`;
+  const url = pos ? `https://maps.google.com/?q=${pos.lat.toFixed(5)},${pos.lon.toFixed(5)}` : '';
   const lines = [`אני כאן: ${where ? where + '. ' : ''}${url}`];
   const plain = [{ icon: 'pin', text: lm ? `ליד ${lm.split(' ')[0]}` : st ? `ברחוב ${st}` : 'במקום שעל המפה' }];
   if (journey && journey.step !== 'arrived'){
@@ -1988,15 +2116,15 @@ function shareInfo(){
     lines.push(`אני בדרך ל: ${journey.dest.name}.`);
     plain.push({ icon: 'flag', text: `בדרך ל${shortName(journey.dest.name)}` });
     if (stp === 'walk' || stp === 'stop'){
-      const m = round50(dist(pos, p.origin_stop)), mn = minsToBus();
-      lines.push(`כדאי לי לקחת: קו ${p.line} מתחנת '${p.origin_stop.name}' (${m} מטר ממני), עוד ${mn} דקות, לרדת אחרי ${p.stops.length} תחנות.`);
+      const m = pos ? ` (${round50(dist(pos, p.origin_stop))} מטר ממני)` : '', mn = minsToBus();
+      lines.push(`כדאי לי לקחת: קו ${p.line} מתחנת '${p.origin_stop.name}'${m}, עוד ${mn} דקות, לרדת אחרי ${p.stops.length} תחנות.`);
       plain.push({ icon: 'bus', text: mn <= 0 ? `קו ${p.line}, מגיע עכשיו` : `קו ${p.line}, בעוד ${mn} דקות` });
     } else if (stp === 'ride'){
       lines.push(`אני באוטובוס קו ${p.line}, נשארו ${Math.max(1, stopsLeft())} תחנות עד '${p.dest_stop.name}'.`);
       plain.push({ icon: 'bus', text: `בקו ${p.line}, עוד ${Math.max(1, stopsLeft())} תחנות` });
     } else {
-      lines.push(`ירדתי מהאוטובוס. נשארו כ־${round50(dist(pos, journey.dest))} מטר ברגל.`);
-      plain.push({ icon: 'walk', text: 'הולך ליעד' });
+      lines.push(pos ? `ירדתי מהאוטובוס. נשארו כ־${round50(dist(pos, journey.dest))} מטר ברגל.` : 'ירדתי מהאוטובוס, ואני הולך ברגל.');
+      plain.push({ icon: 'walk', text: t('walkingDest') });
     }
   }
   lines.push("(נשלח מהאפליקציה 'לאן?')");
@@ -2367,8 +2495,11 @@ const SHOTS = {
   'nocontact':    () => { shotJourney('walk', { walking: true }); shotLost(); settings.contact = null; settings.contactName = ''; helpScreen(); },
   'battery':      () => { shotJourney('ride', { passedIdx: 1 }); caseBattery(); },
   'offline':      () => { shotJourney('walk', { walking: true }); caseOffline(); },
-  'novoice':      () => { settings.visits = 1; screenDest(); const n = $('notice'); n.textContent = t('noVoice'); n.hidden = false; },
-  'exit':         () => { shotJourney('ride', { passedIdx: 1 }); openExit(); }
+  'novoice':      () => { settings.visits = 1; screenDest(); const n = $('notice'); n.textContent = t('noVoice'); n.hidden = false; fitText(); },
+  'exit':         () => { shotJourney('ride', { passedIdx: 1 }); openExit(); },
+  'noplaces':     () => { settings.visits = 1; S.lastText = 'בית החולים איכילוב'; screenNoPlaces('dest'); },
+  'noplaces-home':() => { S.homeCtx = 'onboard'; S.lastText = DEMO_TEXT.home; screenNoPlaces('home'); },
+  'resume-walk':  () => { shotJourney('walk', { walking: true }); screenResume(); }
 };
 function P2(o){ return { lat: o.lat, lon: o.lon }; }
 window.laanShots = Object.keys(SHOTS);
