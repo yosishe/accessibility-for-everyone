@@ -1,0 +1,1416 @@
+<!doctype html>
+<html lang="he" dir="rtl" data-size="l" data-contrast="normal">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B3D91">
+<meta name="description" content="לאן? — הוראה אחת בכל פעם, בדרך לאוטובוס">
+<title>לאן?</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- non-blocking: the app must look right even if the fonts never arrive -->
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Miriam+Libre:wght@400;700&family=Secular+One&display=swap">
+<style>
+:root{
+  --ground:#FBF7EF; --ink:#1B1B1B; --act:#0B3D91; --act-ink:#FFFFFF;
+  --yes:#1B7F3B; --yes-ink:#FFFFFF; --no:#B00020; --no-ink:#FFFFFF;
+  --field:#FFFFFF; --field-ink:#1B1B1B; --hint:#444444;
+  --sign:#FFFFFF; --sign-ink:#1B1B1B; --mapbg:#EFE8D8;
+  --s:1;
+  --f1:calc(32px * var(--s));      /* body, step label, buttons */
+  --f-say:calc(40px * var(--s));   /* the one sentence */
+  --f-big:calc(96px * var(--s));   /* bus-sign numbers */
+  --f-field:calc(36px * var(--s));
+  --display:"Secular One", Arial, sans-serif;
+  --text:"Miriam Libre", Arial, sans-serif;
+}
+html[data-size="xl"]{ --s:1.25; }
+html[data-contrast="hc"]{
+  --ground:#000000; --ink:#FFE14D; --act:#FFE14D; --act-ink:#000000;
+  --yes:#FFE14D; --yes-ink:#000000; --no:#FFE14D; --no-ink:#000000;
+  --field:#000000; --field-ink:#FFE14D; --hint:#FFE14D;
+  --sign:#000000; --sign-ink:#FFE14D; --mapbg:#1A1A1A;
+}
+*{ box-sizing:border-box; }
+[hidden]{ display:none !important; }
+html,body{ margin:0; height:100%; background:var(--ground); color:var(--ink); }
+body{
+  font-family:var(--text); font-weight:700; font-size:var(--f1); line-height:1.35;
+  overflow:hidden; overscroll-behavior:none; -webkit-text-size-adjust:100%;
+  overflow-wrap:break-word;   /* a long stop name wraps instead of spilling sideways */
+}
+bdi{ unicode-bidi:isolate; }
+#app{
+  height:100dvh; max-width:640px; margin-inline:auto;
+  display:flex; flex-direction:column; gap:12px;
+  padding-block:calc(10px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-bottom));
+  padding-inline:calc(20px + env(safe-area-inset-left)) calc(20px + env(safe-area-inset-right));
+}
+.top{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex:0 0 auto; }
+.step{ font-size:var(--f1); margin:0; }
+.badge{
+  font-family:var(--display); font-size:var(--f1); line-height:1.1;
+  border:3px solid var(--ink); border-radius:12px; padding:2px 12px;
+}
+.main{
+  flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:12px;
+  overflow-x:hidden; overflow-y:auto;
+}
+.say{
+  font-family:var(--display); font-weight:700; font-synthesis:none;
+  font-size:var(--f-say); line-height:1.25; margin:0;
+}
+.say:focus{ outline:none; }
+.sub{ margin:0; font-size:var(--f1); }
+.notice{ margin:0; font-size:var(--f1); border:3px dashed var(--ink); border-radius:12px; padding:8px 12px; }
+.mid{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:16px; }
+.mid.center{ justify-content:center; }
+.actions{ flex:0 0 auto; display:flex; flex-direction:column; gap:24px; }
+.actions:empty{ display:none; }
+.foot{ flex:0 0 auto; display:flex; flex-direction:column; gap:12px; border-top:3px solid var(--ink); padding-top:12px; }
+
+button{
+  font-family:var(--display); font-weight:700; font-synthesis:none; font-size:var(--f1); line-height:1.15;
+  width:100%; min-height:calc(88px * var(--s)); padding:8px 16px; margin:0;
+  border-radius:20px; border:3px solid transparent; cursor:pointer;
+  background:var(--act); color:var(--act-ink);
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none;
+  text-wrap:balance;          /* "אני לא בטוח / איפה אני", not a lone last word */
+}
+.say, .sub, .alert p{ text-wrap:balance; }
+button:active{ filter:brightness(.78); }
+button:focus-visible{ outline:4px solid var(--ink); outline-offset:3px; }
+.b-yes{ background:var(--yes); color:var(--yes-ink); }
+.b-no{ background:var(--no); color:var(--no-ink); min-height:calc(72px * var(--s)); }
+.b-sec, .opt{ background:transparent; color:var(--ink); border-color:var(--ink); min-height:calc(72px * var(--s)); }
+.foot button{ min-height:72px; background:transparent; color:var(--ink); border-color:var(--ink); padding:6px 12px; }
+.opts{ display:flex; gap:16px; }
+.opts .opt{ flex:1 1 0; min-height:calc(88px * var(--s)); }
+.opt[aria-pressed="true"]{ background:var(--act); color:var(--act-ink); border-color:var(--act); }
+
+/* microphone + text field */
+.mic{
+  --d:min(calc(160px * var(--s)), 22dvh);
+  width:var(--d); height:var(--d); min-height:72px; border-radius:50%; align-self:center; flex:0 0 auto;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:8px;
+}
+.mic .ico{ font-size:calc(40px * var(--s)); line-height:1; }
+/* a message is showing: the mic becomes a full-width pill so the message has room */
+.mid.tight .mic{ width:100%; height:auto; min-height:72px; border-radius:20px; flex-direction:row; gap:12px; }
+.mid.tight .mic .ico{ font-size:var(--f1); }
+.mid.tight{ gap:8px; }
+.main:has(.mid.tight){ gap:8px; }
+/* "ענק" text on a short phone: same layout, less air */
+@media (max-height: 860px){
+  html[data-size="xl"] #app, html[data-size="xl"] .main{ gap:8px; }
+  html[data-size="xl"] .foot{ gap:8px; padding-top:8px; }
+  html[data-size="xl"] .mid{ gap:10px; }
+  html[data-size="xl"] .mic{ --d:min(124px, 16dvh); }
+  html[data-size="xl"] .map{ min-height:100px; }
+  html[data-size="xl"] .sign{ padding:8px 20px 6px; font-size:96px; }
+  html[data-size="xl"] .actions{ gap:16px; }
+}
+.mic.listening{ animation:pulse 2s ease-in-out infinite; }
+@keyframes pulse{
+  0%,100%{ box-shadow:0 0 0 0 rgba(11,61,145,.55); }
+  50%{ box-shadow:0 0 0 22px rgba(11,61,145,0); }
+}
+.field{
+  width:100%; height:calc(72px * var(--s)); flex:0 0 auto;
+  font-family:var(--text); font-weight:700; font-size:var(--f-field);
+  color:var(--field-ink); background:var(--field);
+  border:3px solid var(--ink); border-radius:16px; padding-inline:16px;
+}
+.field::placeholder{ color:var(--hint); opacity:1; }
+.field:focus{ outline:4px solid var(--act); outline-offset:2px; }
+
+/* bus sign: one giant number in a box */
+.signrow{ display:flex; align-items:center; gap:16px; }
+.sign{
+  font-family:var(--display); font-weight:700; font-synthesis:none; font-size:var(--f-big); line-height:1;
+  background:var(--sign); color:var(--sign-ink); border:6px solid var(--sign-ink); border-radius:12px;
+  padding:14px 28px 10px; min-width:1.6em; text-align:center; flex:0 0 auto;
+}
+.signrow.solo{ justify-content:center; }
+.toward{ font-family:var(--display); font-size:var(--f1); flex:1 1 0; min-width:0; }
+.eta{ margin:0; font-size:var(--f1); text-wrap:balance; }
+
+/* calm progress bar */
+.bar{ height:28px; border:3px solid var(--ink); border-radius:14px; overflow:hidden; }
+.bar i{ display:block; height:100%; width:4%; background:var(--act); transition:width 8s linear; }
+
+/* map — secondary, never the hero */
+.map{
+  position:relative; flex:1 1 auto; min-height:150px; max-height:40dvh;
+  border:3px solid var(--ink); border-radius:16px; overflow:hidden; background:var(--mapbg);
+}
+.map svg{ position:absolute; inset:0; width:100%; height:100%; }
+#map{ position:absolute; inset:0; direction:ltr; background:transparent; }
+#map.leaflet-container{ background:var(--mapbg); font-family:var(--display); }
+.leaflet-control-attribution{ font-size:11px !important; line-height:1.3 !important; }
+.lf-icon{ background:none; border:0; }
+.me-dot{
+  position:absolute; width:28px; height:28px; left:-14px; top:-14px; border-radius:50%;
+  background:#0B3D91; border:4px solid #FFFFFF; box-shadow:0 0 0 3px #0B3D91;
+}
+.lbl{
+  position:absolute; left:50%; transform:translateX(-50%); white-space:nowrap; direction:rtl;
+  font-family:var(--display); font-size:var(--f1); line-height:1.15;
+  background:var(--ground); color:var(--ink); border:3px solid var(--ink); border-radius:10px; padding:0 10px;
+}
+.me-lbl{ top:20px; }
+.pin-head{
+  position:absolute; width:38px; height:38px; left:-19px; top:-50px;
+  background:#B00020; border:4px solid #FFFFFF; border-radius:50% 50% 50% 0; transform:rotate(-45deg);
+}
+.pin-lbl{ bottom:56px; }
+
+/* the only alert: flashing signage yellow / black, until "הבנתי" */
+.alert{
+  position:fixed; inset:0; z-index:1000;
+  display:flex; flex-direction:column; justify-content:center; gap:28px;
+  padding:calc(24px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom));
+  background:#FFD400; color:#000000; text-align:center;
+  animation:flash 1s steps(1, end) infinite;
+}
+.alert p{ margin:0; }
+.alert .big{ font-family:var(--display); font-size:calc(56px * var(--s)); line-height:1.2; }
+.alert .where{ font-family:var(--display); font-size:var(--f-say); line-height:1.25; }
+.alert button{
+  min-height:calc(120px * var(--s)); font-size:calc(48px * var(--s)); border-width:4px;
+  animation:flashb 1s steps(1, end) infinite;
+}
+@keyframes flash{ 0%{ background:#FFD400; color:#000000; } 50%{ background:#000000; color:#FFD400; } }
+@keyframes flashb{
+  0%{ background:#000000; color:#FFD400; border-color:#000000; }
+  50%{ background:#FFD400; color:#000000; border-color:#FFD400; }
+}
+@media (prefers-reduced-motion: reduce){
+  .alert, .alert button{ animation-duration:2s; }   /* safety signal: slower (0.5 Hz), never off */
+  .mic.listening{ animation:none; box-shadow:0 0 0 10px rgba(11,61,145,.35); }
+  .bar i{ transition:none; }
+}
+</style>
+</head>
+<body>
+<noscript><p style="font-size:32px;padding:20px">כדי להשתמש בלאן? צריך להפעיל את הדפדפן כרגיל.</p></noscript>
+
+<div id="app">
+  <header class="top">
+    <p id="step" class="step"></p>
+    <span id="badge" class="badge" hidden>דמו</span>
+  </header>
+  <main id="main" class="main">
+    <p id="notice" class="notice" hidden></p>
+    <h1 id="say" class="say" tabindex="-1" aria-live="polite"></h1>
+    <p id="sub" class="sub" hidden></p>
+    <div id="mid" class="mid"></div>
+  </main>
+  <div id="actions" class="actions"></div>
+  <footer class="foot">
+    <button id="again" type="button"></button>
+    <button id="lost" type="button"></button>
+  </footer>
+</div>
+
+<div id="alert" class="alert" role="alertdialog" aria-modal="true" aria-labelledby="alertBig" hidden>
+  <p id="alertBig" class="big"></p>
+  <p id="alertWhere" class="where"></p>
+  <button id="alertOk" type="button"></button>
+</div>
+
+<script>
+'use strict';
+/* ============================================================
+   לאן? — one instruction at a time, voice + text, nothing silent.
+   ============================================================ */
+const Q = new URLSearchParams(location.search);
+const DEMO = Q.get('demo') === '1';
+const AUTO = DEMO && Q.get('auto') === '1';
+const SPEED = Math.min(8, Math.max(0.25, parseFloat(Q.get('speed')) || 1));
+const D = ms => ms / SPEED;                       // demo timeline, scaled by &speed=
+const MINUTE = DEMO ? 2000 / SPEED : 60000;       // demo: 1 simulated minute = 2 s
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* numbers (and phone numbers) are isolated so they never flip the Hebrew around them */
+const fmt = s => String(s == null ? '' : s).split(/(\d[\d\-.,:]*\d|\d)/)
+  .map((part, i) => i % 2 ? '<bdi>' + esc(part) + '</bdi>' : esc(part).replace(/\//g, '/<wbr>')).join('');
+
+/* ---------- FALLBACK_ROUTE ----------
+   APPROXIMATE coordinates along Dizengoff St, Tel Aviv — hand-placed for the demo and
+   for silent fallback, not surveyed. Line 5 (Dan) northbound toward Reading. */
+const FALLBACK = {
+  start: { lat: 32.0753, lon: 34.7752 },                       // near Dizengoff Center
+  dest:  { name: 'מרפאת כללית, דיזנגוף', lat: 32.0895, lon: 34.7732 },
+  line: '5', headsign: 'רידינג', headsignBack: 'התחנה המרכזית', departs_in_min: 6,
+  stops: [                                                     // origin first, destination stop last
+    { name: "דיזנגוף/קינג ג'ורג'",  lat: 32.0762, lon: 34.7748 },
+    { name: 'דיזנגוף/בוגרשוב',     lat: 32.0775, lon: 34.7746 },
+    { name: 'דיזנגוף/פרישמן',      lat: 32.0810, lon: 34.7735 },
+    { name: 'דיזנגוף/גורדון',       lat: 32.0830, lon: 34.7730 },
+    { name: 'דיזנגוף/ארלוזורוב',    lat: 32.0870, lon: 34.7720 },
+    { name: "דיזנגוף/ז'בוטינסקי",   lat: 32.0890, lon: 34.7715 }
+  ],
+  // ~250 m walk from the start to the origin stop (two intermediate corners)
+  walkTo: [[32.0753, 34.7752], [32.0755, 34.7760], [32.0764, 34.7756], [32.0762, 34.7748]]
+};
+
+/* ---------- storage (never trusted to exist) ---------- */
+const KEY_SET = DEMO ? 'laan.demo.settings' : 'laan.settings';
+const KEY_J   = DEMO ? 'laan.demo.journey'  : 'laan.journey';
+function bucket(){ try { return DEMO ? window.sessionStorage : window.localStorage; } catch (e) { return null; } }
+function sget(k, b){ try { const s = (b || bucket()).getItem(k); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+function sset(k, v){ try { bucket().setItem(k, JSON.stringify(v)); } catch (e) {} }
+function sdel(k){ try { bucket().removeItem(k); } catch (e) {} }
+
+const DEFAULTS = { done:false, gender:'m', home:null, contact:null, size:'l', contrast:'normal', voice:true, rate:0.85, noVoiceShown:false };
+let settings = Object.assign({}, DEFAULTS, sget(KEY_SET) || (DEMO ? (function(){ try { return sget('laan.settings', window.localStorage); } catch (e) { return null; } })() : null) || {});
+if (DEMO) settings.done = true;                  // the demo never asks for anything
+const saveSettings = () => sset(KEY_SET, settings);
+let journey = sget(KEY_J);
+const saveJourney = () => { if (journey) sset(KEY_J, journey); };
+
+/* ---------- all copy lives here: masculine / feminine ---------- */
+const g = (m, f) => settings.gender === 'f' ? f : m;
+const STR = {
+  again:      () => '🔊 תקרא שוב',
+  lost:       () => g('😕 אני לא בטוח איפה אני', '😕 אני לא בטוחה איפה אני'),
+  welcome:    () => 'שלום! אני אעזור לך להגיע בקלות.',
+  start:      () => 'בואו נתחיל',
+  genderQ:    () => 'איך לפנות אליך?',
+  homeQ:      () => 'איפה הבית שלך?',
+  homeNeeded: () => 'כדי לחזור הביתה, אני צריך את הכתובת.',
+  notNow:     () => 'לא עכשיו',
+  contactQ:   () => 'למי להתקשר אם צריך עזרה?',
+  contactSub: () => g('כתוב כאן מספר טלפון.', 'כתבי כאן מספר טלפון.'),
+  contactBad: () => g('המספר קצר מדי. כתוב אותו שוב.', 'המספר קצר מדי. כתבי אותו שוב.'),
+  phoneHint:  () => 'מספר טלפון',
+  saveNum:    () => 'זה המספר ✓',
+  permsSay:   () => g('כדי להדריך אותך אני צריך לדעת איפה אתה ולשמוע אותך.', 'כדי להדריך אותך אני צריך לדעת איפה את ולשמוע אותך.'),
+  permsSub:   () => g('עכשיו הטלפון ישאל — לחץ "אפשר".', 'עכשיו הטלפון ישאל — לחצי "אפשר".'),
+  okay:       () => 'בסדר',
+  destQ:      () => g('לאן אתה צריך להגיע?', 'לאן את צריכה להגיע?'),
+  micLabel:   () => g('לחץ ודבר', 'לחצי ודברי'),
+  typeHere:   () => g('או כתוב כאן', 'או כתבי כאן'),
+  listening:  () => 'אני מקשיב...',
+  checking:   () => 'רגע, אני בודק...',
+  search:     () => 'חפש ✓',
+  settings:   () => '⚙️ הגדרות',
+  notFound:   () => 'לא מצאתי את המקום.',
+  notFoundSub:() => 'אפשר לומר שוב, או להגיד את שם הרחוב והעיר.',
+  noSpeech:   () => 'לא שמעתי.',
+  noSpeechSub:() => 'אפשר לנסות שוב, או לכתוב כאן.',
+  noMic:      () => 'אין לי רשות לשמוע.',
+  netMic:     () => 'השמיעה לא עובדת עכשיו.',
+  writeHere:  () => 'אפשר לכתוב כאן.',
+  confirmQ:   p  => `הבנתי: ${p.name}. נכון?`,
+  dist:       p  => `זה כ־${p.d} מכאן.`,
+  yes:        () => 'כן ✓',
+  no:         () => 'לא ✗',
+  planning:   () => 'רגע, אני מחפש לך אוטובוס...',
+  noDirect:   () => 'אין אוטובוס ישיר מכאן.',
+  noDirectSub:() => 'כדאי לבקש עזרה.',
+  call:       p  => `📞 התקשר ל־${p.c}`,
+  backStart:  () => 'חזרה להתחלה',
+  walkSay:    p  => g(`לך ${p.m} מטר לתחנה "${p.stop}".`, `לכי ${p.m} מטר לתחנה "${p.stop}".`),
+  walkMin:    p  => p.min <= 1 ? 'זה כדקה אחת.' : `זה כ־${p.min} דקות.`,
+  leave:      () => 'יצאתי לדרך',
+  walkingSay: p  => `ממשיכים לתחנה "${p.stop}".`,
+  walkingSub: p  => p.m < 50 ? 'כמעט שם.' : `עוד ${p.m} מטר.`,
+  atStop:     () => 'הגעתי לתחנה',
+  board:      p  => g(`עלה על קו ${p.line}`, `עלי על קו ${p.line}`),
+  toward:     p  => `לכיוון ${p.h}`,
+  eta:        p  => p.min <= 0 ? 'מגיע עכשיו (לפי לוח הזמנים)' : p.min === 1 ? 'מגיע בעוד דקה (לפי לוח הזמנים)' : `מגיע בעוד ${p.min} דקות (לפי לוח הזמנים)`,
+  arrivingNow:() => 'האוטובוס מגיע עכשיו.',
+  boarded:    () => 'עליתי על האוטובוס',
+  late:       () => 'האוטובוס לא מגיע?',
+  lateSay:    () => 'לפעמים האוטובוס מתאחר.',
+  lateSub:    () => 'אפשר לחכות עוד כמה דקות או לבקש עזרה.',
+  wait:       () => 'אחכה עוד קצת',
+  left:       p  => p.k === 1 ? 'נשארה תחנה 1' : `נשארו ${p.k} תחנות`,
+  rideSub:    () => 'אפשר לשבת בנחת. אני אגיד לך מתי לרדת.',
+  gotOff:     () => 'ירדתי מהאוטובוס',
+  alert:      () => 'בתחנה הבאה יורדים!',
+  gotIt:      () => 'הבנתי',
+  pressStop:  () => g('לחץ על כפתור העצירה באוטובוס.', 'לחצי על כפתור העצירה באוטובוס.'),
+  pressSub:   p  => `יורדים בתחנה "${p.stop}".`,
+  passed:     () => 'נראה שעברת את התחנה.',
+  passedSub:  () => g('אל דאגה — רד בתחנה הבאה, ואני אדריך אותך בחזרה.', 'אל דאגה — רדי בתחנה הבאה, ואני אדריך אותך בחזרה.'),
+  offQ:       () => 'ירדת?',
+  offYes:     () => 'כן, ירדתי',
+  finalSay:   p  => g(`עוד ${p.m} מטר ברגל, ואתה שם.`, `עוד ${p.m} מטר ברגל, ואת שם.`),
+  here:       () => 'הגעתי',
+  arrived:    () => 'הגעת! 🎉',
+  arrivedSub: () => 'שמחתי לעזור.',
+  takeHome:   () => '🏠 קח אותי הביתה',
+  finished:   () => 'סיימתי',
+  whereCheck: () => g('רגע, אני בודק איפה אתה...', 'רגע, אני בודק איפה את...'),
+  helpOk:     () => 'הבנתי, ממשיכים',
+  resumeQ:    p  => `להמשיך את הדרך ל־${p.dest}?`,
+  exitQ:      () => 'לעצור את הדרך?',
+  exitNo:     () => 'לא — ממשיכים בדרך',
+  exitYes:    () => 'כן — לעצור',
+  noVoice:    () => 'הטלפון לא יודע לדבר עברית, אז ההוראות יופיעו בכתב.',
+  next:       () => 'הבא',
+  setExit:    () => 'יציאה מההגדרות',
+  setDone:    () => 'סיימתי ✓',
+  chosen:     p  => `נבחר: ${p.v}.`,
+  noHome:     () => 'עוד לא נשמרה כתובת.',
+  noContact:  () => 'עוד לא נשמר מספר.',
+  you:        () => g('אתה', 'את'),
+  stopLbl:    () => 'תחנה',
+  destLbl:    () => 'לכאן'
+};
+const t = (k, p) => STR[k](p || {});
+
+const STEP = {
+  onboard: n => `היכרות ${n} מתוך 5`, plan: 'תכנון הדרך', home: 'כתובת הבית', contact: 'מספר לעזרה',
+  walk: 'שלב 1 מתוך 4', stop: 'שלב 2 מתוך 4', ride: 'שלב 3 מתוך 4', final: 'שלב 4 מתוך 4',
+  end: 'סוף הדרך', help: 'עזרה', settings: (i, n) => `הגדרות ${i} מתוך ${n}`
+};
+
+/* ---------- runtime state ---------- */
+const S = {
+  screen: null, speech: '', timers: [], overlay: null, paused: false, lastBase: null,
+  pos: DEMO ? { lat: FALLBACK.start.lat, lon: FALLBACK.start.lon } : null, acc: 999,
+  busy: false, lastText: '', homeCtx: null, contactCtx: null, rec: null, micBlocked: false,
+  alertOn: false, alertTimer: null, alertAuto: null, wake: null, wantWake: false,
+  watch: null, city: null, helpTok: 0, sayTok: 0, histArmed: false, audioUnlocked: false,
+  lastPosSave: 0, trail: []
+};
+window.laanTrail = S.trail;  // screen entries with timestamps — read by the verification script
+
+/* ---------- geometry ---------- */
+function dist(a, b){
+  const R = 6371000, rad = Math.PI / 180;
+  const la1 = (a.lat != null ? a.lat : a[0]) * rad, la2 = (b.lat != null ? b.lat : b[0]) * rad;
+  const lo1 = (a.lon != null ? a.lon : a[1]) * rad, lo2 = (b.lon != null ? b.lon : b[1]) * rad;
+  const x = Math.sin((la2 - la1) / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin((lo2 - lo1) / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(x)));
+}
+const P = o => [o.lat, o.lon];
+function pathLen(path){ let s = 0; for (let i = 1; i < path.length; i++) s += dist(path[i - 1], path[i]); return s; }
+function along(path, f){
+  const total = pathLen(path); let target = f * total;
+  for (let i = 1; i < path.length; i++){
+    const seg = dist(path[i - 1], path[i]);
+    if (target <= seg || i === path.length - 1){
+      const k = seg ? Math.min(1, target / seg) : 1;
+      return { lat: path[i - 1][0] + (path[i][0] - path[i - 1][0]) * k, lon: path[i - 1][1] + (path[i][1] - path[i - 1][1]) * k };
+    }
+    target -= seg;
+  }
+  return { lat: path[0][0], lon: path[0][1] };
+}
+function pathFrom(path, pos){         // the rest of a path, starting at the nearest point to pos
+  if (!pos) return path;
+  let best = 0, bd = Infinity;
+  path.forEach((p, i) => { const d = dist(p, pos); if (d < bd){ bd = d; best = i; } });
+  const rest = path.slice(best + 1);
+  return rest.length ? [P(pos)].concat(rest) : [P(pos), path[path.length - 1]];
+}
+const round50 = m => Math.max(50, Math.round(m / 50) * 50);
+const walkMinutes = m => Math.max(1, Math.round(m / 60));     // ~1 m/s, a calm pace
+function fmtDist(m){
+  if (m < 1000) return `${round50(m)} מטר`;
+  const km = Math.round(m / 100) / 10;
+  return `${String(km).replace(/\.0$/, '')} ק״מ`;
+}
+
+/* ---------- network: same origin only, every failure is silent ---------- */
+async function api(method, url, body, timeout){
+  const ctl = ('AbortController' in window) ? new AbortController() : null;
+  const tm = setTimeout(() => { try { ctl && ctl.abort(); } catch (e) {} }, timeout || 6000);
+  try {
+    const r = await fetch(url, {
+      method, cache: 'no-store', signal: ctl ? ctl.signal : undefined,
+      headers: body ? { 'content-type': 'application/json' } : undefined,
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (!r.ok) return { ok: false };
+    const j = await r.json();
+    return (j && typeof j === 'object') ? j : { ok: false };
+  } catch (e) { return { ok: false }; }
+  finally { clearTimeout(tm); }
+}
+const enc = encodeURIComponent;
+
+/* ---------- voice ---------- */
+const TTS = { voice: null, loaded: false, checked: false };
+function pickVoice(){
+  try {
+    const vs = speechSynthesis.getVoices() || [];
+    if (!vs.length) return;
+    TTS.loaded = true;
+    TTS.voice = vs.find(v => /^he|^iw/i.test(v.lang) && /IL/i.test(v.lang)) || vs.find(v => /^he|^iw/i.test(v.lang)) || null;
+  } catch (e) {}
+}
+if ('speechSynthesis' in window){
+  pickVoice();
+  try { speechSynthesis.addEventListener('voiceschanged', pickVoice); } catch (e) { speechSynthesis.onvoiceschanged = pickVoice; }
+}
+function forSpeech(s){
+  return String(s)
+    .replace(/ק״מ/g, 'קילומטר').replace(/כ־/g, 'בערך ').replace(/ל־/g, 'ל')
+    .replace(/\//g, ' פינת ').replace(/[()]/g, ', ').replace(/[✓✗—]/g, ' ')
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}️]/gu, '').replace(/"/g, '')
+    .replace(/\s+/g, ' ').trim();
+}
+function speak(text){
+  if (!text || !settings.voice || !('speechSynthesis' in window)) return;
+  const tok = ++S.sayTok;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(forSpeech(text));
+    u.lang = 'he-IL'; u.rate = settings.rate || 0.85; u.pitch = 1;
+    if (TTS.voice) u.voice = TTS.voice;
+    // a short gap after cancel(): Android Chrome sometimes drops an utterance queued in the same tick
+    setTimeout(() => { if (tok === S.sayTok) { try { speechSynthesis.speak(u); } catch (e) {} } }, 60);
+  } catch (e) {}
+  checkHebrewVoice();
+}
+function checkHebrewVoice(){
+  if (TTS.checked || settings.noVoiceShown) return;
+  setTimeout(() => {
+    pickVoice();
+    if (TTS.checked || !TTS.loaded) return;   // voices unknown → assume the engine copes
+    TTS.checked = true;
+    if (!TTS.voice && !settings.noVoiceShown){
+      settings.noVoiceShown = true; saveSettings();
+      const n = $('notice'); n.textContent = t('noVoice'); n.hidden = false;
+    }
+  }, 1500);
+}
+function vib(p){ try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+
+/* ---------- taps: debounced for tremor, felt, and they unlock audio ---------- */
+let lastTap = 0;
+function tap(fn){
+  return function (ev){
+    const now = Date.now();
+    if (now - lastTap < 600){ if (ev) ev.preventDefault(); return; }
+    lastTap = now;
+    vib(30); armHistory(); unlockAudio();
+    return fn.call(this, ev);
+  };
+}
+function unlockAudio(){
+  if (S.audioUnlocked) return;
+  S.audioUnlocked = true;
+  try { if ('speechSynthesis' in window) speechSynthesis.resume(); } catch (e) {}
+}
+// a first touch anywhere (even off a button) unlocks audio and repeats the sentence once
+document.addEventListener('pointerdown', function first(){
+  document.removeEventListener('pointerdown', first, true);
+  if (!S.audioUnlocked){ unlockAudio(); setTimeout(() => speak(S.alertOn ? alertSpeech() : S.speech), 50); }
+}, true);
+document.addEventListener('touchstart', () => {}, { passive: true }); // enables :active on Android
+
+/* ---------- screen renderer: one layout for every screen ---------- */
+function later(fn, ms){ const id = setTimeout(fn, ms); S.timers.push(id); return id; }
+function clearScreenTimers(){ S.timers.forEach(clearTimeout); S.timers = []; if (S.tick){ clearInterval(S.tick); S.tick = null; } }
+function makeBtn(b){
+  const el = document.createElement('button');
+  el.type = 'button'; el.id = 'b-' + b.id;
+  el.className = b.kind ? 'b-' + b.kind : '';
+  el.innerHTML = fmt(b.label);
+  el.addEventListener('click', tap(b.onTap));
+  return el;
+}
+function setButtons(list){
+  const box = $('actions'); box.innerHTML = '';
+  (list || []).filter(Boolean).forEach(b => box.appendChild(makeBtn(b)));
+}
+function render(o){
+  clearScreenTimers();
+  if (S.rec){ try { S.rec.abort(); } catch (e) {} S.rec = null; }
+  S.screen = o.name;
+  S.trail.push([Date.now(), o.name]);
+  $('step').innerHTML = fmt(o.step || '');
+  $('say').innerHTML = fmt(o.say);
+  const sub = $('sub'); sub.innerHTML = o.sub ? fmt(o.sub) : ''; sub.hidden = !o.sub;
+  $('notice').hidden = true;
+  const mid = $('mid'); mid.className = 'mid' + (o.midClass ? ' ' + o.midClass : ''); mid.innerHTML = o.mid || '';
+  setButtons(o.buttons);
+  $('lost').hidden = !!o.noLost;
+  $('main').scrollTop = 0;
+  S.speech = o.speak || [o.say, o.sub].filter(Boolean).join(' ');
+  try { $('say').focus({ preventScroll: true }); } catch (e) {}
+  if (o.after) o.after();
+  if (!o.silent) later(() => speak(S.speech), 300);
+}
+function setSay(say, sub, doSpeak){
+  $('say').innerHTML = fmt(say);
+  const el = $('sub'); el.innerHTML = sub ? fmt(sub) : ''; el.hidden = !sub;
+  S.speech = [say, sub].filter(Boolean).join(' ');
+  $('mid').classList.toggle('tight', !!sub && !!$('mic'));
+  if (doSpeak) speak(S.speech);
+}
+function autoTap(id, ms){
+  if (!AUTO) return;
+  later(() => { const b = $('b-' + id); if (b) b.click(); }, D(ms));
+}
+function contactBtn(kind){
+  if (!settings.contact) return null;
+  return { id: 'call', kind: kind || 'sec', label: t('call', { c: settings.contact }), onTap: callContact };
+}
+function callContact(){
+  const num = String(settings.contact || '').replace(/[^\d+]/g, '');
+  if (num) location.href = 'tel:' + num;
+}
+
+/* ---------- settings applied to the page ---------- */
+function applySettings(){
+  const r = document.documentElement;
+  r.dataset.size = settings.size === 'xl' ? 'xl' : 'l';
+  r.dataset.contrast = settings.contrast === 'hc' ? 'hc' : 'normal';
+  const tc = document.querySelector('meta[name="theme-color"]');
+  if (tc) tc.content = settings.contrast === 'hc' ? '#000000' : '#0B3D91';
+  $('again').textContent = t('again');
+  $('lost').textContent = t('lost');
+  $('alertOk').textContent = t('gotIt');
+}
+
+/* ============================================================
+   First run (never again)
+   ============================================================ */
+function screenWelcome(){
+  S.lastBase = screenWelcome;
+  render({ name: 'welcome', step: STEP.onboard(1), say: t('welcome'),
+    buttons: [{ id: 'start', label: t('start'), onTap: screenGender }] });
+}
+function screenGender(){
+  S.lastBase = screenGender;
+  const pick = v => () => { settings.gender = v; saveSettings(); applySettings(); S.homeCtx = 'onboard'; placeScreen('home'); };
+  render({ name: 'gender', step: STEP.onboard(2), say: t('genderQ'),
+    buttons: [{ id: 'm', label: 'אתה', onTap: pick('m') }, { id: 'f', label: 'את', onTap: pick('f') }] });
+}
+function screenContact(ctx){
+  S.contactCtx = ctx; S.lastBase = () => screenContact(ctx);
+  const next = () => ctx === 'onboard' ? screenPerms() : screenSettings(6);
+  render({
+    name: 'contact', step: ctx === 'onboard' ? STEP.onboard(4) : STEP.contact,
+    say: t('contactQ'), sub: t('contactSub'), midClass: 'center',
+    mid: `<input id="field" class="field" type="tel" inputmode="tel" dir="auto" autocomplete="tel"
+            aria-label="${esc(t('phoneHint'))}" placeholder="${esc(t('phoneHint'))}" value="${esc(settings.contact || '')}">`,
+    after(){
+      const f = $('field');
+      const save = () => {
+        const v = f.value.trim();
+        if (v.replace(/\D/g, '').length < 3){ setSay(t('contactBad'), null, true); return; }
+        settings.contact = v; saveSettings(); f.blur(); next();
+      };
+      let had = null;
+      const refresh = () => {
+        const h = !!f.value.trim(); if (h === had) return; had = h;
+        setButtons(h ? [{ id: 'save', label: t('saveNum'), onTap: save }]
+                     : [{ id: 'notnow', kind: 'sec', label: t('notNow'), onTap: next }]);
+      };
+      f.addEventListener('input', refresh);
+      f.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); save(); } });
+      f.addEventListener('focus', () => setTimeout(() => f.scrollIntoView({ block: 'center' }), 350));
+      refresh();
+    }
+  });
+}
+function screenPerms(){
+  S.lastBase = screenPerms;
+  render({ name: 'perms', step: STEP.onboard(5), say: t('permsSay'), sub: t('permsSub'),
+    buttons: [{ id: 'ok', label: t('okay'), onTap: async () => {
+      if (S.busy) return; S.busy = true;
+      await askPerms();
+      S.busy = false;
+      settings.done = true; saveSettings(); startTracking(); screenDest();
+    } }] });
+}
+async function askPerms(){
+  await new Promise(res => {
+    const done = setTimeout(res, 25000);
+    try {
+      navigator.geolocation.getCurrentPosition(
+        p => { S.pos = { lat: p.coords.latitude, lon: p.coords.longitude }; S.acc = p.coords.accuracy; clearTimeout(done); res(); },
+        () => { clearTimeout(done); res(); }, { enableHighAccuracy: true, timeout: 20000 });
+    } catch (e) { clearTimeout(done); res(); }
+  });
+  try {
+    if (SR() && navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+      const st = await Promise.race([navigator.mediaDevices.getUserMedia({ audio: true }), sleep(25000).then(() => null)]);
+      if (st) st.getTracks().forEach(tr => tr.stop());
+    }
+  } catch (e) { /* refused: the keyboard field is always there */ }
+}
+
+/* ============================================================
+   Destination / home address input (mic + field)
+   ============================================================ */
+const SR = () => window.SpeechRecognition || window.webkitSpeechRecognition;
+const DEMO_TEXT = { dest: 'קופת חולים בדיזנגוף', home: "קינג ג'ורג' 20, תל אביב" };
+function screenDest(prefill){ S.homeCtx = null; placeScreen('dest', prefill); }
+function placeScreen(mode, prefill){
+  const isDest = mode === 'dest';
+  S.lastBase = () => placeScreen(mode, prefill);
+  const hasMic = DEMO || (!!SR() && !S.micBlocked);
+  const step = isDest ? STEP.plan : (S.homeCtx === 'onboard' ? STEP.onboard(3) : STEP.home);
+  const ask = isDest ? t('destQ') : t('homeQ');
+  render({
+    name: isDest ? 'dest' : 'home', step, say: ask,
+    sub: (!isDest && S.homeCtx === 'arrival') ? t('homeNeeded') : null,
+    midClass: (!isDest && S.homeCtx === 'arrival') ? 'center tight' : 'center',
+    mid: (hasMic ? `<button id="mic" class="mic" type="button"><span class="ico" aria-hidden="true">🎤</span><span>${esc(t('micLabel'))}</span></button>` : '') +
+         `<input id="field" class="field" type="text" dir="auto" autocomplete="off" enterkeyhint="search"
+            aria-label="${esc(ask)}" placeholder="${esc(t('typeHere'))}" value="${esc(prefill || '')}">`,
+    after(){
+      const f = $('field'), mic = $('mic');
+      let had = null;
+      const refresh = () => {
+        const h = !!f.value.trim(); if (h === had) return; had = h;
+        if (h) setButtons([{ id: 'go', label: t('search'), onTap: () => submitPlace(mode, f.value.trim()) }]);
+        else if (isDest) setButtons([{ id: 'settings', kind: 'sec', label: t('settings'), onTap: () => screenSettings(0) }]);
+        else setButtons([{ id: 'notnow', kind: 'sec', label: t('notNow'), onTap: homeSkip }]);
+      };
+      f.addEventListener('input', refresh);
+      f.addEventListener('keydown', e => { if (e.key === 'Enter' && f.value.trim()){ e.preventDefault(); f.blur(); submitPlace(mode, f.value.trim()); } });
+      f.addEventListener('focus', () => setTimeout(() => f.scrollIntoView({ block: 'center' }), 350));
+      refresh();
+      if (mic) mic.addEventListener('click', tap(() => {
+        if (S.busy) return;
+        if (S.rec){ try { S.rec.stop(); } catch (e) {} return; }
+        DEMO ? demoFill(mode) : listen(mode);
+      }));
+      if (DEMO && !prefill){                    // "as if spoken"
+        later(() => setListening(true), D(800));
+        later(() => demoFill(mode), D(2000));
+      }
+    }
+  });
+}
+function setListening(on){
+  const mic = $('mic');
+  if (mic) mic.classList.toggle('listening', on);
+  if (on){ $('say').innerHTML = fmt(t('listening')); $('sub').hidden = true; }
+}
+function demoFill(mode){
+  const f = $('field'); if (!f) return;
+  setListening(false);
+  f.value = DEMO_TEXT[mode] || DEMO_TEXT.dest;
+  f.dispatchEvent(new Event('input'));
+  submitPlace(mode, f.value);
+}
+function listen(mode){
+  const Rec = SR(); if (!Rec) return;
+  let got = false, failed = false;
+  try { speechSynthesis.cancel(); } catch (e) {}
+  const r = new Rec();
+  r.lang = 'he-IL'; r.interimResults = false; r.continuous = false; r.maxAlternatives = 1;
+  S.rec = r;
+  r.onresult = e => {
+    got = true;
+    const txt = (e.results && e.results[0] && e.results[0][0] && e.results[0][0].transcript || '').trim();
+    const f = $('field');
+    if (txt && f){ f.value = txt; f.dispatchEvent(new Event('input')); submitPlace(mode, txt); }
+  };
+  r.onerror = e => {
+    failed = true; setListening(false);
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed'){
+      S.micBlocked = true; const m = $('mic'); if (m) m.hidden = true;
+      setSay(t('noMic'), t('writeHere'), true);
+    } else if (e.error === 'network' || e.error === 'audio-capture'){
+      setSay(t('netMic'), t('writeHere'), true);
+    } else if (e.error !== 'aborted'){
+      setSay(t('noSpeech'), t('noSpeechSub'), true);
+    }
+  };
+  r.onend = () => {
+    S.rec = null; setListening(false);
+    if (!got && !failed && !S.busy) setSay(t('noSpeech'), t('noSpeechSub'), true);
+  };
+  try { r.start(); setListening(true); } catch (e) { S.rec = null; setListening(false); }
+}
+function homeSkip(){
+  if (S.homeCtx === 'onboard') return screenContact('onboard');
+  if (S.homeCtx === 'settings') return screenSettings(5);
+  return screenArrived();
+}
+async function submitPlace(mode, text){
+  if (S.busy || !text) return;
+  S.busy = true; S.lastText = text;
+  if (S.rec){ try { S.rec.abort(); } catch (e) {} S.rec = null; }
+  const screen = S.screen;
+  setListening(false);
+  setSay(t('checking'), null, true);
+  const r = await resolvePlace(text, mode);
+  S.busy = false;
+  if (S.screen !== screen) return;            // the user went to help meanwhile
+  if (r.status === 'notfound'){ setSay(t('notFound'), t('notFoundSub'), true); return; }
+  screenConfirm(r.place, mode);
+}
+async function getCity(){
+  if (S.city !== null) return S.city;
+  if (!S.pos) return '';
+  const r = await api('GET', `/api/reverse?lat=${S.pos.lat}&lon=${S.pos.lon}`, null, 2500);
+  S.city = (r.ok && r.city) || '';
+  return S.city;
+}
+/* what we read back: the model's short name if it is clean Hebrew, otherwise the user's own words
+   minus filler — never the geocoder's label, which can be a random shop name in English */
+const hasLatin = s => /[A-Za-z]/.test(s || '');
+function ownWords(text){
+  return String(text || '')
+    .replace(/^\s*(אני\s+)?(צריך|צריכה|רוצה)\s+(להגיע|לנסוע|ללכת)\s+(אל\s+|ל־?)?/, '')
+    .replace(/^\s*(תביא|תביאי|קח|קחי)\s+אותי\s+(אל\s+|ל־?)?/, '')
+    .replace(/\s*בבקשה\s*/g, ' ').replace(/\s+/g, ' ').trim() || String(text || '').trim();
+}
+function placeName(modelName, text){
+  if (modelName && !hasLatin(modelName)) return modelName;
+  const own = ownWords(text);
+  return hasLatin(own) ? 'המקום שביקשת' : own;
+}
+async function resolvePlace(text, mode){
+  const t0 = Date.now();
+  if (DEMO){
+    await sleep(D(600));
+    if (mode === 'home') return { status: 'ok', place: { name: 'הבית', lat: FALLBACK.start.lat, lon: FALLBACK.start.lon } };
+    return { status: 'ok', place: Object.assign({}, FALLBACK.dest) };
+  }
+  let query = text, name = '';
+  const city = await getCity();
+  const c = await api('POST', '/api/destination', { text, city }, 4000);
+  if (c.ok && c.query){ query = c.query; name = c.display_name || ''; }
+  const left = Math.max(2000, 8000 - (Date.now() - t0));
+  const near = S.pos ? `&lat=${S.pos.lat}&lon=${S.pos.lon}` : '';
+  const geo = await api('GET', `/api/geocode?q=${enc(query)}${near}`, null, left);
+  if (geo.ok && geo.found) return { status: 'ok', place: { name: placeName(name, text), lat: geo.lat, lon: geo.lon } };
+  if (geo.ok && geo.found === false) return { status: 'notfound' };
+  return { status: 'ok', place: Object.assign({}, FALLBACK.dest) };   // service down → fallback, silently
+}
+function screenConfirm(place, mode){
+  S.lastBase = () => screenConfirm(place, mode);
+  const d = (mode === 'dest' && S.pos) ? dist(S.pos, place) : null;
+  render({
+    name: 'confirm', step: mode === 'dest' ? STEP.plan : STEP.home,
+    say: t('confirmQ', { name: place.name }),
+    sub: d != null && d > 40 ? t('dist', { d: fmtDist(d) }) : null,
+    buttons: [
+      { id: 'yes', kind: 'yes', label: t('yes'), onTap: () => mode === 'dest' ? planJourney(place) : saveHome(place) },
+      { id: 'no', kind: 'no', label: t('no'), onTap: () => mode === 'dest' ? screenDest(S.lastText) : placeScreen('home', S.lastText) }
+    ],
+    after(){ autoTap('yes', 3000); }
+  });
+}
+function saveHome(place){
+  settings.home = { name: place.name, lat: place.lat, lon: place.lon }; saveSettings();
+  if (S.homeCtx === 'onboard') return screenContact('onboard');
+  if (S.homeCtx === 'settings') return screenSettings(5);
+  if (S.homeCtx === 'arrival') return planJourney(settings.home);
+  screenDest();
+}
+
+/* ============================================================
+   Planning: direct line only, every step falls back silently
+   ============================================================ */
+function fallbackPlan(dest){
+  // pick the direction that heads toward the destination
+  const fwd = dist(dest, FALLBACK.dest) <= dist(dest, FALLBACK.start);
+  const list = fwd ? FALLBACK.stops.slice() : FALLBACK.stops.slice().reverse();
+  return {
+    line: FALLBACK.line, headsign: fwd ? FALLBACK.headsign : FALLBACK.headsignBack,
+    origin_stop: list[0], stops: list.slice(1), dest_stop: list[list.length - 1],
+    departs_in_min: FALLBACK.departs_in_min, fallback: true
+  };
+}
+function currentPos(timeout){
+  if (S.pos) return Promise.resolve(S.pos);
+  return new Promise(res => {
+    let over = false;
+    const tm = setTimeout(() => { over = true; res(null); }, timeout);
+    try {
+      navigator.geolocation.getCurrentPosition(
+        p => { if (over) return; clearTimeout(tm); S.pos = { lat: p.coords.latitude, lon: p.coords.longitude }; S.acc = p.coords.accuracy; res(S.pos); },
+        () => { if (!over){ clearTimeout(tm); res(null); } }, { enableHighAccuracy: true, maximumAge: 30000, timeout });
+    } catch (e) { clearTimeout(tm); res(null); }
+  });
+}
+async function walkPath(a, b, timeout){
+  const straight = () => ({ meters: Math.round(dist(a, b)), path: [P(a), P(b)] });
+  if (DEMO || !a || !b){
+    if (a && dist(a, FALLBACK.start) < 15 && dist(b, FALLBACK.stops[0]) < 15)
+      return { meters: Math.round(pathLen(FALLBACK.walkTo)), path: FALLBACK.walkTo.slice() };
+    return a && b ? straight() : { meters: 0, path: [] };
+  }
+  const r = await api('GET', `/api/walk?from=${a.lat},${a.lon}&to=${b.lat},${b.lon}`, null, timeout);
+  if (r.ok && Array.isArray(r.path) && r.path.length > 1) return { meters: Math.round(r.meters || pathLen(r.path)), path: r.path };
+  return straight();
+}
+function screenPlanning(){
+  render({
+    name: 'planning', step: STEP.plan, say: t('planning'), noLost: false,
+    mid: '<div class="bar" role="progressbar" aria-label="מחפש"><i id="barfill"></i></div>', midClass: 'center',
+    after(){ requestAnimationFrame(() => requestAnimationFrame(() => { const b = $('barfill'); if (b) b.style.width = '100%'; })); }
+  });
+}
+async function planJourney(dest){
+  if (S.busy) return; S.busy = true;
+  SIM.stop();
+  screenPlanning();
+  const t0 = Date.now();
+  const origin = DEMO ? (S.pos || FALLBACK.start) : ((await currentPos(3000)) || FALLBACK.start);
+  let plan = null;
+  if (!DEMO){
+    const r = await api('GET', `/api/plan?olat=${origin.lat}&olon=${origin.lon}&dlat=${dest.lat}&dlon=${dest.lon}`, null, 6000);
+    if (r.ok && r.origin_stop && Array.isArray(r.stops) && r.stops.length){
+      plan = { line: String(r.line || ''), headsign: r.headsign || '', origin_stop: r.origin_stop, stops: r.stops,
+               dest_stop: r.dest_stop || r.stops[r.stops.length - 1], departs_in_min: Math.max(1, r.departs_in_min || 1) };
+    } else if (r.reason === 'no-direct'){
+      S.busy = false;
+      if (S.overlay){ S.lastBase = () => screenNoDirect(dest); return; }
+      return screenNoDirect(dest);
+    }
+  }
+  if (!plan) plan = fallbackPlan(dest);
+  const left = Math.max(1500, 8000 - (Date.now() - t0));
+  const [wt, wf] = await Promise.all([walkPath(origin, plan.origin_stop, left), walkPath(plan.dest_stop, dest, left)]);
+  if (DEMO) await sleep(Math.max(0, D(1000) - (Date.now() - t0)));
+  journey = {
+    dest: { name: dest.name, lat: dest.lat, lon: dest.lon }, plan, origin: { lat: origin.lat, lon: origin.lon },
+    walkTo: wt, walkFrom: wf, step: 'walk', walking: false, passedIdx: -1,
+    departsAt: DEMO ? null : Date.now() + plan.departs_in_min * MINUTE, alert: null, minDest: null, lastPos: null
+  };
+  saveJourney();
+  S.busy = false;
+  if (S.overlay){ S.lastBase = screenWalk; return; }   // help/exit is open: show the walk when it closes
+  screenWalk();
+}
+function screenNoDirect(dest){
+  S.lastBase = () => screenNoDirect(dest);
+  const call = contactBtn('pri');
+  render({ name: 'nodirect', step: STEP.plan, say: t('noDirect'), sub: t('noDirectSub'),
+    buttons: [call, { id: 'back', kind: call ? 'sec' : '', label: t('backStart'), onTap: () => screenDest() }] });
+}
+
+/* ============================================================
+   The journey
+   ============================================================ */
+function stopName(s){ return (s && s.name) || ''; }
+function screenWalk(){
+  const j = journey; j.step = 'walk'; saveJourney();
+  S.lastBase = screenWalk;
+  const stop = j.plan.origin_stop;
+  const m = round50(j.walkTo.meters || 0);
+  const remain = S.pos ? round50(dist(S.pos, stop)) : m;
+  render({
+    name: 'walk', step: STEP.walk,
+    say: j.walking ? t('walkingSay', { stop: stopName(stop) }) : t('walkSay', { m, stop: stopName(stop) }),
+    sub: j.walking ? t('walkingSub', { m: remain }) : t('walkMin', { min: walkMinutes(j.walkTo.meters || 0) }),
+    mid: '<div class="map" id="mapslot" role="img" aria-label="מפה של הדרך לתחנה"></div>',
+    buttons: j.walking
+      ? [{ id: 'atstop', label: t('atStop'), onTap: toStop }]
+      : [{ id: 'leave', label: t('leave'), onTap: () => { journey.walking = true; saveJourney(); screenWalk(); } }],
+    after(){
+      wakeOn();
+      showMap({ path: j.walkTo.path, target: stop, label: '🚏 ' + (stopName(stop) || t('stopLbl')) });
+      if (DEMO && j.walking && SIM.kind !== 'walk') SIM.run('walk', pathFrom(j.walkTo.path, S.pos), 22);
+      if (!j.walking) autoTap('leave', 1500);
+    }
+  });
+}
+function toStop(){
+  if (!journey || journey.step !== 'walk') return;
+  SIM.stop();
+  journey.step = 'stop';
+  if (DEMO || !journey.departsAt) journey.departsAt = Date.now() + journey.plan.departs_in_min * MINUTE;
+  saveJourney(); screenStop();
+}
+function etaText(){ return t('eta', { min: Math.max(0, Math.ceil((journey.departsAt - Date.now()) / MINUTE)) }); }
+function screenStop(){
+  const j = journey; S.lastBase = screenStop;
+  const line = j.plan.line;
+  render({
+    name: 'stop', step: STEP.stop, say: t('board', { line }),
+    mid: `<div class="signrow"><div class="sign" aria-label="קו ${esc(line)}"><bdi>${esc(line)}</bdi></div>
+          <div class="toward">${fmt(t('toward', { h: j.plan.headsign }))}</div></div>
+          <p class="eta" id="eta">${fmt(etaText())}</p>`,
+    speak: `${t('board', { line })}, ${t('toward', { h: j.plan.headsign })}. ${etaText()}.`,
+    buttons: [{ id: 'boarded', label: t('boarded'), onTap: toRide },
+              { id: 'late', kind: 'sec', label: t('late'), onTap: openLate }],
+    after(){
+      wakeOn();
+      let said = false;
+      const upd = () => {
+        const e = $('eta'); if (!e) return;
+        e.innerHTML = fmt(etaText());
+        if (!said && journey.departsAt - Date.now() <= 0){ said = true; S.speech = t('arrivingNow'); speak(t('arrivingNow')); }
+      };
+      S.tick = setInterval(upd, DEMO ? 1000 / SPEED : 30000);
+      autoTap('boarded', 10000);
+    }
+  });
+}
+function screenLate(){
+  render({ name: 'late', step: STEP.stop, say: t('lateSay'), sub: t('lateSub'),
+    buttons: [{ id: 'wait', label: t('wait'), onTap: closeOverlay }, contactBtn('sec')] });
+}
+function openLate(){ S.overlay = 'late'; S.paused = true; screenLate(); }
+function toRide(){
+  if (!journey) return;
+  SIM.stop();
+  journey.step = 'ride'; journey.passedIdx = -1; journey.minDest = null; journey.alert = null;
+  saveJourney(); screenRide();
+}
+function stopsLeft(){ return journey.plan.stops.length - journey.passedIdx - 1; }
+function screenRide(){
+  const j = journey; j.step = 'ride'; saveJourney();
+  S.lastBase = screenRide;
+  const K = Math.max(0, stopsLeft());
+  const pressed = j.alert === 'done';
+  const willAlert = !S.alertOn && ((K === 1 && j.alert !== 'done') || j.alert === 'on');
+  render({
+    name: 'ride', step: STEP.ride, silent: willAlert,   // the alert speaks for itself
+    say: pressed ? t('pressStop') : t('left', { k: K }),
+    sub: pressed ? t('pressSub', { stop: stopName(j.plan.dest_stop) }) : t('rideSub'),
+    speak: pressed ? null : (K === 1 ? 'נשארה עוד תחנה אחת. ' + t('rideSub') : null),
+    mid: `<div class="signrow solo"><div class="sign" aria-label="${esc(t('left', { k: K }))}"><bdi>${K}</bdi></div></div>`,
+    midClass: 'center',
+    buttons: [{ id: 'gotoff', kind: 'sec', label: t('gotOff'), onTap: gotOffEarly }],
+    after(){
+      wakeOn();
+      if (DEMO && SIM.kind !== 'ride'){
+        const all = [P(j.plan.origin_stop)].concat(j.plan.stops.map(P));
+        const rest = all.slice(j.passedIdx + 1);
+        SIM.run('ride', j.lastPos && j.passedIdx >= 0 ? [P(j.lastPos)].concat(rest.slice(1)) : rest, 40);
+      }
+      if (willAlert) openAlert();
+    }
+  });
+}
+function gotOffEarly(){
+  if (!journey) return;
+  if (journey.passedIdx >= journey.plan.stops.length - 1 || !S.pos) return toFinal();
+  finalFromHere();
+}
+function screenPassed(){
+  S.lastBase = screenPassed;
+  render({ name: 'passed', step: STEP.ride, say: t('passed'), sub: t('passedSub'),
+    buttons: [{ id: 'offnow', label: t('gotOff'), onTap: finalFromHere }],
+    after(){ wakeOn(); } });
+}
+async function finalFromHere(){
+  if (!journey || S.busy) return; S.busy = true;
+  SIM.stop();
+  render({ name: 'checking', step: STEP.final, say: t('checking'), noLost: true });
+  const from = S.pos || journey.plan.dest_stop;
+  journey.walkFrom = await walkPath(from, journey.dest, 6000);
+  S.busy = false;
+  toFinal();
+}
+function toOff(){ if (!journey) return; SIM.stop(); journey.step = 'off'; saveJourney(); screenOff(); }
+function screenOff(){
+  S.lastBase = screenOff;
+  render({ name: 'off', step: STEP.ride, say: t('offQ'),
+    buttons: [{ id: 'offyes', kind: 'yes', label: t('offYes'), onTap: toFinal }],
+    after(){ wakeOn(); autoTap('offyes', 3000); } });
+}
+function toFinal(){
+  if (!journey) return;
+  SIM.stop(); closeAlert();
+  journey.step = 'finalwalk'; journey.lastPos = null; saveJourney(); screenFinal();
+}
+function screenFinal(){
+  const j = journey; S.lastBase = screenFinal;
+  const m = round50(j.walkFrom.meters || dist(j.plan.dest_stop, j.dest));
+  render({
+    name: 'finalwalk', step: STEP.final, say: t('finalSay', { m }),
+    mid: '<div class="map" id="mapslot" role="img" aria-label="מפה של הדרך ליעד"></div>',
+    buttons: [{ id: 'here', label: t('here'), onTap: toArrived }],
+    after(){
+      wakeOn();
+      const path = (j.walkFrom.path && j.walkFrom.path.length > 1) ? j.walkFrom.path : [P(j.plan.dest_stop), P(j.dest)];
+      showMap({ path, target: j.dest, label: '📍 ' + (j.dest.name || t('destLbl')) });
+      if (DEMO && SIM.kind !== 'final') SIM.run('final', pathFrom(path, S.pos), 21);
+    }
+  });
+}
+function toArrived(){
+  if (!journey) return;
+  SIM.stop(); wakeOff();
+  journey.step = 'arrived'; saveJourney(); screenArrived();
+}
+function screenArrived(){
+  S.lastBase = screenArrived;
+  render({ name: 'arrived', step: STEP.end, say: t('arrived'), sub: t('arrivedSub'),
+    buttons: [{ id: 'home', label: t('takeHome'), onTap: goHome },
+              { id: 'finish', kind: 'sec', label: t('finished'), onTap: () => { journey = null; sdel(KEY_J); screenDest(); } }] });
+}
+function goHome(){
+  if (settings.home) return planJourney(settings.home);
+  S.homeCtx = 'arrival'; placeScreen('home');
+}
+function stopJourney(){
+  SIM.stop(); wakeOff(); closeAlert();
+  journey = null; sdel(KEY_J);
+  S.overlay = null; S.paused = false;
+  screenDest();
+}
+function resumeStep(){
+  if (!journey) return screenDest();
+  if (journey.lastPos) S.pos = { lat: journey.lastPos.lat, lon: journey.lastPos.lon };
+  switch (journey.step){
+    case 'walk': return screenWalk();
+    case 'stop': return screenStop();
+    case 'ride': return screenRide();
+    case 'passed': return screenPassed();
+    case 'off': return screenOff();
+    case 'finalwalk': return screenFinal();
+    default: return screenDest();
+  }
+}
+function screenResume(){
+  S.lastBase = screenResume;
+  render({ name: 'resume', step: STEP.plan, say: t('resumeQ', { dest: journey.dest.name }),
+    buttons: [{ id: 'yes', kind: 'yes', label: t('yes'), onTap: resumeStep },
+              { id: 'no', kind: 'no', label: t('no'), onTap: () => { journey = null; sdel(KEY_J); screenDest(); } }],
+    after(){ autoTap('yes', 3000); } });
+}
+
+/* ---------- position: one handler for GPS and the demo simulator ---------- */
+function onPos(lat, lon, acc){
+  S.pos = { lat, lon }; S.acc = acc;
+  updateMe();
+  if (!journey || S.paused) return;
+  if (Date.now() - S.lastPosSave > 2000 && ['walk', 'ride', 'finalwalk'].includes(journey.step)){
+    S.lastPosSave = Date.now(); journey.lastPos = { lat, lon }; saveJourney();
+  }
+  if (acc > 60) return;                       // too vague to count anything
+  const pos = S.pos;
+  if (journey.step === 'walk'){
+    const d = dist(pos, journey.plan.origin_stop);
+    if (S.screen === 'walk' && journey.walking){ const s = $('sub'); if (s) s.innerHTML = fmt(t('walkingSub', { m: round50(d) })); }
+    if (d <= 30 && S.screen === 'walk') toStop();
+  } else if (journey.step === 'ride'){
+    rideProgress(pos);
+  } else if (journey.step === 'finalwalk'){
+    if (dist(pos, journey.dest) <= 30 && S.screen === 'finalwalk') toArrived();
+  }
+}
+function rideProgress(pos){
+  const stops = journey.plan.stops, last = stops.length - 1;
+  let changed = false;
+  for (let i = journey.passedIdx + 1; i < stops.length; i++){
+    if (dist(pos, stops[i]) <= 40){ journey.passedIdx = i; changed = true; }
+  }
+  const dd = dist(pos, stops[last]);
+  journey.minDest = journey.minDest == null ? dd : Math.min(journey.minDest, dd);
+  if (changed){
+    saveJourney();
+    if (journey.passedIdx >= last){ if (!S.alertOn) toOff(); return; }   // after "הבנתי" if the alert is up
+    if (S.screen === 'ride') screenRide();                               // speaks the new count
+    return;
+  }
+  // GPS shows we went past the destination stop
+  if (journey.passedIdx < last && journey.minDest < 200 && dd > journey.minDest + 150 && !S.alertOn && S.screen === 'ride'){
+    SIM.stop(); journey.step = 'passed'; saveJourney(); screenPassed();
+  }
+}
+function startTracking(){
+  if (DEMO || S.watch != null || !navigator.geolocation) return;
+  try {
+    S.watch = navigator.geolocation.watchPosition(
+      p => onPos(p.coords.latitude, p.coords.longitude, p.coords.accuracy),
+      () => {}, { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 });
+  } catch (e) {}
+}
+
+/* ---------- demo simulator: moves a fake position along a path ---------- */
+const SIM = {
+  timer: null, kind: null,
+  run(kind, path, mps){
+    this.stop();
+    if (!path || path.length < 2) return;
+    this.kind = kind;
+    const total = pathLen(path), dur = Math.max(1000, total / (mps * SPEED) * 1000);
+    let t = 0;
+    this.timer = setInterval(() => {
+      if (S.paused) return;                    // help / exit / late pause the world
+      t += 200;
+      const p = along(path, Math.min(1, t / dur));
+      onPos(p.lat, p.lon, 8);
+      if (t >= dur) this.stop();
+    }, 200);
+  },
+  stop(){ if (this.timer) clearInterval(this.timer); this.timer = null; this.kind = null; }
+};
+
+/* ---------- the "get off" alert: voice + vibration every 5 s until הבנתי ---------- */
+function alertSpeech(){ return `${t('alert')} ${stopName(journey && journey.plan.dest_stop)}.`; }
+function openAlert(){
+  if (S.alertOn || !journey) return;
+  S.alertOn = true; journey.alert = 'on'; saveJourney();
+  $('alertBig').textContent = t('alert');
+  $('alertWhere').innerHTML = fmt(`"${stopName(journey.plan.dest_stop)}"`);
+  $('alertOk').textContent = t('gotIt');
+  $('alert').hidden = false;
+  S.trail.push([Date.now(), 'alert']);
+  try { $('alertOk').focus({ preventScroll: true }); } catch (e) {}
+  const ring = () => { speak(alertSpeech()); vib([500, 200, 500, 200, 500]); };
+  ring();
+  S.alertTimer = setInterval(ring, 5000);
+  if (AUTO) S.alertAuto = setTimeout(() => $('alertOk').click(), D(4000));
+}
+function closeAlert(){
+  if (S.alertTimer) clearInterval(S.alertTimer);
+  if (S.alertAuto) clearTimeout(S.alertAuto);
+  S.alertTimer = S.alertAuto = null;
+  if (S.alertOn){ vib(0); try { speechSynthesis.cancel(); } catch (e) {} }
+  S.alertOn = false; $('alert').hidden = true;
+}
+$('alertOk').addEventListener('click', tap(() => {
+  closeAlert();
+  if (!journey) return;
+  journey.alert = 'done'; saveJourney();
+  if (journey.passedIdx >= journey.plan.stops.length - 1) toOff(); else screenRide();
+}));
+
+/* ---------- "I'm not sure where I am" ---------- */
+function nearestStopName(pos){
+  if (!journey || !pos) return '';
+  const all = [journey.plan.origin_stop].concat(journey.plan.stops);
+  let best = null, bd = 300;
+  all.forEach(s => { const d = dist(pos, s); if (d < bd){ bd = d; best = s; } });
+  return best ? best.name : '';
+}
+function routeSummary(){
+  if (!journey) return 'עוד לא נבחר יעד';
+  const p = journey.plan;
+  return `הליכה לתחנה ${p.origin_stop.name}, קו ${p.line} עד ${p.dest_stop.name}, ואז הליכה אל ${journey.dest.name}`;
+}
+function localWhere(street, near){
+  const you = t('you'), go = g('המשך', 'המשיכי');
+  let s1 = street ? `${you} ברחוב ${street}` : '';
+  if (near) s1 = s1 ? `${s1}, ליד התחנה "${near}"` : `${you} ליד התחנה "${near}"`;
+  if (s1) s1 += '.';
+  let s2 = 'אפשר להגיד לי לאן נוסעים.';
+  if (journey){
+    const p = journey.plan;
+    const step = journey.step;
+    if (step === 'walk') s2 = `${go} ללכת לתחנה "${p.origin_stop.name}".`;
+    else if (step === 'stop') s2 = `${go} לחכות לקו ${p.line}.`;
+    else if (step === 'ride') s2 = `${go} לשבת. אני אגיד לך מתי לרדת.`;
+    else if (step === 'passed') s2 = `${g('רד', 'רדי')} בתחנה הבאה.`;
+    else s2 = `${go} ללכת אל "${journey.dest.name}".`;
+  }
+  return [s1, s2].filter(Boolean).join(' ');
+}
+async function whereAmI(){
+  const t0 = Date.now();
+  const pos = S.pos || (journey && journey.origin) || FALLBACK.start;
+  const rev = await api('GET', `/api/reverse?lat=${pos.lat}&lon=${pos.lon}`, null, 3000);
+  const street = (rev.ok && rev.street) || (DEMO ? 'דיזנגוף' : '');
+  const near = nearestStopName(pos);
+  const r = await api('POST', '/api/where-am-i', {
+    lat: pos.lat, lon: pos.lon, street, step: journey ? journey.step : (S.lastBase ? S.screen : ''),
+    route: routeSummary(), gender: settings.gender
+  }, Math.max(1500, 8000 - (Date.now() - t0)));
+  const txt = (r.ok && typeof r.text === 'string') ? r.text.trim() : '';
+  // the model's sentence is used only if it is short, Hebrew, and free of Latin letters
+  if (txt && txt.length <= 160 && !/[A-Za-z]/.test(txt) && /[֐-׿]/.test(txt)) return txt;
+  return localWhere(street, near);
+}
+async function openHelp(){
+  if (S.overlay === 'help') return;
+  if (S.rec){ try { S.rec.abort(); } catch (e) {} S.rec = null; }
+  S.overlay = 'help'; S.paused = true;
+  const tok = ++S.helpTok;
+  const btns = () => [{ id: 'helpok', label: t('helpOk'), onTap: closeOverlay }, contactBtn('sec')];
+  render({ name: 'help', step: STEP.help, say: t('whereCheck'), noLost: true, buttons: btns() });
+  const text = await whereAmI();
+  if (S.overlay !== 'help' || tok !== S.helpTok) return;
+  render({ name: 'help', step: STEP.help, say: text, noLost: true, buttons: btns() });
+}
+function closeOverlay(){
+  S.overlay = null; S.paused = false;
+  (S.lastBase || screenDest)();
+}
+
+/* ---------- Android back: never exit silently ---------- */
+function armHistory(){
+  try { if (!history.state || history.state.laan !== 1){ history.pushState({ laan: 1 }, ''); } S.histArmed = true; } catch (e) {}
+}
+function openExit(){
+  S.overlay = 'exit'; S.paused = true;
+  render({ name: 'exit', step: STEP.help, say: t('exitQ'),
+    buttons: [{ id: 'keep', label: t('exitNo'), onTap: closeOverlay },
+              { id: 'stopit', kind: 'no', label: t('exitYes'), onTap: stopJourney }] });
+}
+window.addEventListener('popstate', () => {
+  try { history.pushState({ laan: 1 }, ''); } catch (e) {}
+  if (S.alertOn){ speak(alertSpeech()); return; }
+  if (S.overlay){ closeOverlay(); return; }
+  const journeyScreens = ['walk', 'stop', 'ride', 'passed', 'off', 'finalwalk', 'planning', 'checking'];
+  if (journey && journey.step !== 'arrived' && journeyScreens.includes(S.screen)){ openExit(); return; }
+  if (S.screen === 'confirm'){ S.lastText ? screenDest(S.lastText) : screenDest(); return; }
+  if (S.screen === 'settings'){ screenDest(); return; }
+  speak(S.speech);                              // nowhere to go back to: repeat, never leave
+});
+
+/* ---------- wake lock during the walk and the ride ---------- */
+async function wakeOn(){
+  S.wantWake = true;
+  try {
+    if ('wakeLock' in navigator && !S.wake && document.visibilityState === 'visible'){
+      S.wake = await navigator.wakeLock.request('screen');
+      S.wake.addEventListener('release', () => { S.wake = null; });
+    }
+  } catch (e) {}
+}
+function wakeOff(){ S.wantWake = false; try { if (S.wake) S.wake.release(); } catch (e) {} S.wake = null; }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.wantWake) wakeOn(); });
+
+/* ---------- settings: one choice per page ---------- */
+const SETTINGS_PAGES = [
+  { say: 'גודל הכתב', key: 'size', opts: [['l', 'גדול'], ['xl', 'ענק']] },
+  { say: 'צבעי המסך', key: 'contrast', opts: [['normal', 'רגיל'], ['hc', 'שחור־צהוב']] },
+  { say: 'להקריא את ההוראות?', key: 'voice', opts: [[true, 'כן'], [false, 'לא']] },
+  { say: 'מהירות הדיבור', key: 'rate', opts: [[0.85, 'רגיל'], [0.7, 'איטי']] },
+  { say: 'איך לפנות אליך?', key: 'gender', opts: [['m', 'אתה'], ['f', 'את']] },
+  { say: 'כתובת הבית', kind: 'home' },
+  { say: 'מספר לעזרה', kind: 'contact' }
+];
+function screenSettings(i, silent){
+  S.lastBase = () => screenSettings(i);
+  const pg = SETTINGS_PAGES[i], last = i === SETTINGS_PAGES.length - 1;
+  let mid = '', sub = null;
+  if (pg.key){
+    mid = `<div class="opts">${pg.opts.map((o, k) => {
+      const on = settings[pg.key] === o[0];
+      return `<button type="button" class="opt" id="opt${k}" aria-pressed="${on}">${on ? '✓ ' : ''}${esc(o[1])}</button>`;
+    }).join('')}</div>`;
+  } else if (pg.kind === 'home'){
+    sub = settings.home ? settings.home.name : t('noHome');
+    mid = `<button type="button" class="b-sec" id="chg">${settings.home ? 'לשנות את הכתובת' : 'להוסיף כתובת'}</button>`;
+  } else {
+    sub = settings.contact || t('noContact');
+    mid = `<button type="button" class="b-sec" id="chg">${settings.contact ? 'לשנות את המספר' : 'להוסיף מספר'}</button>`;
+  }
+  render({
+    name: 'settings', step: STEP.settings(i + 1, SETTINGS_PAGES.length), say: pg.say, sub, mid, midClass: 'center', silent,
+    buttons: last ? [{ id: 'done', label: t('setDone'), onTap: () => screenDest() }]
+                  : [{ id: 'next', label: t('next'), onTap: () => screenSettings(i + 1) },
+                     { id: 'exit', kind: 'sec', label: t('setExit'), onTap: () => screenDest() }],
+    after(){
+      if (pg.key) pg.opts.forEach((o, k) => $('opt' + k).addEventListener('click', tap(() => {
+        settings[pg.key] = o[0]; saveSettings(); applySettings();
+        screenSettings(i, true);
+        speak(t('chosen', { v: o[1] }));
+      })));
+      const c = $('chg');
+      if (c) c.addEventListener('click', tap(() => {
+        if (pg.kind === 'home'){ S.homeCtx = 'settings'; placeScreen('home'); } else screenContact('settings');
+      }));
+    }
+  });
+}
+
+/* ---------- map: Leaflet, lazy, reused; a plain schematic when offline ---------- */
+const MAP = { el: null, map: null, layer: null, me: null, loading: null, opts: null };
+function loadLeaflet(){
+  if (window.L) return Promise.resolve(true);
+  if (MAP.loading) return MAP.loading;
+  MAP.loading = new Promise(res => {
+    const css = document.createElement('link');
+    css.rel = 'stylesheet'; css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    css.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY='; css.crossOrigin = '';
+    document.head.appendChild(css);
+    const s = document.createElement('script');
+    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    s.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo='; s.crossOrigin = '';
+    s.onload = () => res(!!window.L); s.onerror = () => res(false);
+    setTimeout(() => res(!!window.L), 8000);
+    document.head.appendChild(s);
+  });
+  return MAP.loading;
+}
+function schematic(opts){
+  const pts = opts.path.concat([P(opts.target)], S.pos ? [P(S.pos)] : []);
+  const lat0 = pts[0][0] * Math.PI / 180;
+  const xy = p => [p[1] * Math.cos(lat0), -p[0]];
+  const ps = pts.map(xy);
+  let x0 = Math.min(...ps.map(p => p[0])), x1 = Math.max(...ps.map(p => p[0]));
+  let y0 = Math.min(...ps.map(p => p[1])), y1 = Math.max(...ps.map(p => p[1]));
+  const w = Math.max(x1 - x0, 1e-5), h = Math.max(y1 - y0, 1e-5), pad = Math.max(w, h) * 0.2;
+  x0 -= pad; y0 -= pad;
+  const vb = `${x0} ${y0} ${w + 2 * pad} ${h + 2 * pad}`;
+  const line = opts.path.map(p => xy(p).join(',')).join(' ');
+  const tg = xy(P(opts.target)), me = S.pos ? xy(P(S.pos)) : xy(opts.path[0]);
+  const r = Math.max(w, h) * 0.035;
+  return `<svg viewBox="${vb}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <polyline points="${line}" fill="none" stroke="#0B3D91" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="${tg[0]}" cy="${tg[1]}" r="${r * 1.3}" fill="#B00020" stroke="#fff" stroke-width="4" vector-effect="non-scaling-stroke"/>
+    <circle id="schemMe" cx="${me[0]}" cy="${me[1]}" r="${r}" fill="#0B3D91" stroke="#fff" stroke-width="4" vector-effect="non-scaling-stroke"/>
+  </svg>`;
+}
+function showMap(opts){
+  const slot = $('mapslot'); if (!slot || !opts.path || opts.path.length < 1) return;
+  MAP.opts = opts;
+  slot.innerHTML = schematic(opts);
+  if (!MAP.el){ MAP.el = document.createElement('div'); MAP.el.id = 'map'; }
+  slot.appendChild(MAP.el);
+  loadLeaflet().then(ok => {
+    if (!ok || MAP.opts !== opts || !MAP.el.isConnected) return;
+    try { leafletDraw(opts); } catch (e) {}
+  });
+}
+function leafletDraw(opts){
+  if (!MAP.map){
+    MAP.map = L.map(MAP.el, { zoomControl: false, doubleClickZoom: false, scrollWheelZoom: false, touchZoom: false,
+                              boxZoom: false, keyboard: false, attributionControl: true });
+    MAP.map.attributionControl.setPrefix(false);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© תורמי OpenStreetMap' }).addTo(MAP.map);
+    MAP.layer = L.layerGroup().addTo(MAP.map);
+  }
+  MAP.map.invalidateSize();
+  MAP.layer.clearLayers();
+  L.polyline(opts.path, { color: '#0B3D91', weight: 8, opacity: 0.9, interactive: false }).addTo(MAP.layer);
+  L.marker(P(opts.target), { interactive: false, keyboard: false,
+    icon: L.divIcon({ className: 'lf-icon', iconSize: [0, 0], iconAnchor: [0, 0],
+      html: `<span class="pin-head"></span><span class="lbl pin-lbl">${fmt(opts.label)}</span>` }) }).addTo(MAP.layer);
+  const me = S.pos ? P(S.pos) : opts.path[0];
+  MAP.me = L.marker(me, { interactive: false, keyboard: false, zIndexOffset: 1000,
+    icon: L.divIcon({ className: 'lf-icon', iconSize: [0, 0], iconAnchor: [0, 0],
+      html: `<span class="me-dot"></span><span class="lbl me-lbl">${esc(t('you'))}</span>` }) }).addTo(MAP.layer);
+  MAP.map.fitBounds(L.latLngBounds(opts.path.concat([P(opts.target), me])),
+    { paddingTopLeft: [40, 110], paddingBottomRight: [40, 80], maxZoom: 18, animate: false });
+  const shown = MAP.el.parentNode && MAP.el.parentNode.querySelector('svg');
+  if (shown) shown.style.display = 'none';
+}
+function updateMe(){
+  if (!S.pos) return;
+  if (MAP.me && MAP.el && MAP.el.isConnected){ try { MAP.me.setLatLng(P(S.pos)); } catch (e) {} }
+  const c = document.getElementById('schemMe');
+  if (c && MAP.opts){
+    const lat0 = (MAP.opts.path[0] || P(MAP.opts.target))[0] * Math.PI / 180;
+    c.setAttribute('cx', S.pos.lon * Math.cos(lat0)); c.setAttribute('cy', -S.pos.lat);
+  }
+}
+
+/* ---------- start ---------- */
+$('again').addEventListener('click', tap(() => speak(S.speech)));
+$('lost').addEventListener('click', tap(openHelp));
+function init(){
+  applySettings();
+  if (DEMO) $('badge').hidden = false;
+  try { history.replaceState({ laan: 0 }, ''); history.pushState({ laan: 1 }, ''); } catch (e) {}
+  if (!settings.done){ screenWelcome(); return; }
+  startTracking();
+  if (journey && journey.step && journey.step !== 'arrived' && journey.dest && journey.plan) screenResume();
+  else { journey = null; screenDest(); }
+}
+init();
+try {
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol))
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+} catch (e) {}
+</script>
+</body>
+</html>
