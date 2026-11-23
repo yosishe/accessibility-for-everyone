@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>לאן? — כל המסכים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&family=Secular+One&display=swap">
+<style>
+:root{
+  --ground:#F7F3EC; --surface:#FFFFFF; --surface2:#EFE7D8; --ink:#1A1814; --ink2:#4A443B;
+  --blue:#0B3D91; --green:#12602F; --red:#B00020; --yellow:#FFD400;
+  --lift:0 1px 2px rgba(26,24,20,.08), 0 8px 24px rgba(26,24,20,.06);
+  --k:.6;                      /* phone scale on desktop; set from JS on phones */
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; background:var(--ground); color:var(--ink); }
+body{ font-family:"Rubik", Arial, sans-serif; font-size:18px; line-height:1.5; -webkit-text-size-adjust:100%; }
+a{ color:var(--blue); }
+.wrap{ max-width:1320px; margin-inline:auto; padding:48px 32px 96px; }
+
+/* ---- header ---- */
+.head{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:24px 48px; padding-bottom:32px; border-bottom:2px solid var(--surface2); }
+.brand{ display:flex; align-items:center; gap:20px; }
+.plate{ font-family:"Secular One", Arial, sans-serif; font-size:44px; line-height:1; background:#fff; border:3px solid var(--ink); border-radius:8px; padding:8px 14px 4px; }
+.band{ background:var(--yellow); border-radius:14px; padding:10px; }
+h1{ font-size:40px; font-weight:800; line-height:1.15; margin:0; letter-spacing:-.01em; }
+.lede{ margin:8px 0 0; max-width:60ch; color:var(--ink2); font-size:19px; }
+.links{ display:flex; flex-wrap:wrap; gap:12px; }
+.btn{ display:inline-flex; align-items:center; gap:10px; font-weight:700; font-size:18px; text-decoration:none; padding:12px 20px 14px; border-radius:12px; }
+.btn.pri{ background:var(--blue); color:#fff; box-shadow:inset 0 -4px 0 #072A66; }
+.btn.sec{ background:var(--surface2); color:var(--ink); }
+.btn svg{ width:18px; height:18px; fill:currentColor; }
+
+/* ---- design system strip ---- */
+.sys{ display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-top:32px; }
+.tile{ background:var(--surface); border-radius:18px; padding:20px 22px; box-shadow:var(--lift); }
+.tile h3{ margin:0 0 12px; font-size:15px; font-weight:700; letter-spacing:.02em; color:var(--ink2); }
+.sw{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }
+.sw div{ border-radius:10px; padding:44px 10px 8px; font-size:13px; font-weight:500; line-height:1.35; }
+.sw b{ display:block; font-size:13px; }
+.type p{ margin:0 0 6px; }
+.t1{ font-size:30px; font-weight:700; line-height:1.2; }
+.t2{ font-size:22px; font-weight:400; color:var(--ink2); }
+.t3{ font-family:"Secular One", Arial, sans-serif; font-size:44px; line-height:1; }
+.tiers{ display:flex; flex-direction:column; gap:8px; }
+.tiers span{ display:flex; align-items:center; justify-content:center; height:44px; border-radius:10px; font-weight:700; font-size:16px; }
+.note{ margin:10px 0 0; font-size:14px; color:var(--ink2); }
+
+/* ---- sections ---- */
+section{ margin-top:64px; }
+.sh{ display:flex; align-items:baseline; gap:16px; margin-bottom:8px; }
+.sh .no{ font-family:"Secular One", Arial, sans-serif; font-size:22px; background:var(--yellow); border-radius:8px; padding:2px 10px; }
+h2{ font-size:30px; font-weight:800; margin:0; }
+.sd{ margin:0 0 28px; color:var(--ink2); max-width:72ch; }
+.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(calc(412px * var(--k) + 24px), 1fr)); gap:40px 28px; align-items:start; }
+
+/* a phone: dark body, punch-hole camera, the real app inside at 412×915 */
+.phone{ margin:0; display:flex; flex-direction:column; align-items:center; gap:16px; }
+.body{ position:relative; padding:10px; border-radius:28px; background:#141414; box-shadow:0 0 0 1.5px #2C2C2C, 0 18px 40px rgba(40,30,10,.22); }
+.body::before{ content:""; position:absolute; top:17px; left:50%; width:10px; height:10px; margin-left:-5px; border-radius:50%; background:#000; box-shadow:0 0 0 2px #262626; z-index:2; }
+.screen{ position:relative; width:calc(412px * var(--k)); height:calc(915px * var(--k)); overflow:hidden; border-radius:20px; background:var(--ground); direction:ltr; }
+.screen iframe{ position:absolute; top:0; left:0; width:412px; height:915px; border:0; transform:scale(var(--k)); transform-origin:0 0; background:var(--ground); }
+figcaption{ width:calc(412px * var(--k) + 20px); font-size:20px; line-height:1.4; }
+figcaption b{ display:block; font-size:20px; font-weight:700; }
+figcaption span{ display:block; font-size:17px; color:var(--ink2); margin-top:2px; }
+figcaption code{ font-family:ui-monospace, Menlo, monospace; font-size:13px; color:var(--ink2); direction:ltr; unicode-bidi:isolate; }
+
+/* the 28 cases, as a numbered table of contents */
+.cases{ columns:3 280px; column-gap:32px; margin:0 0 32px; padding:24px 28px; background:var(--surface); border-radius:18px; box-shadow:var(--lift); list-style:none; counter-reset:c; }
+.cases h4{ margin:0 0 6px; font-size:15px; color:var(--ink2); break-after:avoid; }
+.cases li{ counter-increment:c; break-inside:avoid; padding:4px 0; font-size:17px; }
+.cases li.grp{ counter-increment:none; padding-top:10px; }
+.cases li.grp::before{ content:none; }
+.cases li::before{ content:counter(c); display:inline-block; min-width:28px; font-family:"Secular One", Arial, sans-serif; color:var(--blue); }
+.cases a{ color:var(--ink); text-decoration:none; border-bottom:2px solid var(--surface2); }
+.cases a:hover{ border-color:var(--blue); }
+.foot{ margin-top:72px; padding-top:24px; border-top:2px solid var(--surface2); color:var(--ink2); font-size:15px; }
+
+/* phones: each screen full device width, no bezel, one per row */
+@media (max-width: 599px){
+  .wrap{ padding:24px 0 64px; }
+  .head, .sys, .sh, .sd, .cases, .foot{ margin-inline:16px; }
+  h1{ font-size:30px; }
+  .grid{ grid-template-columns:1fr; gap:40px; }
+  .body{ padding:0; border-radius:0; background:none; box-shadow:none; }
+  .body::before{ display:none; }
+  .screen{ border-radius:0; width:100vw; height:calc(915px * var(--k)); }
+  figcaption{ width:auto; padding-inline:16px; align-self:stretch; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div>
+      <div class="brand"><div class="band"><div class="plate">לאן?</div></div><h1>כל המסכים</h1></div>
+      <p class="lede">מדריך אוטובוס לאנשים בני 75 ומעלה, על אנדרואיד. הוראה אחת בכל מסך, בקול ובכתב. כל טלפון כאן הוא האפליקציה עצמה, שרצה על נתוני הדמו — אפשר ללחוץ בתוכו.</p>
+    </div>
+    <nav class="links">
+      <a class="btn pri" href="index.html?demo=1&amp;auto=1"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg>דמו חי</a>
+      <a class="btn sec" href="index.html?demo=1&amp;frame=1">האפליקציה בתוך טלפון</a>
+      <a class="btn sec" href="index.html?demo=1&amp;auto=1&amp;lost=1">דמו: התרחקות מהדרך</a>
+    </nav>
+  </header>
+
+  <div class="sys" aria-label="מערכת העיצוב">
+    <div class="tile">
+      <h3>צבע · כל זוג טקסט ≥ 7:1</h3>
+      <div class="sw">
+        <div style="background:#F7F3EC;box-shadow:inset 0 0 0 1.5px #E2D9C8"><b>רקע</b>#F7F3EC</div>
+        <div style="background:#EFE7D8"><b>משטח</b>#EFE7D8 · 14.4</div>
+        <div style="background:#1A1814;color:#F7F3EC"><b>דיו</b>16.0 : 1</div>
+        <div style="background:#0B3D91;color:#fff"><b>פעולה</b>10.0 : 1</div>
+        <div style="background:#12602F;color:#fff"><b>כן</b>7.7 : 1</div>
+        <div style="background:#B00020;color:#fff"><b>לא</b>7.3 : 1</div>
+      </div>
+    </div>
+    <div class="tile type">
+      <h3>טיפוגרפיה · Rubik לממשק, Secular One לשלט</h3>
+      <p class="t1">עולים על קו 5</p>
+      <p class="t2">משפט עזר · 32 פיקסלים ומעלה</p>
+      <p><span class="band" style="display:inline-block;padding:6px"><span class="plate" style="font-size:36px">5</span></span></p>
+    </div>
+    <div class="tile">
+      <h3>כפתורים · שלוש דרגות</h3>
+      <div class="tiers">
+        <span style="background:#0B3D91;color:#fff;box-shadow:inset 0 -4px 0 #072A66">ראשי · 92 פיקסלים</span>
+        <span style="background:#12602F;color:#fff">כן</span>
+        <span style="background:#EFE7D8">משני · משטח, בלי מסגרת</span>
+      </div>
+      <p class="note">כל מטרה למגע ≥ 72 פיקסלים. "שקט" (הגדרות, לא עכשיו) מתחת לסרגל התחתון.</p>
+    </div>
+  </div>
+
+  <main id="sections"></main>
+
+  <p class="foot">הקישור לכל מסך הוא <code>index.html?screen=&lt;id&gt;</code> — נתוני דמו, בלי הרשאות, בלי קול (אלא אם מוסיפים <code>&amp;voice=1</code>). <code>&amp;g=f</code> לפנייה בלשון נקבה, <code>&amp;size=xl</code> לכתב ענק, <code>&amp;theme=hc</code> לשחור־צהוב.</p>
+</div>
+
+<script>
+'use strict';
+const SECTIONS = [
+  { t: 'כניסה ראשונה', d: 'חמישה צעדים קצרים, פעם אחת בלבד. כל מסך שואל דבר אחד.', s: [
+    ['welcome', 'ברוכים הבאים', 'שלט התחנה הצהוב הוא החתימה של האפליקציה. כפתור אחד בלבד.'],
+    ['gender', 'אתה / את', 'בחירה אחת, פעם אחת — כל ההוראות מתאימות את עצמן.'],
+    ['home', 'כתובת הבית', 'מיקרופון גדול או הקלדה. "לשמור" מופיע רק כשיש מה לשמור.'],
+    ['contact', 'מי עוזר לי', 'קודם מספר, אחר כך שם ("הבת שלי רותי"), כדי לכתוב "להתקשר לרותי".'],
+    ['perms', 'למה צריך הרשאות', 'מסבירים לפני שהטלפון שואל, כדי שלא ילחצו "חסום".'],
+    ['dest-first', 'לאן? — בפעם הראשונה', 'רק מיקרופון ושדה כתיבה. ההגדרות קטנות, מתחת לסרגל.']
+  ]},
+  { t: 'כניסה חוזרת', d: 'מי שכבר נסע מקבל קיצורים: הביתה ושני היעדים האחרונים.', s: [
+    ['dest-return', 'שלום שוב!', 'הביתה ושני יעדים אחרונים — לחיצה אחת עד היציאה.'],
+    ['listening', 'אני מקשיב', 'הטבעת פועמת לאט, והמשפט מופיע גם בכתב.'],
+    ['confirm', 'זה המקום?', 'המשפט שואל, הכרטיס מראה. "כן" ירוק למעלה, "לא" אדום למטה.'],
+    ['planning', 'מחפש אוטובוס', 'פס התקדמות רגוע, לא ספינר — עד 8 שניות, ואז דרך גיבוי.'],
+    ['resume', 'להמשיך את הדרך?', 'שיחת טלפון, נעילה או טעינה מחדש לא מאבדות את הנסיעה.'],
+    ['settings', 'הגדרות', 'בחירה אחת בכל עמוד, בלי רשימה ארוכה לגלול.']
+  ]},
+  { t: 'הדרך', d: 'פס המסע למעלה (הליכה ← תחנה ← אוטובוס ← יעד) מראה תמיד איפה אני בדרך. בכל מסך נתון אחד גדול.', s: [
+    ['walk', 'הליכה לתחנה', 'המרחק הוא הנתון הגדול. המפה גדולה וקריאה, עם תוויות כבדות.'],
+    ['stop', 'בתחנה', 'שלט הקו (120) הוא הגיבור; הדקות עד ההגעה קטנות ממנו (72), כדי שלא יהיו שני "5" זהים.'],
+    ['ride', 'באוטובוס', 'מספר אחד גדול: כמה תחנות נשארו. השלט הצהוב שמור למספרי קווים בלבד.'],
+    ['alert', 'יורדים בתחנה הבאה', 'המסך היחיד שמהבהב (צהוב/שחור), עם קול ורטט כל 5 שניות עד "הבנתי".'],
+    ['off', 'ירדת?', 'אישור קצר לפני ההליכה האחרונה.'],
+    ['finalwalk', 'הליכה ליעד', 'אותו מבנה כמו ההליכה לתחנה — בלי הפתעות.'],
+    ['arrived', 'הגעת!', 'שם היעד וזמן הדרך. "קח אותי הביתה" בלחיצה אחת.']
+  ]},
+  { t: 'אני לא בטוח איפה אני', d: 'קודם מרגיעים, אחר כך מאשרים לפי משהו שרואים בעיניים (המיקום בעיר טועה ב־30 עד 80 מטר), ורק אז צעד אחד הבא.', s: [
+    ['lost-calm', 'קודם מרגיעים', 'משפט אחד שמרגיע. בינתיים בודקים מיקום ומה יש מסביב.'],
+    ['lost-landmark', 'אתה רואה …?', 'מאשרים לפי בית מרקחת, בנק או התחנה עצמה — לא לפי נקודה על מפה.'],
+    ['lost-ask', 'מה אתה רואה?', 'אם לא זיהה: לספר במילים מה רואים, ואנחנו מתאימים למקומות שבסביבה.'],
+    ['lost-orient', 'צעד אחד הבא', 'איפה אני ביחס לדרך, ופעולה אחת.'],
+    ['offroute', 'התרחקת מהדרך', 'שאלה עדינה, לא אזעקה — "אני בסדר" אינו אדום. לכל היותר פעם ב־3 דקות.']
+  ]},
+  { t: 'עזרה מאדם', d: 'שליחת מיקום או שיחה לאדם קרוב. שום דבר לא נשלח בלי לחיצה.', s: [
+    ['help', 'לקרוא לרותי', 'שני כפתורים גדולים: לשלוח איפה אני, או להתקשר.'],
+    ['sent', 'נשלח', 'מראים בדיוק מה נשלח: איפה אני, לאן אני נוסע, איזה קו כדאי לקחת.'],
+    ['nocontact', 'אין עדיין איש קשר', 'מוסיפים מספר במקום, או מתקשרים למוקד התחבורה הציבורית.']
+  ]},
+  { t: 'מצבי קצה', d: 'אף פעם לא נתקעים: לכל תקלה יש משפט רגוע ופעולה אחת.', s: [
+    ['nodirect', 'אין קו ישיר', 'לעולם לא מציעים החלפה — מציעים עזרה.'],
+    ['notfound', 'לא מצאתי', 'בלי קוד שגיאה. מבקשים שם רחוב ועיר.'],
+    ['exit', 'כפתור "חזור"', 'האפליקציה לא נסגרת בטעות. "להמשיך" הוא הכפתור העליון.']
+  ]}
+];
+/* the 28 cases (spec-artifact.md "All cases"); `shown` = already shown above */
+const CASES = [
+  ['לפני היציאה', [['nounderstand', 'לא הבנתי את הדיבור'], ['notfound', 'המקום לא נמצא', 1], ['ambiguous', 'שני מקומות באותו שם'], ['toofar', 'רחוק מדי לאוטובוס אחד'],
+    ['nodirect', 'אין קו ישיר', 1], ['tooclose', 'קרוב — עדיף ללכת'], ['nightnoservice', 'אין אוטובוסים עכשיו'], ['noperm', 'אין הרשאת מיקום']]],
+  ['בהליכה לתחנה', [['offroute', 'מתרחק מהדרך', 1], ['wrongside', 'הצד הלא נכון של הכביש'], ['gpsweak', 'מיקום לא מדויק']]],
+  ['בתחנה', [['late', 'האוטובוס מתאחר'], ['missed', 'האוטובוס עבר'], ['wrongbus', 'עלה על קו לא נכון'], ['waitlong', 'מחכה הרבה זמן']]],
+  ['באוטובוס', [['alert', 'יורדים בתחנה הבאה', 1], ['passed', 'עבר את התחנה'], ['alertmissed', 'לא לחץ "הבנתי"'], ['detour', 'האוטובוס סטה מהמסלול']]],
+  ['בכל מקום', [['lost-calm', '"איפה אני?"', 1], ['help', 'עזרה ושליחת מיקום', 1], ['nocontact', 'אין איש קשר', 1], ['battery', 'סוללה חלשה'],
+    ['offline', 'אין אינטרנט'], ['resume', 'חזרה באמצע הדרך', 1], ['exit', 'כפתור חזור / לעצור', 1], ['novoice', 'אין קול עברי בטלפון'], ['arrived', 'הגעתי · הביתה', 1]]]
+];
+const WHY = {
+  nounderstand: 'בקשה לחזור לאט, והשדה לכתיבה תמיד שם.', ambiguous: 'שני כפתורים גדולים עם שמות הרחובות.',
+  toofar: 'לא מציעים מסלול מסובך — מציעים עזרה.', tooclose: 'פחות מ־400 מטר: הוראות הליכה בלבד.',
+  nightnoservice: 'השעה של האוטובוס הבא היא הנתון הגדול.', noperm: 'מסבירים איך לאפשר, בצעד אחד.',
+  wrongside: 'אותה תחנה, הכיוון ההפוך — לחצות במעבר חציה.', gpsweak: 'עוברים בשקט ללחיצה ידנית "הגעתי".',
+  late: 'זה קורה. הספירה לאחור נשארת.', missed: 'האוטובוס הבא של אותו קו, עם ספירה חדשה.',
+  wrongbus: 'לרדת בתחנה הבאה, ואנחנו מחפשים דרך משם.', waitlong: 'אפשר לשבת. נגיד כשהוא מגיע.',
+  passed: 'בלי בהלה: לרדת בתחנה הבאה, ונדריך בחזרה.', alertmissed: 'אחרי 30 שניות: הקול חוזר, עם "לחץ על הכפתור האדום".',
+  detour: 'האוטובוס בדרך אחרת — אנחנו עוקבים.', battery: 'מציעים לשלוח מיקום לפני שהסוללה נגמרת.',
+  offline: 'ממשיכים לפי המסלול השמור.', novoice: 'הודעה אחת, פעם אחת — ההוראות ממשיכות בכתב.'
+};
+const phone = (id, name, why) => `<figure class="phone" id="s-${id}">
+  <div class="body"><div class="screen"><iframe src="index.html?screen=${id}" title="${name}" loading="lazy" tabindex="-1"></iframe></div></div>
+  <figcaption><b>${name}</b><span>${why}</span><code>?screen=${id}</code></figcaption></figure>`;
+let html = '';
+SECTIONS.forEach((sec, i) => {
+  html += `<section><div class="sh"><span class="no">${i + 1}</span><h2>${sec.t}</h2></div><p class="sd">${sec.d}</p>
+    <div class="grid">${sec.s.map(s => phone(...s)).join('')}</div></section>`;
+});
+let n = 0, list = '';
+const newOnes = [];
+CASES.forEach(([group, items]) => {
+  list += `<li class="grp"><h4>${group}</h4></li>`;
+  items.forEach(([id, label, shown]) => {
+    n++;
+    list += `<li><a href="#s-${id}">${label}</a></li>`;
+    if (!shown) newOnes.push([id, label, WHY[id] || '']);
+  });
+});
+html += `<section><div class="sh"><span class="no">${SECTIONS.length + 1}</span><h2>מקרים</h2></div>
+  <p class="sd">${n} מקרים שחשבנו עליהם — כל אחד הוא מסך אמיתי באפליקציה, עם עברית פשוטה ופעולה אחת. מקרים שכבר מוצגים למעלה מקושרים אליהם.</p>
+  <ol class="cases">${list}</ol>
+  <div class="grid">${newOnes.map(s => phone(...s)).join('')}</div></section>`;
+document.getElementById('sections').innerHTML = html;
+
+/* on a phone, each screen fills the device width; on desktop, a 0.6 phone in a bezel */
+function fit(){
+  const w = window.innerWidth;
+  document.documentElement.style.setProperty('--k', w < 600 ? (w / 412).toFixed(4) : (w < 1100 ? 0.52 : 0.6));
+}
+fit(); window.addEventListener('resize', fit);
+</script>
+</body>
+</html>
